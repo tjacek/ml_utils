@@ -5,7 +5,7 @@ from sklearn import manifold
 def tsne_reduction(data,dim=2):
     tsne = manifold.TSNE(n_components=dim, init='pca', random_state=0)
     X_prim=tsne.fit_transform(data.X)
-    return dataset.Dataset(X_prim)
+    return X_prim
 
 def lle_reduction(data,dim=2,n_neighbors=20):
     lle= manifold.LocallyLinearEmbedding(n_neighbors, n_components=dim,
@@ -25,11 +25,18 @@ def spectral_reduction(data,dim=2):
     X_prim=embedder.fit_transform(data.X)
     return dataset.Dataset(X_prim)
 
-def show_reduce(path):
+def show_unlabeled(path):
     data=dataset.csv_to_dataset(path)
     tsne_data=hessian_reduction(data)
     plot.unlabeled_plot2D(tsne_data)
 
+def show_labeled(path):
+    data=dataset.labeled_to_dataset(path)
+    tsne_X=tsne_reduction(data)
+    tsne_data=dataset.LabeledDataset(tsne_X,data.y)
+    plot.labeled_plot2D(tsne_data)
+
+
 if __name__ == "__main__":
-    path="/home/user/df/imgs.csv"
-    show_reduce(path)
+    path="/home/user/df/exp3/dataset.lb"
+    show_labeled(path)

@@ -13,7 +13,9 @@ class Dataset(object):
 class LabeledDataset(Dataset):
     def __init__(self, data_array,labels):
         super(LabeledDataset, self).__init__(data_array)
-        self.labels=labels
+        self.y=np.array(labels)
+        self.n_cats=max(labels)
+        self.cat_names=[str(i) for i in range(self.n_cats)]
 
 def csv_to_dataset(path):
     data_list=read.read_csv_file(path)
