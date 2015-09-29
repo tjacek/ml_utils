@@ -36,11 +36,20 @@ def random_eval(dataset):
     X_train, X_test, y_train, y_test = cv.train_test_split(
                                        X, y, test_size=0.5, random_state=0)
     svm_opt=OptimizedSVM()
+    #svm_opt=OptimizedRandomForest()
     clf=svm_opt.grid_search(X_train,y_train)
     
     eval_train(clf)
     eval_test(X_test,y_test,clf)
 
+def determistic_eval(train_path,test_path):
+    train=dataset.labeled_to_dataset(train_path)
+    test=dataset.labeled_to_dataset(test_path)
+    #svm_opt=OptimizedSVM()
+    svm_opt=OptimizedRandomForest()
+    clf=svm_opt.grid_search(train.X,train.y)  
+    eval_train(clf)
+    eval_test(test.X,test.y,clf)
 
 def eval_train(clf):
     print("Best parameters set found on development set:")
@@ -64,6 +73,9 @@ def eval_test(X_test,y_test,clf):
     print(classification_report(y_true, y_pred))
 
 if __name__ == "__main__":  
-    path="/home/user/df/exp2/dataset.lb"
-    dataset=dataset.labeled_to_dataset(path)
-    random_eval(dataset)
+    path="/home/user/df/exp3/dataset.lb"
+    #dataset=dataset.labeled_to_dataset(path)
+    #random_eval(dataset)
+    train_path="train.lb"
+    test_path="test.lb"
+    determistic_eval(train_path,test_path)
