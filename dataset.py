@@ -17,6 +17,16 @@ class LabeledDataset(Dataset):
         self.n_cats=max(labels)
         self.cat_names=[str(i) for i in range(self.n_cats)]
 
+    def to_arff(self):
+        arff="@RELATION dataset\n"
+        atributes=map(get_attr_header,range(self.dim))
+        arff+=array_to_string(atributes)
+        arff+=get_cats_header(self.cat_names)
+        arff+="\n@DATA\n"
+        for instance,cat in zip(list(self.X),self.y):
+            arff+=to_csv_line(instance)+str(cat)+"\n"
+        return arff
+ 
 def csv_to_dataset(path):
     data_list=read.read_csv_file(path)
     data_array=np.array(data_list)
@@ -29,9 +39,25 @@ def labeled_to_dataset(path):
     data_array=np.array(data_list)
     return LabeledDataset(data_array,labels)
 
+def get_attr_header(i):
+    return "@ATTRIBUTE attr"+str(i)+" NUMERIC\n"
+
+def get_cats_header(cats):
+    cat_header="@ATTRIBUTE class {"
+    for cat_i in cats:
+        cat_header+=" "+str(cat_i)
+    cat_header+="}\n"
+    return cat_header
+
+def to_csv_line(array):
+    return reduce(lambda x,y,:x+str(y)+",",array,"")
+
+def array_to_string(array):
+    return reduce(lambda x,y:x+str(y),array,"")
+
 if __name__ == "__main__":
     path="/home/user/df/exp2/dataset.lb"
     dataset=labeled_to_dataset(path)
-    print(dataset.size)
-    print(dataset.dim)
+    print(dataset.to_arff())
+
         
