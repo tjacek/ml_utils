@@ -10,6 +10,10 @@ class Dataset(object):
     def get_attr(self,i):
         return self.X[:,i]
 
+    def to_csv(self):
+        lines=map(to_csv_line,self.X)
+        return array_to_string(lines,sep="\n")
+
 class LabeledDataset(Dataset):
     def __init__(self, data_array,labels):
         super(LabeledDataset, self).__init__(data_array)
@@ -26,7 +30,13 @@ class LabeledDataset(Dataset):
         for instance,cat in zip(list(self.X),self.y):
             arff+=to_csv_line(instance)+str(cat)+"\n"
         return arff
- 
+
+    def to_csv(self):
+        csv=""
+        for instance,label in zip(self.X,self.y):
+            csv+=to_csv_line(instance)+"#"+label+"\n"
+        return csv
+
 def csv_to_dataset(path):
     data_list=read.read_csv_file(path)
     data_array=np.array(data_list)
@@ -52,8 +62,8 @@ def get_cats_header(cats):
 def to_csv_line(array):
     return reduce(lambda x,y,:x+str(y)+",",array,"")
 
-def array_to_string(array):
-    return reduce(lambda x,y:x+str(y),array,"")
+def array_to_string(array,sep=""):
+    return reduce(lambda x,y:x+str(y)+sep,array,"")
 
 if __name__ == "__main__":
     path="/home/user/df/exp2/dataset.lb"
