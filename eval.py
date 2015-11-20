@@ -4,6 +4,7 @@ import sklearn.grid_search as gs
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
 
 class OptimizedSVM(object):
     def __init__(self):
@@ -35,8 +36,8 @@ def random_eval(dataset):
     y=dataset.y
     X_train, X_test, y_train, y_test = cv.train_test_split(
                                        X, y, test_size=0.5, random_state=0)
-    svm_opt=OptimizedSVM()
-    #svm_opt=OptimizedRandomForest()
+    #svm_opt=OptimizedSVM()
+    svm_opt=OptimizedRandomForest()
     clf=svm_opt.grid_search(X_train,y_train)
     
     eval_train(clf)
@@ -70,12 +71,18 @@ def eval_test(X_test,y_test,clf):
     print("The scores are computed on the full evaluation set.")
     print()
     y_true, y_pred = y_test, clf.predict(X_test)
+    print(confusion_matrix(y_true, y_pred))
     print(classification_report(y_true, y_pred))
+    
 
-if __name__ == "__main__":  
-    path="/home/user/df/exp3/dataset.lb"
-    #dataset=dataset.labeled_to_dataset(path)
-    #random_eval(dataset)
-    train_path="train.lb"
-    test_path="test.lb"
-    determistic_eval(train_path,test_path)
+if __name__ == "__main__":
+    path="/home/user/cf/seqs/"
+    random=True
+    if(random):  
+        in_path="../af/result/af.lb"
+        dataset=dataset.labeled_to_dataset(in_path)
+        random_eval(dataset)
+    else:
+        train_path=path+"dataset_train.lb"
+        test_path=path+"dataset_test.lb"
+        determistic_eval(train_path,test_path)
