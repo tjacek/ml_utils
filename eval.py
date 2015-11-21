@@ -1,3 +1,4 @@
+import pandas as pd
 import dataset
 import sklearn.cross_validation as cv
 import sklearn.grid_search as gs
@@ -5,6 +6,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
+
 
 class OptimizedSVM(object):
     def __init__(self):
@@ -31,23 +33,27 @@ class OptimizedRandomForest(object):
         clf.fit(X_train,y_train)
         return clf
 
-def random_eval(dataset):
+def random_eval(dataset,svm=False):
     X=dataset.X
     y=dataset.y
     X_train, X_test, y_train, y_test = cv.train_test_split(
                                        X, y, test_size=0.5, random_state=0)
-    #svm_opt=OptimizedSVM()
-    svm_opt=OptimizedRandomForest()
+    if(svm):
+        svm_opt=OptimizedSVM()
+    else:
+       svm_opt=OptimizedRandomForest()
     clf=svm_opt.grid_search(X_train,y_train)
     
     eval_train(clf)
     eval_test(X_test,y_test,clf)
 
-def determistic_eval(train_path,test_path):
+def determistic_eval(train_path,test_path,svm=False):
     train=dataset.labeled_to_dataset(train_path)
     test=dataset.labeled_to_dataset(test_path)
-    #svm_opt=OptimizedSVM()
-    svm_opt=OptimizedRandomForest()
+    if(svm):
+        svm_opt=OptimizedSVM()
+    else:
+        svm_opt=OptimizedRandomForest()
     clf=svm_opt.grid_search(train.X,train.y)  
     eval_train(clf)
     eval_test(test.X,test.y,clf)
@@ -71,9 +77,12 @@ def eval_test(X_test,y_test,clf):
     print("The scores are computed on the full evaluation set.")
     print()
     y_true, y_pred = y_test, clf.predict(X_test)
-    print(confusion_matrix(y_true, y_pred))
+    show_confusion(confusion_matrix(y_true, y_pred))
     print(classification_report(y_true, y_pred))
     
+def show_confusion(cf_matrix):
+    cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
+    print(cf_matrix)
 
 if __name__ == "__main__":
     path="/home/user/cf/seqs/"
