@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import dataset
 import sklearn.cross_validation as cv
 import sklearn.grid_search as gs
@@ -6,7 +7,8 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
-
+from sklearn.cross_validation import PredefinedSplit
+from sklearn.cross_validation import LeaveOneOut
 
 class OptimizedSVM(object):
     def __init__(self):
@@ -15,9 +17,18 @@ class OptimizedSVM(object):
         self.params=[rbf,linear]
         self.SVC=SVC(C=1)
         
-    def grid_search(self,X_train,y_train,metric='accuracy'):
-        clf = gs.GridSearchCV(self.SVC,self.params, cv=5,scoring=metric)
+    def grid_search(self,X_train,y_train,n_split=5,metric='accuracy'):
+        clf = gs.GridSearchCV(self.SVC,self.params, cv=n_split,scoring=metric)
         clf.fit(X_train,y_train)
+        return clf
+
+    def predefined_search(self,X_train,y_train,metric='accuracy'):
+        n=len(y_train)
+        split=LeaveOneOut(n)
+        clf = gs.GridSearchCV(self.SVC,self.params, cv=split,scoring=metric)
+        print(clf)
+        clf.fit(X_train,y_train)
+        print(clf.best_params_)
         return clf
 
 class OptimizedRandomForest(object):
@@ -28,10 +39,29 @@ class OptimizedRandomForest(object):
         self.params=[params]
         self.rf= RandomForestClassifier(n_estimators=10)
     
-    def grid_search(self,X_train,y_train,metric='accuracy'):
-        clf = gs.GridSearchCV(self.rf,self.params, cv=5,scoring=metric)
+    def grid_search(self,X_train,y_train,n_split=5,metric='accuracy'):
+        clf = gs.GridSearchCV(self.rf,self.params, cv=n_split,scoring=metric)
         clf.fit(X_train,y_train)
         return clf
+
+    def predefined_search(self,X_train,y_train,metric='accuracy'):
+        n=len(y_train)
+        split=LeaveOneOut(n)
+        clf = gs.GridSearchCV(self.rf,self.params, cv=split,scoring=metric)
+        print(clf)
+        clf.fit(X_train,y_train)
+        print(clf.best_params_)
+        return clf
+
+def  unify_dataset(X_train,y_train,X_test,y_test):
+     split_train=[-1 for i in range(len(y_train))]
+     split_test=[0 for i in range(len(y_test))]
+     split=split_train+split_test
+     X = np.concatenate((X_train, X_test))
+     y = np.concatenate((y_train, y_test))
+     ps=PredefinedSplit(split)
+     print(type(ps))
+     return X,y,ps
 
 def random_eval(dataset,svm=False):
     X=dataset.X
@@ -54,7 +84,8 @@ def determistic_eval(train_path,test_path,svm=False):
         svm_opt=OptimizedSVM()
     else:
         svm_opt=OptimizedRandomForest()
-    clf=svm_opt.grid_search(train.X,train.y)  
+    #clf=svm_opt.grid_search(train.X,train.y,n_split=2)  
+    clf=svm_opt.predefined_search(train.X,train.y)  
     eval_train(clf)
     eval_test(test.X,test.y,clf)
 
@@ -86,12 +117,12 @@ def show_confusion(cf_matrix):
 
 if __name__ == "__main__":
     path="/home/user/cf/seqs/"
-    random=True
+    random=False
     if(random):  
         in_path="../af/result/af.lb"
         dataset=dataset.labeled_to_dataset(in_path)
         random_eval(dataset)
     else:
-        train_path=path+"dataset_train.lb"
-        test_path=path+"dataset_test.lb"
-        determistic_eval(train_path,test_path)
+        train_path="../af/result/af_train.lb"
+        test_path="../af/result/af_test.lb"
+        determistic_eval(train_path,test_path,True)
