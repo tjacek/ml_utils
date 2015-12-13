@@ -20,6 +20,13 @@ class LabeledDataset(Dataset):
         self.y=np.array(labels)
         self.n_cats=max(labels)
         self.cat_names=[str(i) for i in range(self.n_cats)]
+    
+    def binarize(self,k):
+        for i in range(self.size):
+            if(self.y[i]==k):
+                self.y[i]==1.0
+            else:
+                self.y[i]==0.0
 
     def to_arff(self):
         arff="@RELATION dataset\n"
@@ -44,8 +51,8 @@ def csv_to_dataset(path):
 
 def labeled_to_dataset(path):
     labeled_list=read.read_labeled(path)
-    data_list=map(lambda x:x[0],labeled_list)
-    labels=map(lambda x:x[1],labeled_list)
+    data_list=[x[0] for x in labeled_list]
+    labels=[x[1] for x in labeled_list]
     data_array=np.array(data_list)
     return LabeledDataset(data_array,labels)
 

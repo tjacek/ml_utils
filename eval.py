@@ -23,10 +23,11 @@ class OptimizedSVM(object):
         return clf
 
     def predefined_search(self,X_train,y_train,metric='accuracy'):
+        validation_search(self.params)
         n=len(y_train)
+        self.params
         split=LeaveOneOut(n)
         clf = gs.GridSearchCV(self.SVC,self.params, cv=split,scoring=metric)
-        print(clf)
         clf.fit(X_train,y_train)
         print(clf.best_params_)
         return clf
@@ -84,8 +85,8 @@ def determistic_eval(train_path,test_path,svm=False):
         svm_opt=OptimizedSVM()
     else:
         svm_opt=OptimizedRandomForest()
-    #clf=svm_opt.grid_search(train.X,train.y,n_split=2)  
-    clf=svm_opt.predefined_search(train.X,train.y)  
+    clf=svm_opt.grid_search(train.X,train.y,n_split=2)  
+    #clf=svm_opt.predefined_search(train.X,train.y)  
     eval_train(clf)
     eval_test(test.X,test.y,clf)
 
@@ -114,6 +115,10 @@ def eval_test(X_test,y_test,clf):
 def show_confusion(cf_matrix):
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
     print(cf_matrix)
+
+
+def validation_search(params):
+    print(params)
 
 if __name__ == "__main__":
     path="/home/user/cf/seqs/"
