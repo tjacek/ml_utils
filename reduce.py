@@ -27,13 +27,13 @@ def spectral_reduction(data,dim=2):
 
 def show_unlabeled(path):
     data=dataset.csv_to_dataset(path)
-    tsne_X=hessian_reduction(data)
+    tsne_X=tsne_reduction(data)
     tsne_data=dataset.Dataset(tsne_X)
     plot.unlabeled_plot2D(tsne_data)
 
 def show_labeled(path):
     data=dataset.labeled_to_dataset(path)
-    tsne_X=lle_reduction(data)
+    tsne_X=tsne_reduction(data)
     tsne_data=dataset.LabeledDataset(tsne_X,data.y)
     plot.labeled_plot2D(tsne_data)
 
@@ -41,10 +41,10 @@ def show_labeled(path):
 if __name__ == "__main__":
     cf=True#False
     if(cf):
-        #path="/home/user/cf/seqs/dataset.lb"
-        #show_labeled(path)
-        path="/home/user/cluster_images/cls.lb"
+        path="../af/cascade/full_dataset"#"../af/result/full_dataset"
         show_labeled(path)
+        #path="/home/user/cluster_images/cls.lb"
+        #show_labeled(path)
     else:
         path="/home/user/cluster_images/raw.csv"
         show_unlabeled(path)

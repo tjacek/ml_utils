@@ -10,7 +10,7 @@ class Dataset(object):
     def get_attr(self,i):
         return self.X[:,i]
 
-    def to_csv(self):
+    def __str__(self):
         lines=map(to_csv_line,self.X)
         return array_to_string(lines,sep="\n")
 
@@ -28,20 +28,22 @@ class LabeledDataset(Dataset):
             else:
                 self.y[i]==0.0
 
-    def to_arff(self):
-        arff="@RELATION dataset\n"
-        atributes=map(get_attr_header,range(self.dim))
-        arff+=array_to_string(atributes)
-        arff+=get_cats_header(self.cat_names)
-        arff+="\n@DATA\n"
-        for instance,cat in zip(list(self.X),self.y):
-            arff+=to_csv_line(instance)+str(cat)+"\n"
-        return arff
-
-    def to_csv(self):
+    def __str__(self):
         csv=""
         for instance,label in zip(self.X,self.y):
-            csv+=to_csv_line(instance)+"#"+label+"\n"
+            csv+=to_csv_line(instance)+"#"+str(label)+"\n"
+        return csv
+
+class AnnotatedDataset(LabeledDataset):
+    def __init__(self, data_array,labels,annotation):
+         super(AnnotatedDataset, self).__init__(data_array,labels)
+         self.anno=annotation
+
+    def __str__(self):
+        csv=""
+        for i,instance in enumerate(self.X):
+            postfix="#"+str(self.y[i])+"#" + str(self.anno[i])+"\n"
+            csv+=to_csv_line(instance)+postfix
         return csv
 
 def csv_to_dataset(path):
@@ -56,6 +58,24 @@ def labeled_to_dataset(path):
     data_array=np.array(data_list)
     return LabeledDataset(data_array,labels)
 
+def annotated_to_dataset(path):
+    labeled_list=read.read_annotated(path)
+    data_list=[x[0] for x in labeled_list]
+    labels=[x[1] for x in labeled_list]
+    annotated=[x[2] for x in labeled_list]
+    data_array=np.array(data_list)
+    return AnnotatedDataset(data_array,labels,annotated)
+
+def to_arff(data):
+    arff="@RELATION dataset\n"
+    atributes=map(get_attr_header,range(data.dim))
+    arff+=array_to_string(atributes)
+    arff+=get_cats_header(data.cat_names)
+    arff+="\n@DATA\n"
+    for instance,cat in zip(list(data.X),data.y):
+        arff+=to_csv_line(instance)+str(cat)+"\n"
+    return arff
+
 def get_attr_header(i):
     return "@ATTRIBUTE attr"+str(i)+" NUMERIC\n"
 
@@ -67,7 +87,10 @@ def get_cats_header(cats):
     return cat_header
 
 def to_csv_line(array):
-    return reduce(lambda x,y,:x+str(y)+",",array,"")
+    str_vec=""
+    for x_i in array:
+        str_vec+=str(x_i)+","
+    return str_vec#reduce(lambda x,y,:x+str(y)+",",array,"")
 
 def array_to_string(array,sep=""):
     return reduce(lambda x,y:x+str(y)+sep,array,"")
@@ -76,5 +99,3 @@ if __name__ == "__main__":
     path="/home/user/df/exp2/dataset.lb"
     dataset=labeled_to_dataset(path)
     print(dataset.to_arff())
-
-        
