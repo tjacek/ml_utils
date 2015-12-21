@@ -9,21 +9,22 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.cross_validation import PredefinedSplit
 from sklearn.cross_validation import LeaveOneOut
+import sys
 
 class OptimizedSVM(object):
     def __init__(self):
-        rbf={'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],'C': [1, 10, 100, 1000]}
+        rbf={'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],'C': [1, 10, 50,110, 1000]}
         linear={'kernel': ['linear'], 'C': [1, 10, 100, 1000]}
         self.params=[rbf,linear]
         self.SVC=SVC(C=1)
         
     def grid_search(self,X_train,y_train,n_split=5,metric='accuracy'):
+        validation_search(self.params)
         clf = gs.GridSearchCV(self.SVC,self.params, cv=n_split,scoring=metric)
         clf.fit(X_train,y_train)
         return clf
 
     def predefined_search(self,X_train,y_train,metric='accuracy'):
-        validation_search(self.params)
         n=len(y_train)
         self.params
         split=LeaveOneOut(n)
@@ -35,7 +36,7 @@ class OptimizedSVM(object):
 class OptimizedRandomForest(object):
     def __init__(self):
         params={}
-        params['n_estimators']=[50,100,300,400,500] 
+        params['n_estimators']=[50,100,300,400,500,700] 
         #params['criterion']=['gini','entropy']
         self.params=[params]
         self.rf= RandomForestClassifier(n_estimators=10)
@@ -85,9 +86,12 @@ def determistic_eval(train_path,test_path,svm=False):
         svm_opt=OptimizedSVM()
     else:
         svm_opt=OptimizedRandomForest()
-    clf=svm_opt.grid_search(train.X,train.y,n_split=2)  
+    clf = RandomForestClassifier(n_estimators=400)
+    #clf=svm_opt.grid_search(train.X,train.y,n_split=2)  
     #clf=svm_opt.predefined_search(train.X,train.y)  
-    eval_train(clf)
+    #eval_train(clf)
+    print(train.y)
+    clf = clf.fit(train.X, train.y)
     eval_test(test.X,test.y,clf)
 
 def eval_train(clf):
@@ -119,15 +123,21 @@ def show_confusion(cf_matrix):
 
 def validation_search(params):
     print(params)
+    #for key in params.keys():
+    #    print(key)
 
 if __name__ == "__main__":
     path="/home/user/cf/seqs/"
-    random=False
-    if(random):  
-        in_path="../af/result/af.lb"
+    if(len(sys.argv)>1):
+        random=int(sys.argv[1])
+        random=bool(random)
+    else:
+        random=False#True
+    if(random):
+        in_path="../af/cascade/full_dataset"#"../af/result/full_dataset"
         dataset=dataset.labeled_to_dataset(in_path)
         random_eval(dataset)
     else:
-        train_path="../af/result/af_train.lb"
-        test_path="../af/result/af_test.lb"
-        determistic_eval(train_path,test_path,True)
+        train_path="../af/cascade/full_dataset_train"
+        test_path="../af/cascade/full_dataset_test"
+        determistic_eval(train_path,test_path,False)
