@@ -1,6 +1,7 @@
 import dataset
 import plot
 from sklearn import manifold
+import sys
 
 def tsne_reduction(data,dim=2):
     tsne = manifold.TSNE(n_components=dim, init='pca', random_state=0)
@@ -39,12 +40,14 @@ def show_labeled(path):
 
 
 if __name__ == "__main__":
+    path="../af/cascade/"
+    if(len(sys.argv)>1):
+        path+=sys.argv[1]
+    else:
+        path+="full_dataset"
     cf=True#False
     if(cf):
-        path="../af/cascade/full_dataset"#"../af/result/full_dataset"
         show_labeled(path)
-        #path="/home/user/cluster_images/cls.lb"
-        #show_labeled(path)
     else:
         path="/home/user/cluster_images/raw.csv"
         show_unlabeled(path)
