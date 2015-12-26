@@ -31,7 +31,7 @@ class LabeledDataset(Dataset):
     def __str__(self):
         csv=""
         for instance,label in zip(self.X,self.y):
-            csv+=to_csv_line(instance)+"#"+str(label)+"\n"
+            csv+=to_csv_line(instance)+",#"+str(label)+"\n"
         return csv
 
 class AnnotatedDataset(LabeledDataset):
@@ -42,7 +42,7 @@ class AnnotatedDataset(LabeledDataset):
     def __str__(self):
         csv=""
         for i,instance in enumerate(self.X):
-            postfix="#"+str(self.y[i])+"#" + str(self.anno[i])+"\n"
+            postfix=",#"+str(self.y[i])+"#" + str(self.anno[i])+"\n"
             csv+=to_csv_line(instance)+postfix
         return csv
 
@@ -87,13 +87,9 @@ def get_cats_header(cats):
     return cat_header
 
 def to_csv_line(array):
-    str_vec=""
-    for x_i in array:
-        str_vec+=str(x_i)+","
-    return str_vec#reduce(lambda x,y,:x+str(y)+",",array,"")
-
-def array_to_string(array,sep=""):
-    return reduce(lambda x,y:x+str(y)+sep,array,"")
+    array=[str(a_i) for a_i in array]
+    str_vec=",".join(array)
+    return str_vec
 
 if __name__ == "__main__":
     path="/home/user/df/exp2/dataset.lb"
