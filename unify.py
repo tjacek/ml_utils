@@ -1,6 +1,7 @@
 import dataset
 import numpy as np
 import os
+import tools
 
 def unify_dir(in_path,out_path):
     all_files=os.listdir(in_path)
@@ -13,7 +14,6 @@ def unify_dir(in_path,out_path):
     for i in range(1,len(dataset_paths)):
         partial_dataset=dataset.annotated_to_dataset(dataset_paths[i])
         new_dataset=unify(new_dataset,partial_dataset)
-    save_dataset(new_dataset,out_path)
     return new_dataset
 
 def unify(dataset1,dataset2):
@@ -33,7 +33,7 @@ def split(dataset0,out_path):
     dataset1=select_data(dataset0,even)
     dataset2=select_data(dataset0,odd)
     save_dataset(dataset1,out_path+"_train")
-    save_dataset(dataset2,out_path+"_test")
+    tools.save_dataset(dataset2,out_path+"_test")
 
 def select_data(dataset0,index):
     new_X=np.array(dataset0.X[index])
@@ -42,14 +42,10 @@ def select_data(dataset0,index):
     #new_anno=np.array(dataset0.anno)[index]
     return dataset.LabeledDataset(new_X,new_y)#dataset.AnnotatedDataset(new_X,new_y,new_anno)
 
-def save_dataset(dataset,out_path):
-    csv_text=str(dataset)
-    text_file = open(out_path, "w")
-    text_file.write(csv_text)
-    text_file.close()
-
 if __name__ == "__main__":
     in_path="../af/cascade/result/"
     out_path="../af/cascade/full_dataset"
     dataset0=unify_dir(in_path,out_path)
     split(dataset0,out_path)
+    new_dataset=dataset.LabeledDataset(dataset0.X,dataset0.y)
+    save_dataset(new_dataset,out_path)
