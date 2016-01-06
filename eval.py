@@ -75,7 +75,7 @@ def random_eval(dataset,svm=False):
     else:
        svm_opt=OptimizedRandomForest()
     clf=svm_opt.grid_search(X_train,y_train)
-    
+    show_error(dataset,clf)
     eval_train(clf)
     eval_test(X_test,y_test,clf)
 
@@ -113,6 +113,7 @@ def eval_test(X_test,y_test,clf):
     print("The scores are computed on the full evaluation set.")
     print()
     y_true, y_pred = y_test, clf.predict(X_test)
+    result=(y_true==y_pred)
     show_confusion(confusion_matrix(y_true, y_pred))
     print(classification_report(y_true, y_pred))
     
@@ -120,24 +121,27 @@ def show_confusion(cf_matrix):
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
     print(cf_matrix)
 
-
-def validation_search(params):
-    print(params)
-    #for key in params.keys():
-    #    print(key)
+def show_error(dataset,clf):
+    y_true, y_pred = dataset.y, clf.predict(dataset.X)
+    result=(y_pred==y_true)
+    for i,y in enumerate(result):
+        if(not y):
+          label=y_true[i]
+          label_pred=y_pred[i]
+          person=dataset.anno[i]  
+          print(str(i)+" "+str(label)+" "+str(label_pred)+" "+str(person))
 
 if __name__ == "__main__":
-    path="/home/user/cf/seqs/"
     if(len(sys.argv)>1):
         random=int(sys.argv[1])
         random=bool(random)
     else:
         random=False#True
     if(random):
-        in_path="../af/cascade/full_dataset"#"../af/result/full_dataset"
-        dataset=dataset.labeled_to_dataset(in_path)
+        in_path="../af/cascade4/full_dataset"#"../af/result/full_dataset"
+        dataset=dataset.annotated_to_dataset(in_path)#labeled_to_dataset(in_path)
         random_eval(dataset)
     else:
-        train_path="../af/cascade/full_dataset_train"
-        test_path="../af/cascade/full_dataset_test"
+        train_path="../af/cascade4/full_dataset_train"
+        test_path="../af/cascade3/full_dataset_test"
         determistic_eval(train_path,test_path,False)
