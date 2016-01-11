@@ -26,28 +26,25 @@ def spectral_reduction(data,dim=2):
     X_prim=embedder.fit_transform(data.X)
     return X_prim
 
+reductions=[tsne_reduction,lle_reduction,hessian_reduction,spectral_reduction]
+
 def show_unlabeled(path):
     data=dataset.csv_to_dataset(path)
     tsne_X=tsne_reduction(data)
     tsne_data=dataset.Dataset(tsne_X)
     plot.unlabeled_plot2D(tsne_data)
 
-def show_labeled(path):
-    data=dataset.labeled_to_dataset(path)
-    tsne_X=tsne_reduction(data)
+def show_labeled(path,reduction_id):
+    data=dataset.annotated_to_dataset(path)
+    tsne_X=reductions[reduction_id](data)
     tsne_data=dataset.LabeledDataset(tsne_X,data.y)
     plot.labeled_plot2D(tsne_data)
 
-
 if __name__ == "__main__":
-    path="../af/cascade/"
-    if(len(sys.argv)>1):
-        path+=sys.argv[1]
-    else:
-        path+="full_dataset"
-    cf=True#False
-    if(cf):
-        show_labeled(path)
-    else:
-        path="/home/user/cluster_images/raw.csv"
-        show_unlabeled(path)
+    path="../af/cascade4/full_dataset"
+    if(len(sys.argv)==1):
+        reduction_id=0
+    else:    
+        reduction_id=int(sys.argv[1])
+    show_labeled(path,reduction_id)
+
