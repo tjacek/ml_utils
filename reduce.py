@@ -40,11 +40,15 @@ def show_labeled(path,reduction_id):
     tsne_data=dataset.LabeledDataset(tsne_X,data.y)
     plot.labeled_plot2D(tsne_data)
 
-if __name__ == "__main__":
-    path="../af/cascade4/full_dataset"
+def parse_args(args):
     if(len(sys.argv)==1):
         reduction_id=0
     else:    
         reduction_id=int(sys.argv[1])
+    return reduction_id
+
+if __name__ == "__main__":
+    path="../af/cascade4/full_dataset"
+    reduction_id=parse_args(sys.argv)
     show_labeled(path,reduction_id)
 
