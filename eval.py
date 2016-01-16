@@ -86,7 +86,7 @@ def determistic_eval(train_path,test_path,svm=False):
         svm_opt=OptimizedSVM()
     else:
         svm_opt=OptimizedRandomForest()
-    clf = RandomForestClassifier(n_estimators=400)
+    clf = RandomForestClassifier(n_estimators=500)
     #clf=svm_opt.grid_search(train.X,train.y,n_split=2)  
     #clf=svm_opt.predefined_search(train.X,train.y)  
     #eval_train(clf)
@@ -131,17 +131,21 @@ def show_error(dataset,clf):
           person=dataset.anno[i]  
           print(str(i)+" "+str(label)+" "+str(label_pred)+" "+str(person))
 
-if __name__ == "__main__":
-    if(len(sys.argv)>1):
-        random=int(sys.argv[1])
+def parse_args(args):
+    if(len(args)>1):
+        random=int(args[1])
         random=bool(random)
     else:
-        random=False#True
+        random=False
+    return random
+
+if __name__ == "__main__":
+    random=parse_args(sys.argv)
     if(random):
         in_path="../af/cascade4/full_dataset"#"../af/result/full_dataset"
         dataset=dataset.annotated_to_dataset(in_path)#labeled_to_dataset(in_path)
         random_eval(dataset)
     else:
         train_path="../af/cascade4/full_dataset_train"
-        test_path="../af/cascade3/full_dataset_test"
+        test_path="../af/cascade4/full_dataset_test"
         determistic_eval(train_path,test_path,False)
