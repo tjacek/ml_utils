@@ -1,6 +1,7 @@
 import dataset
 import plot
 from sklearn import manifold
+import sklearn
 import sys
 
 def tsne_reduction(data,dim=2):
@@ -26,16 +27,21 @@ def spectral_reduction(data,dim=2):
     X_prim=embedder.fit_transform(data.X)
     return X_prim
 
-reductions=[tsne_reduction,lle_reduction,hessian_reduction,spectral_reduction]
+def pca_reduction(data,dim=2):
+    embedder = sklearn.decomposition.SparsePCA(n_components=dim)
+    X_prim=embedder.fit_transform(data.X)
+    return X_prim
 
-def show_unlabeled(path):
+reductions=[tsne_reduction,lle_reduction,hessian_reduction,spectral_reduction,pca_reduction]
+
+def show_unlabeled(path,reduction_id):
     data=dataset.csv_to_dataset(path)
-    tsne_X=tsne_reduction(data)
+    tsne_X=reductions[reduction_id](data)
     tsne_data=dataset.Dataset(tsne_X)
     plot.unlabeled_plot2D(tsne_data)
 
 def show_labeled(path,reduction_id):
-    data=dataset.annotated_to_dataset(path)
+    data=dataset.labeled_to_dataset(path)#annotated_to_dataset(path)
     tsne_X=reductions[reduction_id](data)
     tsne_data=dataset.LabeledDataset(tsne_X,data.y)
     plot.labeled_plot2D(tsne_data)
@@ -48,7 +54,7 @@ def parse_args(args):
     return reduction_id
 
 if __name__ == "__main__":
-    path="../af/cascade4/full_dataset"
+    path="../reps/cluster_images/_clust.lb"#"../af/cascade5/full_dataset"
     reduction_id=parse_args(sys.argv)
-    show_labeled(path,reduction_id)
+    show_labeled(path,reduction_id)#,reduction_id)
 
