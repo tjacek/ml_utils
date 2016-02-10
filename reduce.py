@@ -40,11 +40,11 @@ def show_unlabeled(path,reduction_id):
     tsne_data=dataset.Dataset(tsne_X)
     plot.unlabeled_plot2D(tsne_data)
 
-def show_labeled(path,reduction_id):
+def show_labeled(path,reduction_id,tabu=[]):
     data=dataset.labeled_to_dataset(path)#annotated_to_dataset(path)
     tsne_X=reductions[reduction_id](data)
     tsne_data=dataset.LabeledDataset(tsne_X,data.y)
-    plot.labeled_plot2D(tsne_data)
+    plot.labeled_plot2D(tsne_data,tabu)
 
 def parse_args(args):
     if(len(sys.argv)==1):
@@ -54,7 +54,7 @@ def parse_args(args):
     return reduction_id
 
 if __name__ == "__main__":
-    path="../reps/cluster_images/_clust.lb"#"../af/cascade5/full_dataset"
+    path="../reps/cluster_images/clust.lb"#"../af/cascade5/full_dataset"
     reduction_id=parse_args(sys.argv)
-    show_labeled(path,reduction_id)#,reduction_id)
+    show_labeled(path,reduction_id,[0,1,8,21])#,reduction_id)
 
