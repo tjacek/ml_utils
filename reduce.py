@@ -56,5 +56,5 @@ def parse_args(args):
 if __name__ == "__main__":
     path="../reps/cluster_images/clust.lb"#"../af/cascade5/full_dataset"
     reduction_id=parse_args(sys.argv)
-    show_labeled(path,reduction_id,[0,1,8,21])#,reduction_id)
+    show_labeled(path,reduction_id,[0,1,21])#,reduction_id)
 

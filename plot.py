@@ -26,12 +26,13 @@ def labeled_plot2D(dataset,tabu=[]):
                 cat_i_1=x_1[labels==i]
                 color_i=get_color(i)
                 shape_i=get_shape(i)
-                ax.scatter(cat_i_0,cat_i_1,c=color_i,marker=shape_i)
+                ax.scatter(cat_i_0,cat_i_1,c=color_i,marker=shape_i,label=str(i))
             else:
                 print(i)
         #for i,txt in enumerate(list(labels)):
         #    if(not i in tabu_set):
         #        ax.annotate(str(txt),(x_0[i], x_1[i]))
+        plt.legend()
         plt.show()
     else:
         print("Incorect number of dimesion")
@@ -42,9 +43,9 @@ def get_color(index):
     i=index % len(COLORS)
     return COLORS[i]
 
-SHAPE='ovs'
+SHAPE='ovs^p'
 
 def get_shape(index):
-    i=index%len(COLORS)
+    i=index/len(COLORS)
     i=i%len(SHAPE)
     return SHAPE[i]
