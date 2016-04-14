@@ -4,6 +4,7 @@ import tools
 
 class Dataset(object):
     def __init__(self,data_array):
+        print(data_array.shape)
         self.size=data_array.shape[0]
         self.dim=data_array.shape[1]
         self.X=data_array
@@ -32,7 +33,7 @@ class LabeledDataset(Dataset):
     def __str__(self):
         csv=""
         for instance,label in zip(self.X,self.y):
-            csv+=to_csv_line(instance)+",#"+str(label)+"\n"
+            csv+=tools.to_csv_line(instance)+",#"+str(label)+"\n"
         return csv
 
 class AnnotatedDataset(LabeledDataset):
