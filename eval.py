@@ -1,3 +1,5 @@
+import select_feat
+
 import pandas as pd
 import numpy as np
 import dataset
@@ -9,7 +11,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.cross_validation import PredefinedSplit
 from sklearn.cross_validation import LeaveOneOut
-import sys
 
 class OptimizedSVM(object):
     def __init__(self):
@@ -19,7 +20,7 @@ class OptimizedSVM(object):
         self.SVC=SVC(C=1)
         
     def grid_search(self,X_train,y_train,n_split=5,metric='accuracy'):
-        validation_search(self.params)
+        #validation_search(self.params)
         clf = gs.GridSearchCV(self.SVC,self.params, cv=n_split,scoring=metric)
         clf.fit(X_train,y_train)
         return clf
@@ -36,7 +37,7 @@ class OptimizedSVM(object):
 class OptimizedRandomForest(object):
     def __init__(self):
         params={}
-        params['n_estimators']=[50,100,300,400,500,700] 
+        params['n_estimators']=[50,100,300,400,500,700 ,1000] 
         #params['criterion']=['gini','entropy']
         self.params=[params]
         self.rf= RandomForestClassifier(n_estimators=10)
@@ -55,97 +56,43 @@ class OptimizedRandomForest(object):
         print(clf.best_params_)
         return clf
 
-def  unify_dataset(X_train,y_train,X_test,y_test):
-     split_train=[-1 for i in range(len(y_train))]
-     split_test=[0 for i in range(len(y_test))]
-     split=split_train+split_test
-     X = np.concatenate((X_train, X_test))
-     y = np.concatenate((y_train, y_test))
-     ps=PredefinedSplit(split)
-     print(type(ps))
-     return X,y,ps
-
-def random_eval(dataset,svm=False):
-    X=dataset.X
-    y=dataset.y
-    X_train, X_test, y_train, y_test = cv.train_test_split(
-                                       X, y, test_size=0.5, random_state=0)
-    if(svm):
-        svm_opt=OptimizedSVM()
-    else:
-       svm_opt=OptimizedRandomForest()
-    clf=svm_opt.grid_search(X_train,y_train)
-    show_error(dataset,clf)
-    eval_train(clf)
-    eval_test(X_test,y_test,clf)
-
-def determistic_eval(train_path,test_path,svm=False):
-    train=dataset.labeled_to_dataset(train_path)
-    test=dataset.labeled_to_dataset(test_path)
-    if(svm):
-        svm_opt=OptimizedSVM()
-    else:
-        svm_opt=OptimizedRandomForest()
-    clf = RandomForestClassifier(n_estimators=500)
-    #clf=svm_opt.grid_search(train.X,train.y,n_split=2)  
-    #clf=svm_opt.predefined_search(train.X,train.y)  
-    #eval_train(clf)
-    print(train.y)
-    clf = clf.fit(train.X, train.y)
-    eval_test(test.X,test.y,clf)
-
-def eval_train(clf):
-    print("Best parameters set found on development set:")
-    print()
-    print(clf.best_params_)
-    print()
-    print("Grid scores on development set:")
-    print()
-    for params, mean_score, scores in clf.grid_scores_:
-        print("%0.3f (+/-%0.03f) for %r"
-              % (mean_score, scores.std() * 2, params))
-    print()
-
-def eval_test(X_test,y_test,clf):
+def eval_test(test,clf):
     print("Detailed classification report:")
     print()
     print("The model is trained on the full development set.")
     print("The scores are computed on the full evaluation set.")
-    print()
+    print(type(test))
+    X_test=test.X
+    y_test=test.y
     y_true, y_pred = y_test, clf.predict(X_test)
     result=(y_true==y_pred)
     show_confusion(confusion_matrix(y_true, y_pred))
-    print(classification_report(y_true, y_pred))
+    print(classification_report(y_true, y_pred,digits=4))
     
 def show_confusion(cf_matrix):
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
     print(cf_matrix)
 
-def show_error(dataset,clf):
-    y_true, y_pred = dataset.y, clf.predict(dataset.X)
-    result=(y_pred==y_true)
-    for i,y in enumerate(result):
-        if(not y):
-          label=y_true[i]
-          label_pred=y_pred[i]
-          person=dataset.anno[i]  
-          print(str(i)+" "+str(label)+" "+str(label_pred)+" "+str(person))
-
-def parse_args(args):
-    if(len(args)>1):
-        random=int(args[1])
-        random=bool(random)
+def determistic_eval(train,test,svm=False):
+    if(svm):
+        clf=OptimizedSVM()
     else:
-        random=False
-    return random
+        clf=OptimizedRandomForest()
+    clf = clf.grid_search(train.X, train.y)#RandomForestClassifier(n_estimators=1000)
+    print(train.y)
+    clf = clf.fit(train.X, train.y)
+    eval_test(test,clf)
 
 if __name__ == "__main__":
-    random=parse_args(sys.argv)
-    if(random):
-        in_path="../af/cascade4/full_dataset"#"../af/result/full_dataset"
-        dataset=dataset.annotated_to_dataset(in_path)#labeled_to_dataset(in_path)
-        random_eval(dataset)
-    else:
-        train_path="../af/cascade4/full_dataset_train"
-        test_path="../af/cascade4/full_dataset_test"
-        determistic_eval(train_path,test_path,False)
+    in_path='../reps/dtw_feat/dataset.txt'
+    in_path2= '../ultimate3/simple/dataset.txt'#'../reps/dtw_feat/simple3/dataset.txt'
+    data=dataset.read_and_unify(in_path,in_path2)
+    #data=dataset.get_annotated_dataset(in_path2)
+    #data=select_feat.lasso_model(data)
+    even_data=dataset.select_person(data,i=0)
+    odd_data=dataset.select_person(data,i=1)
+    #even_data,odd_data = dataset.select_single(data,i=4)
+    print(len(even_data))
+    print(len(odd_data))
+    determistic_eval(odd_data,even_data,svm=False)
+    #random_eval(dataset,svm=False)
