@@ -67,22 +67,25 @@ def get_row(i,instances):
     return [ inst[i]
              for inst in instances]
 
-def read_and_unify(data_path1,data_path2):
-    data1=get_annotated_dataset(data_path1)
-    data2=get_annotated_dataset(data_path2)
-    #print("@@@@@@@@@@@@@@@@@@@@@")
-    #print(data1.X.shape)
-    #print(data2.X.shape)
-    data1=select_feat.lasso_model(data1)
-    return unify_feat(data1,data2)
+def read_and_unify(data_paths,select=[True,True]):
+    #data1=get_annotated_dataset(data_path1)
+    #data2=get_annotated_dataset(data_path2)
+    all_dataset=[ get_annotated_dataset(data_path_i)
+                  for data_path_i in data_paths]
+    def redu_helper(data,select):
+        if(select):
+            return select_feat.lasso_model(data)
+        else:
+            return data
+    all_dataset=[redu_helper(data_i,select_i)
+                   for data_i,select_i in zip(all_dataset,select)]
+    return unify_feat(all_dataset)
 
-def unify_feat(data1,data2):
-    new_X=np.concatenate([data1.X,data2.X],axis=1)
-    #print("New dim")
-    #print(new_X.shape)
-    #print(data1.X.shape)
-    #print(data2.X.shape)
-    return AnnotatedDataset(new_X,data1.y,data1.persons)
+def unify_feat(all_dataset):
+    all_x=[data_i.X for data_i in all_dataset]
+    new_X=np.concatenate(all_x,axis=1)
+    
+    return AnnotatedDataset(new_X,all_dataset[0].y,all_dataset[0].persons)
 
 def get_annotated_dataset(in_path):
     data_reader=read.DataReader()
