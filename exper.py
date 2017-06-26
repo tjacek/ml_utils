@@ -39,13 +39,13 @@ if __name__ == "__main__":
     #in_path1= "../exper2/united/dataset.txt"
     #in_path2= "../exper2/proj/dataset.txt"
     in_path1='../final_paper/MSRaction/basic_nn/dataset.txt'
-    #in_path1= '../exper2/time/dataset.txt'
+    #in_path1= '../exper2/proj/dataset.txt'
     in_path2= '../final_paper/MSRaction/simple/dataset.txt'
     #"../../final_paper/MSRaction/simple_dataset.txt"
     #"../exper_s/old/dataset_recr.txt"
     #experiment_single(in_path,select=True,cls_type='rf')
-    paths=[in_path1]#,in_path2]
-    select=[True]#,False]#,False]
-    norm=[True]#,False]#,False]
-    experiment_basic(paths,select,norm,cls_type='rf')
+    paths=[in_path1,in_path2]
+    select=[True,False]
+    norm=[True,False]
+    experiment_basic(paths,select,norm,cls_type='svm')
     
