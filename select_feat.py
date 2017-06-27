@@ -6,17 +6,23 @@ import sklearn.decomposition
 from sklearn.linear_model import LassoCV
 
 def lasso_model(data):
-    clf = LassoCV()
-    sfm = SelectFromModel(clf, threshold=0.1)
-    sfm.fit(data.X, data.y)
-   
-    new_X= sfm.transform(data.X)
-    
-    #clf = sklearn.decomposition.PCA(n_components=50)
-    #new_X=clf.fit_transform(data.X)
+
+    new_X=pca_select(data)
     
     data.X=new_X
     data.dim=new_X.shape[1]
     print("New dim %d " % data.dim)
     print(new_X.shape)
     return data
+
+def lasso_select(data):
+    clf = LassoCV()
+    sfm = SelectFromModel(clf, threshold=0.1)
+    sfm.fit(data.X, data.y)
+    new_X= sfm.transform(data.X)
+    return new_X
+
+def pca_select(data):
+    clf = sklearn.decomposition.PCA(n_components=50)
+    new_X=clf.fit_transform(data.X)
+    return new_X
