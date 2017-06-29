@@ -45,6 +45,9 @@ class Dataset(object):
         return [ get_instance(i) 
                  for i in range(len(self))]
 
+    def new_dataset(self,new_X):
+        return Dataset(new_X,self.y,self.info)
+
 def select_single(dataset,i=0):
     instances=dataset.as_instances()
     
@@ -99,8 +102,8 @@ def read_and_unify(data_paths,select=[True,True],norm=[True,True]):
         norm_i=norm[i]
         if(norm_i):
             data_i=data_i(preprocessing.scale)
-        if(select_i):
-            return select_feat.lasso_model(data_i)
+        if(select_i!=False):
+            return select_feat.select_feat(data_i,select_i)
         else:
             return data_i
     all_dataset=[redu_helper(i)

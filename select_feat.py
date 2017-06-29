@@ -5,15 +5,12 @@ from sklearn.ensemble import ExtraTreesClassifier
 import sklearn.decomposition
 from sklearn.linear_model import LassoCV
 
-def lasso_model(data):
-
-    new_X=pca_select(data)
-    
-    data.X=new_X
-    data.dim=new_X.shape[1]
-    print("New dim %d " % data.dim)
-    print(new_X.shape)
-    return data
+def select_feat(data,method='pca'):
+    if(method=='lasso'):
+        new_X=lasso_select(data)
+    else:
+        new_X=pca_select(data)
+    return data.new_dataset(new_X)
 
 def lasso_select(data):
     clf = LassoCV()
