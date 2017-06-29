@@ -21,6 +21,10 @@ class Dataset(object):
     def __len__(self):
         return len(self.y)
 
+    def __add__(data1,data2):
+        new_X=numpy.concatenate( [data1.X,data2.X])
+        return Dataset(new_X,data1.y,data1.info)
+
     def dim(self):
         return self.X.shape[1]    
 
