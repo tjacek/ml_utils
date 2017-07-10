@@ -68,10 +68,11 @@ def select_person(dataset,i=0):
 
 def select_category(dataset,cats=[]):
     instances=dataset.as_instances()
-    cat_set=Set(cats)  
+    if(type(cats)==list):
+        cats=Set(cats)  
     s_inst=[ inst_i 
                for inst_i in instances
-                 if(int(inst_i['cats']) in cat_set)]
+                 if(int(inst_i['cats']) in cats)]
     return from_instances(s_inst) 
 
 def from_instances(instances):
@@ -91,8 +92,6 @@ def get_row(key,instances):
              for inst in instances]
 
 def read_and_unify(data_paths,select=[True,True],norm=[True,True]):
-    #data1=get_annotated_dataset(data_path1)
-    #data2=get_annotated_dataset(data_path2)
     n_datasets=len(data_paths)
     all_dataset=[ get_dataset(data_path_i)
                   for data_path_i in data_paths]
@@ -107,13 +106,12 @@ def read_and_unify(data_paths,select=[True,True],norm=[True,True]):
         else:
             return data_i
     all_dataset=[redu_helper(i)
-                   for i in range(n_datasets)]#for data_i,select_i in zip(all_dataset,select)]
+                   for i in range(n_datasets)]
     return unify_feat(all_dataset)
 
 def unify_feat(all_dataset):
     all_x=[data_i.X for data_i in all_dataset]
-    new_X=np.concatenate(all_x,axis=1)
-    
+    new_X=np.concatenate(all_x,axis=1)    
     return Dataset(new_X,all_dataset[0].y,all_dataset[0].info)
 
 def get_dataset(in_path):

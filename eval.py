@@ -73,12 +73,16 @@ def show_confusion(cf_matrix):
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
     print(cf_matrix)
 
-def determistic_eval(train,test,svm=False):
-    if(svm):
+def determistic_eval(train,test,cls_type='svm'):#svm=False):
+    if(cls_type=='svm'):
         clf=OptimizedSVM()
-    else:
+        clf = clf.grid_search(train.X, train.y)
+    elif(cls_type=='rf'):
         clf=OptimizedRandomForest()
-    clf = clf.grid_search(train.X, train.y)#RandomForestClassifier(n_estimators=1000)
+        clf = clf.grid_search(train.X, train.y)
+    #else:
+
+    #RandomForestClassifier(n_estimators=1000)
     print(train.y)
     clf = clf.fit(train.X, train.y)
     eval_test(test,clf)

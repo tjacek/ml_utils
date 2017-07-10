@@ -14,9 +14,11 @@ def select_feat(data,method='pca'):
 
 def lasso_select(data):
     clf = LassoCV()
-    sfm = SelectFromModel(clf, threshold=0.1)
+    sfm = SelectFromModel(clf, threshold=0.01)
     sfm.fit(data.X, data.y)
     new_X= sfm.transform(data.X)
+    print("New dim: ")
+    print(new_X.shape)
     return new_X
 
 def pca_select(data):
