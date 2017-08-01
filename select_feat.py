@@ -4,17 +4,24 @@ from sklearn import linear_model
 from sklearn.ensemble import ExtraTreesClassifier
 import sklearn.decomposition
 from sklearn.linear_model import LassoCV
+from sklearn.svm import SVC
+from sklearn.feature_selection import RFE
+
 
 def select_feat(data,method='pca'):
-    if(method=='lasso'):
+    if(method==None):
+        return data
+    if(type(method)==int):
+        new_X= rfe_select(data,method)
+    elif(method=='lasso'):
         new_X=lasso_select(data)
     else:
         new_X=pca_select(data)
     return data.new_dataset(new_X)
 
 def lasso_select(data):
-    clf = LassoCV()
-    sfm = SelectFromModel(clf, threshold=0.01)
+    clf = LassoCV(max_iter=100)
+    sfm = SelectFromModel(clf,threshold=0.01)
     sfm.fit(data.X, data.y)
     new_X= sfm.transform(data.X)
     print("New dim: ")
@@ -24,4 +31,13 @@ def lasso_select(data):
 def pca_select(data):
     clf = sklearn.decomposition.PCA(n_components=50)
     new_X=clf.fit_transform(data.X)
+    return new_X
+
+def rfe_select(data,n):
+    svc = SVC(kernel='linear',C=1)
+    rfe = RFE(estimator=svc,n_features_to_select=n,step=1)
+    rfe.fit(data.X, data.y)
+    new_X= rfe.transform(data.X)
+    print("New dim: ")
+    print(new_X.shape)
     return new_X
