@@ -51,7 +51,8 @@ def single_dataset(paths):
 
 def read_paths(conf_file):
     return [ line_i.replace('\n','') 
-             for line_i in open(conf_file,"r")]
+             for line_i in open(conf_file,"r")
+                if(line_i!='')]
 
 if __name__ == "__main__":
     #in_path_s='../konf/full/dataset.txt'
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     
     in_path_s="../AArtyk/simple/all/simple.txt"
 
-    paths=read_paths('conf/deep.txt')#[in_path1,in_path2,in_path_s]#,in_path3]
+    paths=read_paths('conf/exp.txt')
     exper_single(paths,norm=True,select=150,cls_type='svm')
     
     #A1=[2,3,5,6,10,13,18,20]
