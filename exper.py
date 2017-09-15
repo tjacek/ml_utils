@@ -4,7 +4,8 @@ import select_feat
 from sklearn import preprocessing
 
 def exper_single(paths,norm=False,select=False,cls_type='svm'):
-    data=lasso_selection(paths,select,norm)
+    data=single_dataset(paths)
+    data=lasso_selection(data,select,norm)
     print(data.X.shape)
     even_data,odd_data=split_data(data)
     print(even_data.X.shape)
@@ -27,8 +28,7 @@ def experiment_basic(paths,cls_type='svm'):
     even_data,odd_data=split_data(data)
     eval.determistic_eval(odd_data,even_data,cls_type=cls_type)
 
-def lasso_selection(paths,select=True,norm=True):
-    data=single_dataset(paths)
+def lasso_selection(data,select=True,norm=True):
     if(norm):
         data=data(preprocessing.scale)        
     if(select!=False):
@@ -86,10 +86,3 @@ if __name__ == "__main__":
 
     paths=read_paths('conf/exp.txt')
     exper_single(paths,norm=True,select=150,cls_type='svm')
-    
-    #A1=[2,3,5,6,10,13,18,20]
-    #A2=[1,4,7,8,9,11,12,14]
-    #A3=[6,14,15,16,17,18,19,20]
-    #A=[i for i in range(20)]
-    #experiment_restricted(paths,cats=A3,cls_type='svm')
-    
