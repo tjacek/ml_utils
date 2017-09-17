@@ -22,7 +22,7 @@ class Dataset(object):
         return len(self.y)
 
     def __add__(data1,data2):
-        new_X=numpy.concatenate( [data1.X,data2.X])
+        new_X=np.concatenate( [data1.X,data2.X],axis=1)
         return Dataset(new_X,data1.y,data1.info)
 
     def dim(self):
