@@ -23,8 +23,9 @@ def experiment_restricted(paths,cats=[],cls_type='svm',to_zero=True):
     odd_data,even_data=split_data(r_data)
     eval.determistic_eval(odd_data,even_data,cls_type=cls_type)
 
-def experiment_basic(paths,cls_type='svm'):
-    data=lasso_selection(paths[0],'pca',False)
+def experiment_basic(data,cls_type='svm'):
+#    data=lasso_selection(paths[0],'pca',False)
+    print(data.y)
     even_data,odd_data=split_data(data)
     eval.determistic_eval(odd_data,even_data,cls_type=cls_type)
 
@@ -41,6 +42,8 @@ def split_data(r_data):
     return even_data,odd_data
 
 def single_dataset(paths):
+    if(type(paths)==str):
+        paths=read_paths(paths)
     all_datasets=[ dataset.get_dataset(path_i) 
                    for path_i in paths]
     for data_i in all_datasets:

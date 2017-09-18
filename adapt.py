@@ -1,5 +1,5 @@
 from sets import Set
-import exper,dataset,eval
+import exper,dataset,eval,voting
 
 def ensemble_dataset(basic_paths,adapt_paths,rest_sets):
     basic_data=basic_dataset(basic_paths)
@@ -46,5 +46,9 @@ if __name__ == "__main__":
     basic_paths="conf/no_deep.txt"
     adapt_paths=["../AArtyk/binary/cat9/dtw_feats.txt",
                  "../AArtyk/binary/cat11/dtw_feats.txt"]
-    rest_sets=[[9],[11]]             
-    ensemble_dataset(basic_paths,adapt_paths,rest_sets)
+    rest_sets=[[9],[11]]   
+
+    datasets=ensemble_dataset(basic_paths,adapt_paths,rest_sets)
+    ensemble=voting.Ensemble()
+    ensemble_pred,y_true=ensemble(datasets)
+    voting.show_result(ensemble_pred,y_true,conf=True)
