@@ -20,13 +20,11 @@ def adapt_datasets(paths,rest_sets,n_feats=30):
 def adapt_data(n_feats,path_i,restr_set):
     if(type(path_i)!=list):
         path_i=[path_i]
-    print(path_i)
     data=exper.single_dataset(path_i)
     if(restr_set!=None):
         data=restrict_cats(data,restr_set)
     if(n_feats!=None):
         data=exper.lasso_selection(data,n_feats,norm=True)
-    print(data==None)
     return data
 
 def restrict_cats(data,restr_set):
