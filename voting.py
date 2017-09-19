@@ -17,8 +17,8 @@ import eval
 from collections import Counter
 
 class Ensemble(object):
-    def __init__(self):
-        self.optim_cls=SimpleCls()
+    def __init__(self,optim_cls):
+        self.optim_cls=optim_cls#SimpleCls()
 
     def __call__(self,datasets):
         preds=[ self.optim_cls(data_i)
@@ -29,8 +29,8 @@ class Ensemble(object):
         return ensemble_pred,true_y
 
 class SimpleCls(object):
-    def __init__(self):
-        self.simple_cls=eval.OptimizedSVM()
+    def __init__(self,simple_cls):
+        self.simple_cls=simple_cls#eval.OptimizedSVM()
         self.true_y=None
 
     def __call__(self,data):
@@ -39,6 +39,14 @@ class SimpleCls(object):
         clf = clf.fit(odd_data.X, odd_data.y)
         self.true_y=even_data.y
         return clf.predict(even_data.X)
+
+def get_ensemble(cls_type='svm'):
+    if(cls_type=='rf'):
+        basic_cls=eval.OptimizedRandomForest()     
+    else:    
+        basic_cls=eval.OptimizedSVM()
+    optim_cls=SimpleCls(basic_cls)
+    return Ensemble(optim_cls)
 
 def get_sample_pred(preds):
     def helper(i):
