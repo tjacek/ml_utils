@@ -23,8 +23,10 @@ class Ensemble(object):
     def __call__(self,datasets):
         preds=[ self.optim_cls(data_i)
                     for data_i in datasets]
+        print(preds)
         true_y=self.optim_cls.true_y
         sample_pred=get_sample_pred(preds)
+        print(sample_pred)
         ensemble_pred=elect(sample_pred)
         return ensemble_pred,true_y
 
@@ -35,16 +37,19 @@ class SimpleCls(object):
 
     def __call__(self,data):
         even_data,odd_data=exper.split_data(data)
-        clf = self.simple_cls.grid_search(odd_data.X, odd_data.y)
+        optim=self.simple_cls()
+        clf = optim.grid_search(odd_data.X, odd_data.y)
         clf = clf.fit(odd_data.X, odd_data.y)
         self.true_y=even_data.y
-        return clf.predict(even_data.X)
+        pred_y= clf.predict(even_data.X)
+        print(pred_y)
+        return pred_y
 
 def get_ensemble(cls_type='svm'):
     if(cls_type=='rf'):
-        basic_cls=eval.OptimizedRandomForest()     
+        basic_cls=eval.OptimizedRandomForest     
     else:    
-        basic_cls=eval.OptimizedSVM()
+        basic_cls=eval.OptimizedSVM
     optim_cls=SimpleCls(basic_cls)
     return Ensemble(optim_cls)
 
@@ -59,8 +64,9 @@ def get_sample_pred(preds):
 def elect(preds):   
     def elect_helper(votes):
     	count =Counter(votes)
-        final_y=count.most_common()[0][0]
-        return final_y
+        elect_pair=count.most_common()[0]
+        n_votes=elect_pair[0]
+        return n_votes
     final_pred=[ elect_helper(votes_i) 
                for votes_i in preds]
     return final_pred

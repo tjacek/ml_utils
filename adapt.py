@@ -4,7 +4,7 @@ import exper,dataset,eval,voting
 def ensemble_dataset(basic_paths,adapt_paths,rest_sets):
     basic_data=basic_dataset(basic_paths)
     ensemble_datasets=adapt_datasets(adapt_paths,rest_sets)
-    return [ basic_data+data_i
+    return [data_i + basic_data
                 for data_i in ensemble_datasets]
 
 def basic_dataset(paths,select=150):
@@ -46,17 +46,18 @@ def restrict_cats(data,restr_set):
 
 if __name__ == "__main__":
     basic_paths="conf/no_deep.txt"  
-    adapt_paths=["../AArtyk/binary_time/cat4/dtw_feats.txt",
-                 "../AArtyk/binary_time/cat5/dtw_feats.txt",
-                 "../AArtyk/binary_time/cat9/dtw_feats.txt",
-                 "../AArtyk/binary_time/cat11/dtw_feats.txt",
-                 "../AArtyk/binary_time/cat14/dtw_feats.txt",]
-    adapt_paths=["../AArtyk/binary_time/cat4/simple.txt",
+    
+    adapt_paths=["../AArtyk/binary_time/cat0/simple.txt",
+                 "../AArtyk/binary_time/cat1/simple.txt",
+                 "../AArtyk/binary_time/cat4/simple.txt",
                  "../AArtyk/binary_time/cat5/simple.txt",
                  "../AArtyk/binary_time/cat9/simple.txt",
                  "../AArtyk/binary_time/cat11/simple.txt",
-                 "../AArtyk/binary_time/cat14/simple.txt",]
-    rest_sets=[None,None,None,None,None]#[9],[11],[14]]   
+                 "../AArtyk/binary_time/cat14/simple.txt"]
+    #adapt_paths=[adapt_paths[0],adapt_paths[1],adapt_paths[2],
+    #             adapt_paths[4],adapt_paths[6]]
+    #adapt_paths=[adapt_paths[1],adapt_paths[4],adapt_paths[6]]             
+    rest_sets=[None for path_i in adapt_paths]
 
     datasets=ensemble_dataset(basic_paths,adapt_paths,rest_sets)
     ensemble=voting.get_ensemble('svm')
