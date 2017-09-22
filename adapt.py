@@ -45,7 +45,7 @@ def restrict_cats(data,restr_set):
     return data               
 
 if __name__ == "__main__":
-    basic_paths="conf/no_deep.txt"  
+    basic_paths="conf/no_dtw.txt"  
     
     adapt_paths=["../AArtyk/binary_time/cat0/simple.txt",
                  "../AArtyk/binary_time/cat1/simple.txt",

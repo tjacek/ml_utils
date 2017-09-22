@@ -23,6 +23,7 @@ class Dataset(object):
 
     def __add__(data1,data2):
         new_X=np.concatenate( [data1.X,data2.X],axis=1)
+        print("OK")
         return Dataset(new_X,data1.y,data1.info)
 
     def dim(self):

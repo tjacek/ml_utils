@@ -32,6 +32,8 @@ def experiment_basic(data,cls_type='svm'):
 def lasso_selection(data,select=True,norm=True):
     if(norm):
         data=data(preprocessing.scale)        
+    if(data.dim()<select):
+        return data
     if(select!=False):
         data=select_feat.select_feat(data,select)
     return data
@@ -87,5 +89,6 @@ if __name__ == "__main__":
     
     in_path_s="../AArtyk/simple/all/simple.txt"
 
-    paths=read_paths('conf/exp.txt')
-    exper_single(paths,norm=True,select=150,cls_type='svm')
+    #paths=read_paths('conf/exp.txt')
+    out_path="../AArtyk/binary_time/cat4/simple.txt"
+    exper_single([out_path],norm=True,select=150,cls_type='svm')
