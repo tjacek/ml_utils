@@ -11,12 +11,15 @@ from sklearn.feature_selection import RFE
 def select_feat(data,method='pca'):
     if(method==None):
         return data
-    if(type(method)==int):
-        new_X= rfe_select(data,method)
-    elif(method=='lasso'):
-        new_X=lasso_select(data)
+    if(type(method)==tuple):
+        method,n_feats=method
+        if(method=='rfe'):
+            new_X= rfe_select(data,n_feats)
+        else:
+            new_X=pca_select(data,n_feats)
+        return new_X
     else:
-        new_X=pca_select(data)
+        new_X=lasso_select(data)
     return data.new_dataset(new_X)
 
 def lasso_select(data):
@@ -28,8 +31,8 @@ def lasso_select(data):
     print(new_X.shape)
     return new_X
 
-def pca_select(data):
-    clf = sklearn.decomposition.PCA(n_components=50)
+def pca_select(data,n_select):
+    clf = sklearn.decomposition.PCA(n_components=n_select)
     new_X=clf.fit_transform(data.X)
     return new_X
 
