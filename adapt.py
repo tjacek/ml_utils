@@ -1,21 +1,23 @@
 from sets import Set
 import exper,dataset,eval,voting
 
-def ensemble_dataset(basic_paths,adapt_paths,rest_sets):
+def ensemble_dataset(basic_paths,adapt_paths,rest_sets=None):
     basic_data=basic_dataset(basic_paths)
+    if(rest_sets==None):
+        rest_sets=[None for path_i in adapt_paths]
     ensemble_datasets=adapt_datasets(adapt_paths,rest_sets)
     return [data_i + basic_data
                 for data_i in ensemble_datasets]
 
-def basic_dataset(paths,select=150):
+def basic_dataset(paths,n_feats=50):
     data=exper.single_dataset(paths)
-    data=exper.lasso_selection(data,select,norm=True)
+    data=exper.lasso_selection(data,('rfe',n_feats),norm=True)
     return data
 
-def adapt_datasets(paths,rest_sets,n_feats=50):
+def adapt_datasets(paths,rest_sets,n_feats=150):
     if(len(paths)!=len(rest_sets)):
         raise Exception("paths and rest_sets have different lenght")
-    data=[adapt_data(n_feats,path_i,rest_set_i)
+    data=[adapt_data( ('rfe',n_feats),path_i,rest_set_i)
             for path_i,rest_set_i in zip(paths,rest_sets)]
     return data        
 
@@ -26,6 +28,7 @@ def adapt_data(n_feats,path_i,restr_set):
     if(restr_set!=None):
         data=restrict_cats(data,restr_set)
     if(n_feats!=None):
+        print("$$$$$$$$$$$$$$$$$$$$$")
         data=exper.lasso_selection(data,n_feats,norm=True)
     return data
 
@@ -45,7 +48,7 @@ def restrict_cats(data,restr_set):
     return data               
 
 if __name__ == "__main__":
-    basic_paths="conf/no_dtw.txt"  
+    basic_paths="conf/no_deep.txt"  
     
     adapt_paths=["../AArtyk/binary_time/cat0/simple.txt",
                  "../AArtyk/binary_time/cat1/simple.txt",
@@ -54,12 +57,19 @@ if __name__ == "__main__":
                  "../AArtyk/binary_time/cat9/simple.txt",
                  "../AArtyk/binary_time/cat11/simple.txt",
                  "../AArtyk/binary_time/cat14/simple.txt"]
+    #adapt_paths=["../AArtyk/binary_time/cat0/dtw_feats.txt",
+    #             "../AArtyk/binary_time/cat1/dtw_feats.txt",
+    #             "../AArtyk/binary_time/cat4/dtw_feats.txt",
+    #             "../AArtyk/binary_time/cat5/dtw_feats.txt",
+    #             "../AArtyk/binary_time/cat9/dtw_feats.txt",
+    #             "../AArtyk/binary_time/cat11/dtw_feats.txt",
+    #             "../AArtyk/binary_time/cat14/dtw_feats.txt"]
     #adapt_paths=[adapt_paths[0],adapt_paths[1],adapt_paths[2],
     #             adapt_paths[4],adapt_paths[6]]
     #adapt_paths=[adapt_paths[1],adapt_paths[4],adapt_paths[6]]             
-    rest_sets=[None for path_i in adapt_paths]
+    #rest_sets=[None for path_i in adapt_paths]
 
-    datasets=ensemble_dataset(basic_paths,adapt_paths,rest_sets)
+    datasets=ensemble_dataset(basic_paths,adapt_paths)#,rest_sets)
     ensemble=voting.get_ensemble('svm')
     ensemble_pred,y_true=ensemble(datasets)
     voting.show_result(ensemble_pred,y_true,conf=True)
