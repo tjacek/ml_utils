@@ -2,6 +2,7 @@ import dataset
 import eval
 import select_feat
 from sklearn import preprocessing
+from sets import Set
 
 def exper_single(paths,norm=False,select=False,cls_type='svm'):
     data=single_dataset(paths)
@@ -18,9 +19,10 @@ def experiment_restricted(paths,cats=[],cls_type='svm',to_zero=True):
     if(to_zero):
         cats=[ (cat_i-1) 
                for cat_i in cats]
-    data=lasso_selection(paths,select='lasso')
+    dataset=single_dataset(paths)   
     r_data=dataset.select_category(data,cats)
     odd_data,even_data=split_data(r_data)
+
     eval.determistic_eval(odd_data,even_data,cls_type=cls_type)
 
 def experiment_basic(data,cls_type='svm'):
@@ -32,7 +34,10 @@ def experiment_basic(data,cls_type='svm'):
 def lasso_selection(data,select=True,norm=True):
     if(norm):
         data=data(preprocessing.scale)        
-    if(data.dim()<select):
+    n_feats=select[1]
+    if(data.dim()<n_feats):
+        print(select)
+        print("No selection only %d features required" % data.dim())
         return data
     if(select!=False):
         data=select_feat.select_feat(data,select)
@@ -43,11 +48,14 @@ def split_data(r_data):
     odd_data=dataset.select_person(r_data,i=1)
     return even_data,odd_data
 
-def single_dataset(paths):
+def single_dataset(paths,select=None):
     if(type(paths)==str):
         paths=read_paths(paths)
     all_datasets=[ dataset.get_dataset(path_i) 
                    for path_i in paths]
+    if(select!=None):
+        all_datasets=[dataset.select_category(data_i,select) 
+                          for data_i in datasets]
     for data_i in all_datasets:
         print(data_i.X.shape)
         #data_i.y,data_i.person=data_i.person,data_i.y
