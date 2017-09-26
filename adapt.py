@@ -9,12 +9,12 @@ def ensemble_dataset(basic_paths,adapt_paths,rest_sets=None):
     return [data_i + basic_data
                 for data_i in ensemble_datasets]
 
-def basic_dataset(paths,n_feats=50):
+def basic_dataset(paths,n_feats=150):
     data=exper.single_dataset(paths)
     data=exper.lasso_selection(data,('rfe',n_feats),norm=True)
     return data
 
-def adapt_datasets(paths,rest_sets,n_feats=150):
+def adapt_datasets(paths,rest_sets,n_feats=50):
     if(len(paths)!=len(rest_sets)):
         raise Exception("paths and rest_sets have different lenght")
     data=[adapt_data( ('rfe',n_feats),path_i,rest_set_i)
@@ -28,11 +28,10 @@ def adapt_data(n_feats,path_i,restr_set):
     if(restr_set!=None):
         data=restrict_cats(data,restr_set)
     if(n_feats!=None):
-        print("$$$$$$$$$$$$$$$$$$$$$")
         data=exper.lasso_selection(data,n_feats,norm=True)
     return data
 
-def restrict_cats(data,restr_set):
+def restrict_cats_old(data,restr_set):
     if(type(restr_set)==int):
         restr_set=[restr_set]
     if(type(restr_set)!=Set):
@@ -70,6 +69,6 @@ if __name__ == "__main__":
     #rest_sets=[None for path_i in adapt_paths]
 
     datasets=ensemble_dataset(basic_paths,adapt_paths)#,rest_sets)
-    ensemble=voting.get_ensemble('svm')
+    ensemble=voting.get_ensemble('lr')
     ensemble_pred,y_true=ensemble(datasets)
     voting.show_result(ensemble_pred,y_true,conf=True)

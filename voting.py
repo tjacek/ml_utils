@@ -38,7 +38,11 @@ class SimpleCls(object):
     def __call__(self,data):
         even_data,odd_data=exper.split_data(data)
         optim=self.simple_cls()
-        clf = optim.grid_search(odd_data.X, odd_data.y)
+        try:
+            clf = optim.grid_search(odd_data.X, odd_data.y)
+        except AttributeError:
+            clf = optim
+        
         clf = clf.fit(odd_data.X, odd_data.y)
         self.true_y=even_data.y
         pred_y= clf.predict(even_data.X)
@@ -48,6 +52,11 @@ class SimpleCls(object):
 def get_ensemble(cls_type='svm'):
     if(cls_type=='rf'):
         basic_cls=eval.OptimizedRandomForest     
+    elif(cls_type=='lr'):
+        # clf = clf.fit(train.X, train.y)
+        basic_cls=LogisticRegression
+        #def basic_cls(train):
+
     else:    
         basic_cls=eval.OptimizedSVM
     optim_cls=SimpleCls(basic_cls)
