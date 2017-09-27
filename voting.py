@@ -23,7 +23,6 @@ class Ensemble(object):
     def __call__(self,datasets):
         preds=[ self.optim_cls(data_i)
                     for data_i in datasets]
-        print(preds)
         true_y=self.optim_cls.true_y
         sample_pred=get_sample_pred(preds)
         print(sample_pred)
@@ -46,17 +45,13 @@ class SimpleCls(object):
         clf = clf.fit(odd_data.X, odd_data.y)
         self.true_y=even_data.y
         pred_y= clf.predict(even_data.X)
-        print(pred_y)
         return pred_y
 
 def get_ensemble(cls_type='svm'):
     if(cls_type=='rf'):
         basic_cls=eval.OptimizedRandomForest     
     elif(cls_type=='lr'):
-        # clf = clf.fit(train.X, train.y)
         basic_cls=LogisticRegression
-        #def basic_cls(train):
-
     else:    
         basic_cls=eval.OptimizedSVM
     optim_cls=SimpleCls(basic_cls)

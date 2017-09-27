@@ -13,12 +13,13 @@ def select_feat(data,method='pca'):
         return data
     if(type(method)==tuple):
         method,n_feats=method
+        print("selection " + method)
         if(method=='rfe'):
             new_X= rfe_select(data,n_feats)
         else:
             new_X=pca_select(data,n_feats)
-        return new_X
     else:
+        print("selection lasso" )
         new_X=lasso_select(data)
     return data.new_dataset(new_X)
 
