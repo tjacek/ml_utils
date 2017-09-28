@@ -18,7 +18,7 @@ from collections import Counter
 
 class Ensemble(object):
     def __init__(self,optim_cls):
-        self.optim_cls=optim_cls#SimpleCls()
+        self.optim_cls=optim_cls)
 
     def __call__(self,datasets):
         preds=[ self.optim_cls(data_i)
@@ -31,7 +31,7 @@ class Ensemble(object):
 
 class SimpleCls(object):
     def __init__(self,simple_cls):
-        self.simple_cls=simple_cls#eval.OptimizedSVM()
+        self.simple_cls=simple_cls
         self.true_y=None
 
     def __call__(self,data):
