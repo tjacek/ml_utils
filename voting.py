@@ -18,7 +18,7 @@ from collections import Counter
 
 class Ensemble(object):
     def __init__(self,optim_cls):
-        self.optim_cls=optim_cls)
+        self.optim_cls=optim_cls
 
     def __call__(self,datasets):
         preds=[ self.optim_cls(data_i)
@@ -28,6 +28,9 @@ class Ensemble(object):
         print(sample_pred)
         ensemble_pred=elect(sample_pred)
         return ensemble_pred,true_y
+
+    def stats(self,sample_pred,ensemble_pred):
+        n=len(sample_pred[0])
 
 class SimpleCls(object):
     def __init__(self,simple_cls):
@@ -72,7 +75,7 @@ def elect(preds):
         n_votes=elect_pair[0]
         return n_votes
     final_pred=[ elect_helper(votes_i) 
-               for votes_i in preds]
+                 for votes_i in preds]
     return final_pred
 
 def show_result(y_pred,y_true,conf=True):
