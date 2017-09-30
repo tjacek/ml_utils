@@ -25,12 +25,20 @@ class Ensemble(object):
                     for data_i in datasets]
         true_y=self.optim_cls.true_y
         sample_pred=get_sample_pred(preds)
-        print(sample_pred)
         ensemble_pred=elect(sample_pred)
+        print(self.stats(sample_pred,ensemble_pred))
         return ensemble_pred,true_y
 
     def stats(self,sample_pred,ensemble_pred):
         n=len(sample_pred[0])
+        def count_helper(pred_j,votes):
+            win_votes=[int(pred_j==vote_i) 
+                        for vote_i in votes]
+            return sum(win_votes)
+        return [ count_helper(pred_j,votes_j)
+                    #for votes_j in sample_pred]
+                    for votes_j,pred_j in zip(sample_pred,ensemble_pred)]
+
 
 class SimpleCls(object):
     def __init__(self,simple_cls):
