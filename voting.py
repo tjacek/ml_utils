@@ -15,6 +15,7 @@ from sklearn.svm import SVC
 import pandas as pd
 import eval
 from collections import Counter
+import numpy as np
 
 class Ensemble(object):
     def __init__(self,optim_cls):
@@ -35,9 +36,9 @@ class Ensemble(object):
             win_votes=[int(pred_j==vote_i) 
                         for vote_i in votes]
             return sum(win_votes)
-        return [ count_helper(pred_j,votes_j)
-                    #for votes_j in sample_pred]
+        win_votes=[ count_helper(pred_j,votes_j)
                     for votes_j,pred_j in zip(sample_pred,ensemble_pred)]
+        return get_histogram(win_votes)
 
 
 class SimpleCls(object):
@@ -57,6 +58,14 @@ class SimpleCls(object):
         self.true_y=even_data.y
         pred_y= clf.predict(even_data.X)
         return pred_y
+        
+
+def get_histogram(numbers):
+    hist_size=max(numbers)
+    histogram=np.zeros((hist_size,))
+    for n in numbers:
+        histogram[n-1]+=1
+    return histogram
 
 def get_ensemble(cls_type='svm'):
     if(cls_type=='rf'):
