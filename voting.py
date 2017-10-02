@@ -38,13 +38,14 @@ class Ensemble(object):
             return sum(win_votes)
         win_votes=[ count_helper(pred_j,votes_j)
                     for votes_j,pred_j in zip(sample_pred,ensemble_pred)]
-        return get_histogram(win_votes)
+        return make_histogram(win_votes)
 
 
 class SimpleCls(object):
-    def __init__(self,simple_cls):
+    def __init__(self,simple_cls,soft=True):
         self.simple_cls=simple_cls
         self.true_y=None
+        self.soft=soft
 
     def __call__(self,data):
         even_data,odd_data=exper.split_data(data)
@@ -56,11 +57,16 @@ class SimpleCls(object):
         
         clf = clf.fit(odd_data.X, odd_data.y)
         self.true_y=even_data.y
-        pred_y= clf.predict(even_data.X)
+        pred_y= self.get_prediction(clf,even_data.X)
         return pred_y
-        
 
-def get_histogram(numbers):
+    def get_prediction(self,clf,test_data):
+        if(self.soft):
+            return clf.predict_proba(test_data)
+        else:
+            return clf.predict(test_data)
+
+def make_histogram(numbers):
     hist_size=max(numbers)
     histogram=np.zeros((hist_size,))
     for n in numbers:
