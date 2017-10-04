@@ -49,16 +49,18 @@ def split_data(r_data):
     return even_data,odd_data
 
 def single_dataset(paths,select=None):
+                        #[1,2,4,5,9,12,17,19]
+                        #[0,3,6,7,8,10,11,13] 
+                        #[5,13,14,15,16,17,18,19]
     if(type(paths)==str):
         paths=read_paths(paths)
     all_datasets=[ dataset.get_dataset(path_i) 
                    for path_i in paths]
     if(select!=None):
         all_datasets=[dataset.select_category(data_i,select) 
-                          for data_i in datasets]
+                          for data_i in all_datasets]
     for data_i in all_datasets:
-        print(data_i.X.shape)
-        #data_i.y,data_i.person=data_i.person,data_i.y
+        print("Orginal size" + str(data_i.X.shape))
     data=dataset.unify_feat(all_datasets)
     return data
 
@@ -97,6 +99,7 @@ if __name__ == "__main__":
     
     in_path_s="../AArtyk/simple/all/simple.txt"
 
-    #paths=read_paths('conf/exp.txt')
-    out_path="../AArtyk/binary_time/cat4/simple.txt"
-    exper_single([out_path],norm=True,select=150,cls_type='svm')
+    #paths=read_paths('conf/no_.txt')
+    #out_path="../AArtyk/binary_time/cat4/simple.txt"
+    paths=['../AArtyk/simple/all/simple.txt','../AArtyk/simple/max_z/dtw_dataset.txt']
+    exper_single(paths,norm=True,select=('rfe',150),cls_type='svm')
