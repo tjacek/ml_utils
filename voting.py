@@ -30,7 +30,7 @@ class Ensemble(object):
         print(self.stats(sample_pred,ensemble_pred))
         return ensemble_pred,true_y
 
-    def stats(self,sample_pred,ensemble_pred):
+    def stats(self,sample_pred,ensemble_pred,hist=True):
         n=len(sample_pred[0])
         def count_helper(pred_j,votes):
             win_votes=[int(pred_j==vote_i) 
@@ -38,11 +38,13 @@ class Ensemble(object):
             return sum(win_votes)
         win_votes=[ count_helper(pred_j,votes_j)
                     for votes_j,pred_j in zip(sample_pred,ensemble_pred)]
-        return make_histogram(win_votes)
-
+        if(hist):
+            return make_histogram(win_votes)
+        else:
+            return win_votes
 
 class SimpleCls(object):
-    def __init__(self,simple_cls,soft=True):
+    def __init__(self,simple_cls,soft=False):
         self.simple_cls=simple_cls
         self.true_y=None
         self.soft=soft
