@@ -31,7 +31,7 @@ def experiment_basic(data,cls_type='svm'):
     even_data,odd_data=split_data(data)
     eval.determistic_eval(odd_data,even_data,cls_type=cls_type)
 
-def lasso_selection(data,select=True,norm=True):
+def feat_selection(data,select=True,norm=True):
     if(norm):
         data=data(preprocessing.scale)        
     n_feats=select[1]
@@ -77,29 +77,22 @@ if __name__ == "__main__":
     #in_path2= '../final_paper/MSRaction/simple/dataset.txt'
     #in_path3='../final_paper/MSRaction/basic_nn/dataset.txt'
     #paths=[in_path1,in_path2,in_path_s]#
-    
-    #in_path0="../konf1/dtw_feat.txt"
-    #in_path1="../konf1/dataset.txt"
-    #in_path2="../konf1/simple.txt"
 
-    #in_path1='../konf3/dtw_feats.txt'
-    #in_path2='../konf3/simple.txt'
-    #in_path3='../konf3/max_z.txt'
-
-    #in_path1="../methods/Vb/dtw_feats.txt"
-    #in_path2="../methods/Vb/hf_feats.txt"
-    #in_path='../konf4/dtw_feats.txt'
-    
-    in_path3="../AArtyk/untime/nn/dtw_dataset.txt"
+    #in_path3="../AArtyk/untime/nn/dtw_dataset.txt"
     #in_path3= '../final_paper/MSRaction/simple/dataset.txt'
     #in_path3= '../exper_4/dataset.txt'
-    in_path1="../AArtyk/simple/max_z/dtw_dataset.txt"
-    in_path2="../AArtyk/simple/corl/dtw_dataset.txt"
+    #in_path1="../AArtyk/simple/max_z/dtw_dataset.txt"
+    #in_path2="../AArtyk/simple/corl/dtw_dataset.txt"
     #in_path3="../AArtyk/simple/skew/dtw_dataset.txt"
     
-    in_path_s="../AArtyk/simple/all/simple.txt"
+    #in_path_s="../AArtyk/simple/all/simple.txt"
 
     #paths=read_paths('conf/no_.txt')
     #out_path="../AArtyk/binary_time/cat4/simple.txt"
-    paths=['../AArtyk/simple/all/simple.txt','../AArtyk/simple/max_z/dtw_dataset.txt']
+    #paths=['../AArtyk/simple/all/simple.txt','../AArtyk/simple/max_z/dtw_dataset.txt']
+    out_path="../AArtyk2/deep/all/simple.txt"
+
+    #paths=['../AArtyk2/basic/simple/simple.txt','../AArtyk2/basic/corel/dtw_feats.txt',
+    #       '../AArtyk2/basic/extr/dtw_feats.txt',
+    paths=[out_path]
     exper_single(paths,norm=True,select=('rfe',150),cls_type='svm')
