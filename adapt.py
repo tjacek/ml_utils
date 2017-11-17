@@ -51,6 +51,8 @@ def restrict_cats(data,restr_set):
 def gen_pahts(nn_path,indices):
     if(type(indices)==int):
         indices=range(indices)
+    if(type(indices)==tuple):
+        indices=range(indices[0], indices[1])
     return [nn_path+str(i+1)
                     for i in indices]
 
