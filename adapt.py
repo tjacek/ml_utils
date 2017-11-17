@@ -48,6 +48,12 @@ def restrict_cats(data,restr_set):
     data.y=new_cats
     return data               
 
+def gen_pahts(nn_path,indices):
+    if(type(indices)==int):
+        indices=range(indices)
+    return [nn_path+str(i+1)
+                    for i in indices]
+
 if __name__ == "__main__":
     basic_paths="conf/no_deep2.txt"  
     #adapt_paths=["../AArtyk2/deep/16/simple.txt"]
@@ -63,12 +69,12 @@ if __name__ == "__main__":
     #adapt_paths=[adapt_paths[1],adapt_paths[4],adapt_paths[6]]             
     #rest_sets=[None for path_i in adapt_paths]
     #basic_paths="conf/dummy.txt"  
-    adapt_paths=["../AArtyk2/deep/16/simple.txt",
-                 "../AArtyk2/deep/25/simple.txt",
-                 "../AArtyk2/deep/26/simple.txt"]
+    nn_path="../AArtyk3/feats/nn_"
+    adapt_paths=[nn_path+str(i+1)
+                    for i in range(19)]
 
-    rest_sets=[16,25,26]
-    datasets=ensemble_dataset(basic_paths,adapt_paths,rest_sets)
+    #rest_sets=[16,25,26]
+    datasets=ensemble_dataset(basic_paths,adapt_paths)
     ensemble=voting.get_ensemble('lr')
     ensemble_pred,y_true=ensemble(datasets)
     voting.show_result(ensemble_pred,y_true,conf=True)
