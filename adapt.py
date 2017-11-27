@@ -17,7 +17,10 @@ def basic_dataset(paths,n_feats=150):
 def adapt_datasets(paths,rest_sets,n_feats=50):
     if(len(paths)!=len(rest_sets)):
         raise Exception("paths and rest_sets have different lenght")
-    data=[adapt_data( ('rfe',n_feats),path_i,rest_set_i)
+    
+    if(type(n_feats)==int):
+        n_feats=('rfe',n_feats)
+    data=[adapt_data( n_feats,path_i,rest_set_i)
             for path_i,rest_set_i in zip(paths,rest_sets)]
     return data        
 
