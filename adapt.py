@@ -11,7 +11,9 @@ def ensemble_dataset(basic_paths,adapt_paths,rest_sets=None):
 
 def basic_dataset(paths,n_feats=150):
     data=exper.single_dataset(paths)
-    data=exper.feat_selection(data,('rfe',n_feats),norm=True)
+    if(type(n_feats)==int):
+        n_feats=('rfe',n_feats)
+    data=exper.feat_selection(data,n_feats,norm=True)
     return data
 
 def adapt_datasets(paths,rest_sets,n_feats=50):
