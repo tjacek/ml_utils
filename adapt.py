@@ -43,19 +43,6 @@ def gen_pahts(nn_path,indices):
 
 if __name__ == "__main__":
     basic_paths="conf/no_deep2.txt"  
-    #adapt_paths=["../AArtyk2/deep/16/simple.txt"]
-    #adapt_paths=["../AArtyk/binary_time/cat0/simple.txt",
-    #             "../AArtyk/binary_time/cat1/simple.txt",
-    #             "../AArtyk/binary_time/cat4/simple.txt",
-    #             "../AArtyk/binary_time/cat5/simple.txt",
-    #             "../AArtyk/binary_time/cat9/simple.txt",
-    #             "../AArtyk/binary_time/cat11/simple.txt",
-    #             "../AArtyk/binary_time/cat14/simple.txt"]
-    #adapt_paths=[adapt_paths[0],adapt_paths[1],adapt_paths[2],
-    #             adapt_paths[4],adapt_paths[6]]
-    #adapt_paths=[adapt_paths[1],adapt_paths[4],adapt_paths[6]]             
-    #rest_sets=[None for path_i in adapt_paths]
-    #basic_paths="conf/dummy.txt"  
     nn_path="../AArtyk3/feats/nn_"
     adapt_paths=[nn_path+str(i+1)
                     for i in range(19)]
