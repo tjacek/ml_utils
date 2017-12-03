@@ -7,12 +7,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import VotingClassifier
 import exper
 from sklearn.svm import SVC
-import pandas as pd
 import eval
 from collections import Counter
 import numpy as np
@@ -102,12 +99,3 @@ def elect(preds):
     final_pred=[ elect_helper(votes_i) 
                  for votes_i in preds]
     return final_pred
-
-def show_result(y_pred,y_true,conf=True):
-    print(classification_report(y_true, y_pred,digits=4))
-    if(conf):
-       show_confusion(confusion_matrix(y_true, y_pred))
-    
-def show_confusion(cf_matrix):
-    cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
-    print(cf_matrix)

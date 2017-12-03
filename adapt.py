@@ -1,25 +1,32 @@
 from sets import Set
-import exper,dataset,eval,voting
+import exper,dataset,eval,voting,learn
 
-def ensemble_dataset(basic_paths,adapt_paths):
-    basic_data=basic_dataset(basic_paths)
-    ensemble_datasets=adapt_datasets(adapt_paths)
-    return [data_i + basic_data
+class EnsembleDataset(object):
+    def __init__(self, basic_feats,adapt_feats):
+        if(type(basic_feats)==int):
+            basic_feats=('lasso',n_feats)
+        if(type(adapt_feats)==int):
+            adapt_feats=('lasso',n_feats)
+        self.basic_feats=basic_feats
+        self.adapt_feats=adapt_feats
+
+    def __call__(self,basic_paths,adapt_paths):
+        basic_data=self.basic_dataset(basic_paths)
+        if(len(adapt_paths)==0):
+            return [basic_data]
+        ensemble_datasets=self.adapt_datasets(adapt_paths)
+        return [data_i + basic_data
                 for data_i in ensemble_datasets]
 
-def basic_dataset(paths,n_feats=150):
-    data=exper.single_dataset(paths)
-    if(type(n_feats)==int):
-        n_feats=('rfe',n_feats)
-    data=exper.feat_selection(data,n_feats,norm=True)
-    return data
+    def basic_dataset(self,paths):
+        data=exper.single_dataset(paths)
+        data=exper.feat_selection(data,self.basic_feats,norm=True)
+        return data
 
-def adapt_datasets(paths,n_feats=50):  
-    if(type(n_feats)==int):
-        n_feats=('rfe',n_feats)
-    data=[adapt_data( n_feats,path_i)
-            for path_i in zip(paths)]
-    return data        
+    def adapt_datasets(self,paths):  
+        data=[adapt_data(self.adapt_feats,path_i)
+                for path_i in zip(paths)]
+        return data        
 
 def adapt_data(n_feats,path_i):
     print(path_i)
@@ -47,7 +54,8 @@ if __name__ == "__main__":
     nn_path="../AArtyk/all_feats/nn_"
     adapt_paths=[nn_path+str(i)
                     for i in range(20)]
+    ensemble_dataset=EnsembleDataset(('lasso',150),('lasso',50))
     datasets=ensemble_dataset(basic_paths,adapt_paths)
     ensemble=voting.get_ensemble('lr')
     ensemble_pred,y_true=ensemble(datasets)
-    voting.show_result(ensemble_pred,y_true,conf=True)
+    learn.show_result(ensemble_pred,y_true,conf=True)
