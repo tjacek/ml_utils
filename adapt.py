@@ -2,7 +2,8 @@ from sets import Set
 import exper,dataset,eval,voting,learn
 
 class EnsembleDataset(object):
-    def __init__(self, basic_feats,adapt_feats,norm=True):
+    def __init__(self, basic_feats,adapt_feats,
+                    norm=True,filter_data=None):
         if(type(basic_feats)==int):
             basic_feats=('rfe',n_feats)
         if(type(adapt_feats)==int):
@@ -10,6 +11,7 @@ class EnsembleDataset(object):
         self.basic_feats=basic_feats
         self.adapt_feats=adapt_feats
         self.norm=norm
+        self.filter_data=filter_data
 
     def __call__(self,basic_paths,adapt_paths):
         basic_data=self.basic_dataset(basic_paths)
@@ -24,11 +26,16 @@ class EnsembleDataset(object):
             return None
         data=exper.single_dataset(paths)
         data=exper.feat_selection(data,self.basic_feats,norm=True)
+        if(self.filter_data!=None):
+            data=self.filter_data(data)
         return data
 
     def adapt_datasets(self,paths):  
         data=[self.adapt_data(path_i)
                 for path_i in zip(paths)]
+        if(self.filter_data!=None):
+            data=[self.filter(data_i) 
+                    for data_i in data]
         return data        
 
     def adapt_data(self,path_i):
@@ -38,6 +45,13 @@ class EnsembleDataset(object):
         data=exper.feat_selection(data,self.adapt_feats,norm=self.norm)
         data.y=old_y
         return data           
+
+class SetFilter(object):
+    def __init__(self,allowed):
+        self.alowed=Set(allowed)
+
+    def __call__(self,data):
+        return dataset.select_category(data,self.alowed) 
 
 def get_list_of_paths(path_i):
     print(path_i)
@@ -57,14 +71,18 @@ def gen_pahts(nn_path,indices):
 
 if __name__ == "__main__":
     basic_paths="conf/no_deep.txt"  
-    nn_path='../AArtyk/all_feats/nn_'
+    nn_path='../AArtyk/all_feats/nn_' 
+    basic_paths=['../AArtyk/simple/all/simple.txt',
+                 '../AArtyk/simple/corl/dtw_dataset.txt',
+                 '../AArtyk/simple/max_z/dtw_dataset.txt']
+    #nn_path='../AArtyk3/all_feats/nn_'
     #basic_paths=['../AArtyk2/basic/simple/simple.txt',
     #             '../AArtyk2/basic/corel/dtw_feats.txt',
-    #             '../AArtyk2/basic/extr/dtw_feats.txt']
-    #../AArtyk/select_untime/select_worst3/dtw_feats.txt
-    adapt_paths=[]#[nn_path+str(i)
-                #    for i in range(20)]
-    ensemble_dataset=EnsembleDataset('lasso',None)
+    #            '../AArtyk2/basic/extr/dtw_feats.txt']
+    adapt_paths=[nn_path+str(i)
+                    for i in range(20)]
+    ensemble_dataset=EnsembleDataset(('rfe',150),('rfe',50),
+                                    filter_data=SetFilter([1,2,4,5,9,12,17,19]))
     datasets=ensemble_dataset(basic_paths,adapt_paths)
     print(datasets)
     ensemble=voting.get_ensemble('lr') 
