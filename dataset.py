@@ -22,6 +22,8 @@ class Dataset(object):
         return len(self.y)
 
     def __add__(data1,data2):
+        if(data2 is None):
+            return data1
         new_X=np.concatenate( [data1.X,data2.X],axis=1)
         print("OK")
         return Dataset(new_X,data1.y,data1.info)
@@ -38,9 +40,6 @@ class Dataset(object):
 
     def as_instances(self):
         def get_instance(i):
-            #x_i=self.X[i]
-            #y_i=self.y[i]
-            #person_i=self['persons'][i]
             return { key_j:value_j[i]
                      for key_j,value_j in self.info.items()}
         return [ get_instance(i) 
@@ -48,6 +47,13 @@ class Dataset(object):
 
     def new_dataset(self,new_X):
         return Dataset(new_X,self.y,self.info)
+
+    def select(self,selector):
+        instances=dataset.as_instances()
+        choosen_insts=[inst_i 
+                        for inst_i in instances
+                            if(selector(inst_i))]
+        return from_instances( choosen_inst) 
 
 def select_single(dataset,i=0):
     instances=dataset.as_instances()
