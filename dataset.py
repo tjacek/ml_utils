@@ -56,15 +56,18 @@ class Dataset(object):
         return from_instances( choosen_inst) 
 
 def select_single(dataset,i=0):
-    instances=dataset.as_instances()
+    pos=lambda inst_i:inst_i['persons']==i
+    neg=lambda inst_i:inst_i['persons']!=i
+    return dataset.select(pos),dataset.select(neg) 
+    #instances=dataset.as_instances()
     
-    pos_inst=[ inst_i 
-               for inst_i in instances
-                 if(inst_i['persons']==i)]
-    neg_inst=[ inst_i 
-               for inst_i in instances
-                 if(inst_i['persons']!=i)]
-    return from_instances(pos_inst),from_instances(neg_inst)
+    #pos_inst=[ inst_i 
+    #           for inst_i in instances
+    #             if(inst_i['persons']==i)]
+    #neg_inst=[ inst_i 
+    #           for inst_i in instances
+    #             if(inst_i['persons']!=i)]
+    #return from_instances(pos_inst),from_instances(neg_inst)
 
 def select_person(dataset,i=0):
     instances=dataset.as_instances()    
