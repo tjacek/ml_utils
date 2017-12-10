@@ -34,7 +34,7 @@ class EnsembleDataset(object):
         data=[self.adapt_data(path_i)
                 for path_i in zip(paths)]
         if(self.filter_data!=None):
-            data=[self.filter(data_i) 
+            data=[self.filter_data(data_i) 
                     for data_i in data]
         return data        
 
@@ -61,13 +61,17 @@ def get_list_of_paths(path_i):
         path_i=[path_i]
     return path_i
 
-def gen_pahts(nn_path,indices):
+def gen_paths(nn_path,indices):
     if(type(indices)==int):
         indices=range(indices)
     if(type(indices)==tuple):
         indices=range(indices[0], indices[1])
     return [nn_path+str(i+1)
                     for i in indices]
+
+def get_nn_paths(nn_path,indexes):
+    return [nn_path+str(i)
+                    for i in indexes]
 
 if __name__ == "__main__":
     basic_paths="conf/no_deep.txt"  
@@ -79,10 +83,13 @@ if __name__ == "__main__":
     #basic_paths=['../AArtyk2/basic/simple/simple.txt',
     #             '../AArtyk2/basic/corel/dtw_feats.txt',
     #            '../AArtyk2/basic/extr/dtw_feats.txt']
-    adapt_paths=[nn_path+str(i)
-                    for i in range(20)]
-    ensemble_dataset=EnsembleDataset(('rfe',150),('rfe',50),
-                                    filter_data=SetFilter([1,2,4,5,9,12,17,19]))
+    adapt_paths=get_nn_paths(nn_path,range(20))
+                
+    #[1,2,4,5,9,12,17,19]
+    #[0,3,6,7,8,10,11,13] 
+    #[5,13,14,15,16,17,18,19]                
+    ensemble_dataset=EnsembleDataset(('rfe',150),None,
+                                    filter_data=SetFilter([0,3,6,7,8,10,11,13] ))
     datasets=ensemble_dataset(basic_paths,adapt_paths)
     print(datasets)
     ensemble=voting.get_ensemble('lr') 
