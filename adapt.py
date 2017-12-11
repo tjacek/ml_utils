@@ -77,21 +77,25 @@ if __name__ == "__main__":
     basic_paths="conf/no_deep.txt"  
     nn_path='../AArtyk/all_feats/nn_' 
     basic_paths=['../AArtyk/simple/all/simple.txt',
-                 '../AArtyk/simple/corl/dtw_dataset.txt',
-                 '../AArtyk/simple/max_z/dtw_dataset.txt']
+    #             '../AArtyk/simple/corl/dtw_dataset.txt',
+                 '../AArtyk/simple/max_z/dtw_dataset.txt',
+                 '../AArtyk/simple/skew/dtw_dataset.txt']
     #nn_path='../AArtyk3/all_feats/nn_'
     #basic_paths=['../AArtyk2/basic/simple/simple.txt',
     #             '../AArtyk2/basic/corel/dtw_feats.txt',
     #            '../AArtyk2/basic/extr/dtw_feats.txt']
-    adapt_paths=get_nn_paths(nn_path,range(20))
-                
-    #[1,2,4,5,9,12,17,19]
-    #[0,3,6,7,8,10,11,13] 
-    #[5,13,14,15,16,17,18,19]                
-    ensemble_dataset=EnsembleDataset(('rfe',150),None,
-                                    filter_data=SetFilter([0,3,6,7,8,10,11,13] ))
+    
+    #cats=[1,2,4,5,9,12,17,19]
+    #cats=[0,3,6,7,8,10,11,13] 
+    #cats=[5,13,14,15,16,17,18,19]  
+    cats=range(20)
+    adapt_paths=get_nn_paths(nn_path,cats)
+                              
+    ensemble_dataset=EnsembleDataset(('rfe',150),('rfe',50),
+                                    filter_data=None)#SetFilter(cats ))
     datasets=ensemble_dataset(basic_paths,adapt_paths)
     print(datasets)
     ensemble=voting.get_ensemble('lr') 
     ensemble_pred,y_true=ensemble(datasets)
+#    ensemble.stats(ensemble_pred,y_true)
     learn.show_result(ensemble_pred,y_true,conf=True)

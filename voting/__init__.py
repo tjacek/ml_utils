@@ -24,10 +24,15 @@ class Ensemble(object):
         true_y=self.optim_cls.true_y
         sample_pred=get_sample_pred(preds)
         ensemble_pred=elect(sample_pred)
-        print(self.stats(sample_pred,ensemble_pred))
+        results=self.stats(sample_pred,ensemble_pred)
+        for result_i,y_i in zip(results,true_y):
+            if(y_i!=np.argmax(result_i)):
+                print(str(result_i) + " " +str(y_i))
         return ensemble_pred,true_y
 
     def stats(self,sample_pred,ensemble_pred,hist=True):
+        print(sample_pred)
+        print(ensemble_pred)
         n=len(sample_pred[0])
         def count_helper(pred_j,votes):
             win_votes=[int(pred_j==vote_i) 
@@ -36,7 +41,8 @@ class Ensemble(object):
         win_votes=[ count_helper(pred_j,votes_j)
                     for votes_j,pred_j in zip(sample_pred,ensemble_pred)]
         if(hist):
-            return make_histogram(win_votes)
+            return [make_histogram(win_votes_i)
+                       for win_votes_i in sample_pred]
         else:
             return win_votes
 
@@ -65,11 +71,10 @@ class SimpleCls(object):
         else:
             return clf.predict(test_data)
 
-def make_histogram(numbers):
-    hist_size=max(numbers)
-    histogram=np.zeros((hist_size,))
+def make_histogram(numbers,n_cats=20):
+    histogram=np.zeros((n_cats,))
     for n in numbers:
-        histogram[n-1]+=1
+        histogram[n]+=1
     return histogram
 
 def get_ensemble(cls_type='svm'):
