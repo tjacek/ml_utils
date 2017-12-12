@@ -13,6 +13,7 @@ from sklearn.svm import SVC
 import eval
 from collections import Counter
 import numpy as np
+import random
 
 class Ensemble(object):
     def __init__(self,optim_cls):
@@ -27,7 +28,7 @@ class Ensemble(object):
         results=self.stats(sample_pred,ensemble_pred)
         for result_i,y_i in zip(results,true_y):
             if(y_i!=np.argmax(result_i)):
-                print(str(result_i) + " " +str(y_i))
+                print(str(result_i[y_i]) + " " +str(y_i))
         return ensemble_pred,true_y
 
     def stats(self,sample_pred,ensemble_pred,hist=True):
@@ -71,7 +72,7 @@ class SimpleCls(object):
         else:
             return clf.predict(test_data)
 
-def make_histogram(numbers,n_cats=20):
+def make_histogram(numbers,n_cats=27):
     histogram=np.zeros((n_cats,))
     for n in numbers:
         histogram[n]+=1
@@ -104,3 +105,9 @@ def elect(preds):
     final_pred=[ elect_helper(votes_i) 
                  for votes_i in preds]
     return final_pred
+
+def random_subset(k,all_items):
+    indexes=range(len(all_items))
+    random.shuffle(indexes)
+    subset=indexes[0:k]
+    return [all_items[i] for i in subset]
