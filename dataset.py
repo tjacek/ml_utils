@@ -25,7 +25,6 @@ class Dataset(object):
         if(data2 is None):
             return data1
         new_X=np.concatenate( [data1.X,data2.X],axis=1)
-        print("OK")
         return Dataset(new_X,data1.y,data1.info)
 
     def dim(self):
