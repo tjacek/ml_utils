@@ -86,7 +86,6 @@ def from_instances(instances):
     y=get_row('cats',instances)
     basic_attr=Set(['X','cats'])
     attr_names=instances[0].keys()
-    print(attr_names)
     info={ name_j:get_row(name_j,instances)
              for name_j in attr_names
                if not (name_j in basic_attr)}
