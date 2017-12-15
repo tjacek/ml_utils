@@ -48,7 +48,7 @@ class Dataset(object):
         return Dataset(new_X,self.y,self.info)
 
     def select(self,selector,split=False):
-        instances=dataset.as_instances()
+        instances=self.as_instances()
         choosen_insts=[inst_i 
                         for inst_i in instances
                             if(selector(inst_i))]
@@ -57,20 +57,18 @@ class Dataset(object):
             clos_insts=[inst_i 
                         for inst_i in instances
                             if(clos_selector(inst_i))]
-            return from_instances( choosen_inst),from_instances(clos_insts)
-        return from_instances( choosen_inst) 
+            return from_instances( choosen_insts),from_instances(clos_insts)
+        return from_instances( choosen_insts) 
 
 def select_single(dataset,i=0):
     pos=lambda inst_i:inst_i['persons']==i
     neg=lambda inst_i:inst_i['persons']!=i
     return dataset.select(pos),dataset.select(neg) 
 
-def select_person(dataset,i=0):
-    instances=dataset.as_instances()    
-    s_inst=[ inst_i 
-               for inst_i in instances
-                 if(inst_i['persons'] % 2)==i]
-    return from_instances(s_inst)          
+def select_person(dataset,i=0,split=False):
+    def person_selector(inst_i):
+        return (inst_i['persons'] % 2)==i
+    return dataset.select(person_selector,split)         
 
 def select_category(dataset,cats=[]):
     instances=dataset.as_instances()
