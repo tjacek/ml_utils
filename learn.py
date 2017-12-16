@@ -19,7 +19,6 @@ def show_errors(y_pred,y_true,dataset):
                   for i,error_i in enumerate(errors)
                     if(error_i)]
     return error_names
-    #print(error_names)
 
 def get_errors(y_pred,y_true):
     return [ pred_i!=true_i 
