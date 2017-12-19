@@ -64,9 +64,6 @@ def select_single(dataset,i=0):
     def select_helper(inst_i):
         return inst_i['persons']==i
     return dataset.select(select_helper,split=True)
-    #pos=lambda inst_i:inst_i['persons']==i
-    #neg=lambda inst_i:inst_i['persons']!=i
-    #return dataset.select(pos),dataset.select(neg) 
 
 def select_person(dataset,i=0,split=False):
     def person_selector(inst_i):
@@ -74,13 +71,11 @@ def select_person(dataset,i=0,split=False):
     return dataset.select(person_selector,split)         
 
 def select_category(dataset,cats=[]):
-    instances=dataset.as_instances()
     if(type(cats)==list):
         cats=Set(cats)  
-    s_inst=[ inst_i 
-               for inst_i in instances
-                 if(int(inst_i['cats']) in cats)]
-    return from_instances(s_inst) 
+    def cat_selector(inst_i):
+        return (int(inst_i['cats']) in cats)
+    return dataset.select(cat_selector,split=False)  
 
 def from_instances(instances):
     x=get_row('X',instances)
