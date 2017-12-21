@@ -1,47 +1,25 @@
 import numpy as np
 
 class DataReader(object):
-    def __init__(self,paresers=None, data_sep='#'):
+    def __init__(self,parsers=None, data_sep='#'):
+        if(parsers==None):
+            parsers=[ parse_vector,CatParser(),person_parser]
         self.data_sep=data_sep
-        self.paresers=paresers
+        self.parsers=parsers
         
     def __call__(self,out_path):
         raw_file=read_file(out_path)
-        basic_data=basic_parse(raw_file,data_sep='#')
+        basic_data=basic_parse(raw_file,self.data_sep)
         n_samples=len(basic_data)
+        n_dim=len(self.parsers)
         def parser_helper(i):
-            return [ self.parsers(basic_data[j][i])
-                     for j in range(n_samples)]
+            parser_i=self.parsers[i]
+            return [ parser_i(basic_data[j][i])
+                        for j in range(n_samples)]
         outputs=[ parser_helper(i)
-               for i in range(len(self.paresers))]
+                   for i in range(n_dim)]
         outputs[0]=np.array(outputs[0])
         return tuple(outputs)
-#class DataReader(object):
-#    def __init__(self, data_sep='#'):
-#        self.data_sep=data_sep 
-#        self.data_parser = Parser(parse_vector,0)
-#        self.cat_parser = Parser(CatParser(),1)
-#        self.person_parser = Parser(person_parser,2)
-
-#    def __call__(self,out_path):
-#        raw_file=read_file(out_path)
-#        basic_data=basic_parse(raw_file,data_sep='#')
-#        x=self.data_parser(basic_data)
-#        y=self.cat_parser(basic_data)
-#        persons=self.person_parser(basic_data)
-#        X=np.array(x)
-#        return X,y,persons
-
-class Parser(object):
-    def __init__(self,parse,row=0):
-        self.row=row
-        self.parse=parse
-    
-    def __call__(self,basic_data):
-        if(len(basic_data[0])<(self.row+1)):
-            return None
-        return [ self.parse(inst_i[self.row])
-                  for inst_i in basic_data]
 
 class CatParser(object):
     def __init__(self):
