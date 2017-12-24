@@ -8,7 +8,7 @@ class DataReader(object):
         self.parsers=parsers
     
     def get_attrs(self):
-        return [ parser_i.name for parser_i in self.parsers]
+        return [ parser_i.id for parser_i in self.parsers]
 
     def __call__(self,out_path):
         raw_file=read_file(out_path)
@@ -21,13 +21,20 @@ class DataReader(object):
                         for j in range(n_samples)]
         outputs=[ parser_helper(i)
                    for i in range(n_dim)]
-        outputs[0]=np.array(outputs[0])
-        return outputs
+        X=np.array(outputs[0])
+        y=outputs[1]
+        return X,y,self.get_info(outputs)
+
+    def get_info(self,outputs):
+        attrs=self.get_attrs()
+        raw_info=[ (id_i,output_i)
+                    for id_i,output_i in zip(attrs,outputs)]
+        return dict(raw_info[2:])
 
 class CatParser(object):
     def __init__(self):
         self.cat2id={}
-        self.name='y'
+        self.id='y'
 
     def n_cats(self):
         return len(self.cat2id.keys())
@@ -39,14 +46,14 @@ class CatParser(object):
 
 class PersonParser(object):
     def __init__(self):
-        self.name="persons"
+        self.id="persons"
 
     def __call__(self,raw_data):
         return int(raw_data)
 
-class ParseVector(raw_data):
+class ParseVector(object):
     def __init__(self):
-        self.name="X"
+        self.id="X"
 
     def __call__(self,raw_data):
         return [ float(x_i) 

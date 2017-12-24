@@ -117,9 +117,7 @@ def unify_feat(all_dataset):
 
 def get_dataset(in_path):
     data_reader=read.DataReader()
-    outputs= data_reader(in_path)
-    x,y=outputs[0],outputs[1]
-    info={'persons':outputs[2]}
+    x,y,info= data_reader(in_path)
     return Dataset(x,y,info)
 
 if __name__ == "__main__":
