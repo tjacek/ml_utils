@@ -3,10 +3,13 @@ import numpy as np
 class DataReader(object):
     def __init__(self,parsers=None, data_sep='#'):
         if(parsers==None):
-            parsers=[ parse_vector,CatParser(),person_parser]
+            parsers=[ ParseVector(),CatParser(),PersonParser()]
         self.data_sep=data_sep
         self.parsers=parsers
-        
+    
+    def get_attrs(self):
+        return [ parser_i.name for parser_i in self.parsers]
+
     def __call__(self,out_path):
         raw_file=read_file(out_path)
         basic_data=basic_parse(raw_file,self.data_sep)
@@ -19,11 +22,12 @@ class DataReader(object):
         outputs=[ parser_helper(i)
                    for i in range(n_dim)]
         outputs[0]=np.array(outputs[0])
-        return tuple(outputs)
+        return outputs
 
 class CatParser(object):
     def __init__(self):
         self.cat2id={}
+        self.name='y'
 
     def n_cats(self):
         return len(self.cat2id.keys())
@@ -33,12 +37,20 @@ class CatParser(object):
             self.cat2id[raw_cat]=self.n_cats()
         return self.cat2id[raw_cat]
 
-def person_parser(raw_cat):
-    return int(raw_cat)
+class PersonParser(object):
+    def __init__(self):
+        self.name="persons"
 
-def parse_vector(raw_data):
-    return [ float(x_i) 
-             for x_i in raw_data.split(',')] 
+    def __call__(self,raw_data):
+        return int(raw_data)
+
+class ParseVector(raw_data):
+    def __init__(self):
+        self.name="X"
+
+    def __call__(self,raw_data):
+        return [ float(x_i) 
+                    for x_i in raw_data.split(',')] 
 
 def basic_parse(lines,data_sep='#'):
     if(type(lines)!=list):
