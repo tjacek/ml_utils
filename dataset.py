@@ -2,7 +2,7 @@ import read
 import numpy as np
 import tools
 import select_feat
-from sets import Set
+#from sets import Set
 from sklearn import preprocessing
 
 class Dataset(object):
@@ -80,7 +80,7 @@ def select_category(dataset,cats=[]):
 def from_instances(instances):
     x=get_row('X',instances)
     y=get_row('cats',instances)
-    basic_attr=Set(['X','cats'])
+    basic_attr=set(['X','cats'])
     attr_names=instances[0].keys()
     info={ name_j:get_row(name_j,instances)
              for name_j in attr_names
@@ -111,6 +111,8 @@ def read_and_unify(data_paths,select=[True,True],norm=[True,True]):
     return unify_feat(all_dataset)
 
 def unify_feat(all_dataset):
+    if(len(all_dataset)==0):
+        raise Exception("No dataset")
     all_x=[data_i.X for data_i in all_dataset]
     new_X=np.concatenate(all_x,axis=1)    
     return Dataset(new_X,all_dataset[0].y,all_dataset[0].info)

@@ -2,7 +2,7 @@ import dataset
 import eval
 import select_feat
 from sklearn import preprocessing
-from sets import Set
+#from sets import Set
 
 def exper_single(paths,norm=False,select=False,cls_type='svm'):
     data=single_dataset(paths)
@@ -34,14 +34,14 @@ def experiment_basic(data,cls_type='svm'):
 def feat_selection(data,select=True,norm=True):
     if(norm):
         data=data(preprocessing.scale)        
+    if(select==False or select is None):
+        return data
     n_feats=select[1]
     if(data.dim()<n_feats):
         print(select)
         print("No selection only %d features required" % data.dim())
-        return data
-    if(select!=False):
-        data=select_feat.select_feat(data,select)
-    return data
+        return data 
+    return select_feat.select_feat(data,select)
 
 def split_data(r_data):
     even_data=dataset.select_person(r_data,i=0)
@@ -54,13 +54,13 @@ def single_dataset(paths,select=None):
                         #[5,13,14,15,16,17,18,19]
     if(type(paths)==str):
         paths=read_paths(paths)
+    if(len(paths)==0):
+        raise Exception("No paths")
     all_datasets=[ dataset.get_dataset(path_i) 
                    for path_i in paths]
     if(select!=None):
         all_datasets=[dataset.select_category(data_i,select) 
                           for data_i in all_datasets]
-    for data_i in all_datasets:
-        print("Orginal size" + str(data_i.X.shape))
     data=dataset.unify_feat(all_datasets)
     return data
 

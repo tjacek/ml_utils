@@ -1,4 +1,4 @@
-from sets import Set
+#from sets import Set
 import exper,dataset,eval,voting,learn
 
 class EnsembleDataset(object):
@@ -22,7 +22,7 @@ class EnsembleDataset(object):
                 for data_i in ensemble_datasets]
 
     def basic_dataset(self,paths):
-        if(paths is None):
+        if(paths is None or len(paths)==0):
             return None
         data=exper.single_dataset(paths)
         data=exper.feat_selection(data,self.basic_feats,norm=True)
@@ -76,11 +76,11 @@ def get_nn_paths(nn_path,indexes):
 if __name__ == "__main__":
     basic_paths="conf/no_deep.txt"  
     nn_path='../AArtyk/all_feats/nn_' 
-    basic_paths=['../AArtyk/simple/all/simple.txt',
+    basic_paths=[]#'../AArtyk/simple/all/simple.txt',
     #             '../AArtyk/simple/corl/dtw_dataset.txt',
-                 '../AArtyk/simple/max_z/dtw_dataset.txt',
-                 '../AArtyk/simple/skew/dtw_dataset.txt']
-    #nn_path='../AArtyk3/all_feats/nn_'
+                 #'../AArtyk/simple/max_z/dtw_dataset.txt',
+                 #'../AArtyk/simple/skew/dtw_dataset.txt']
+    nn_path='../exper/feats/models_'
     #basic_paths=['../AArtyk2/basic/simple/simple.txt',
     #             '../AArtyk2/basic/corel/dtw_feats.txt',
     #            '../AArtyk2/basic/extr/dtw_feats.txt']
@@ -88,10 +88,10 @@ if __name__ == "__main__":
     #cats=[1,2,4,5,9,12,17,19]
     #cats=[0,3,6,7,8,10,11,13] 
     #cats=[5,13,14,15,16,17,18,19]  
-    cats=range(20)
+    cats=range(27)
     adapt_paths=get_nn_paths(nn_path,cats)
-                              
-    ensemble_dataset=EnsembleDataset(('rfe',150),('rfe',50),
+    print(adapt_paths)                        
+    ensemble_dataset=EnsembleDataset(('rfe',150),None,#('rfe',50),
                                     filter_data=None)#SetFilter(cats ))
     datasets=ensemble_dataset(basic_paths,adapt_paths)
     print(datasets)
