@@ -1,5 +1,46 @@
-import read
+import os,os.path,re
 import numpy as np
+<<<<<<< HEAD
+
+class TSDataset(object):
+    def __init__(self,ts_dict,name="dataset"):
+        self.ts_dict=ts_dict
+        self.name=name
+
+def read_dataset(in_path):
+    dataset_name=in_path.split("/")[-1]
+    paths=bottom_files(in_path)
+    ts_dataset={}
+    for path_i in paths:
+        ts_i=np.loadtxt(path_i,dtype=float,delimiter=",")
+        ts_name_i=path_i.split('/')[-1]
+        ts_name_i=ts_name_i.split(".")[0]
+        ts_dataset[ts_name_i]=ts_i
+    print(dataset_name)
+    return TSDataset(ts_dataset,dataset_name)
+
+def bottom_files(path):
+    all_paths=[]
+    for root, directories, filenames in os.walk(path):
+        if(not directories):
+            paths=[ root+'/'+filename_i 
+                for filename_i in filenames]
+            all_paths+=paths
+    all_paths.sort(key=natural_keys)        
+    return all_paths
+
+def natural_keys(text):
+    return [ atoi(c) for c in re.split('(\d+)', text) ]
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def make_dir(path):
+    if(not os.path.isdir(path)):
+        os.mkdir(path)
+
+read_dataset("seqs/inert")
+=======
 import tools
 import select_feat
 #from sets import Set
@@ -127,3 +168,4 @@ if __name__ == "__main__":
     data_reader=read.DataReader()
     x,y,persons= data_reader(in_path)
     dataset=AnnotatedDataset(x,y,persons)
+>>>>>>> ad1514028d3a5311f5dee5d564a7a2547370f305
