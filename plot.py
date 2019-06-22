@@ -1,51 +1,27 @@
+import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from sets import Set
+import read,dataset
+#from sets import Set
 
-def unlabeled_plot2D(dataset):
-    if(dataset.dim==2):
-        fig, ax = plt.subplots()
-        x=dataset.get_attr(0)
-        y=dataset.get_attr(1)
-        ax.scatter(x, y,c='b')
-        plt.show()
-    else:
-        print("Incorect number of dimesion")
+def plot_ts(ts_dataset):
+    out_path=ts_dataset.name
+    read.make_dir(out_path)
+    for name_ts in ts_dataset.ts_names():
+        path_i=out_path+'/'+name_ts
+        read.make_dir(path_i)
+        features_i=ts_dataset.as_features(name_ts)
+        print(name_ts)
+        for j,feat_j in enumerate(features_i):
+            path_ij=path_i+'/feat'+str(j)+".png"
+            save_ts(feat_j,path_ij)
+ 
+def save_ts(ts,out_path):
+    x=np.arange(ts.shape[0])
+    plt.plot(x,ts)
+    plt.savefig(out_path)
+    plt.clf()
+    plt.close()
 
-def labeled_plot2D(dataset,tabu=[]):
-    tabu_set=Set(tabu)
-    if(dataset.dim==2):
-        fig, ax = plt.subplots()
-        x_0=dataset.get_attr(0)
-        x_1=dataset.get_attr(1)
-        labels=dataset.y
-        for i,cat_i in enumerate(labels):
-            if(not i in tabu_set):
-                cat_i_0=x_0[labels==i]
-                cat_i_1=x_1[labels==i]
-                color_i=get_color(i)
-                shape_i=get_shape(i)
-                ax.scatter(cat_i_0,cat_i_1,c=color_i,marker=shape_i,label=str(i))
-            else:
-                print(i)
-        #for i,txt in enumerate(list(labels)):
-        #    if(not i in tabu_set):
-        #        ax.annotate(str(txt),(x_0[i], x_1[i]))
-        plt.legend()
-        plt.show()
-    else:
-        print("Incorect number of dimesion")
-
-COLORS="bgrcmykw"
-
-def get_color(index):
-    i=index % len(COLORS)
-    return COLORS[i]
-
-SHAPE='ovs^p'
-
-def get_shape(index):
-    i=index/len(COLORS)
-    i=i%len(SHAPE)
-    return SHAPE[i]
+if __name__ == "__main__":
+    ts_dataset=dataset.read_dataset("seqs/inert")
+    plot_ts(ts_dataset)
