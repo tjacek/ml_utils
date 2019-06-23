@@ -12,6 +12,10 @@ class TSDataset(object):
     def as_features(self,name):
         return [ x_i for x_i in self.ts_dict[name].T]
     
+    def n_feats(self):
+        ts=self.ts_dict.values()[0]
+        return ts.shape[1]
+        
     def __call__(self,transform):
         new_ts_dict={}
         for ts_name_i in self.ts_names():
