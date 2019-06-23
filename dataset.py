@@ -11,6 +11,15 @@ class TSDataset(object):
 
     def as_features(self,name):
         return [ x_i for x_i in self.ts_dict[name].T]
+    
+    def __call__(self,transform):
+        new_ts_dict={}
+        for ts_name_i in self.ts_names():
+            feats_i=self.as_features(ts_name_i)
+            new_feats=[ transform(feat_ij) for feat_ij in feats_i]
+            new_ts_dict[ts_name_i]=np.array(new_feats).T
+        new_name=self.name+'_'+transform.name
+        return TSDataset(new_ts_dict,new_name)
 
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]

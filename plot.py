@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import read,dataset
-#from sets import Set
+import read,dataset,tools
 
 def plot_ts(ts_dataset):
     out_path=ts_dataset.name
@@ -24,4 +23,6 @@ def save_ts(ts,out_path):
 
 if __name__ == "__main__":
     ts_dataset=dataset.read_dataset("seqs/inert")
+    transform=tools.Fourrier()
+    ts_dataset=ts_dataset(transform)
     plot_ts(ts_dataset)
