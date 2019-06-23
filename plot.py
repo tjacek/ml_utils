@@ -35,7 +35,7 @@ def save_ts(ts,out_path):
     plt.close()
 
 if __name__ == "__main__":
-    ts_dataset=dataset.read_dataset("seqs/inert")
-    transform=tools.Fourrier()
+    ts_dataset=dataset.read_dataset("raw/max_z")
+    transform=tools.FourrierNoise()
     ts_dataset=ts_dataset(transform)
     plot_by_feat(ts_dataset)
