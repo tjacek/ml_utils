@@ -22,15 +22,23 @@ class FourrierNoise(object):
 class KernelDist(object):
     def __init__(self):
         self.name="KD"
-        self.kernel=KernelDensity(bandwidth=1.0, kernel='gaussian')
         self.n_steps=100
 
     def __call__(self,feature_i):
         feature_i=feature_i.reshape(-1, 1)
-        self.kernel.fit(feature_i)
+        kde=self.get_kde(feature_i)
         max_i,min_i=np.amax(feature_i),np.amin(feature_i)
+        print(max_i,min_i)
         step_i=(max_i-min_i)/float(self.n_steps)
-        x_i=(np.arange(self.n_steps)*step_i)-min_i        
+        x_i=(np.arange(self.n_steps)*step_i)+min_i        
         x_i=x_i.reshape(-1,1)
-        log_dens=self.kernel.score_samples(x_i)
+        log_dens=kde.score_samples(x_i)
         return np.exp(log_dens)
+
+    def get_kde(self,feature_i):
+        sd_i=np.std(feature_i)
+        n=float(feature_i.shape[0])
+        bandwidth_i=(1.06*sd_i)/(n**0.2)
+        kde_i=KernelDensity(bandwidth=bandwidth_i, kernel='gaussian')
+        kde_i.fit(feature_i)
+        return kde_i
