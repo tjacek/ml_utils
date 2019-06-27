@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.neighbors import KernelDensity
+from scipy import stats
 
 class Fourrier(object):
     def __init__(self):
@@ -42,3 +43,12 @@ class KernelDist(object):
         kde_i=KernelDensity(bandwidth=bandwidth_i, kernel='gaussian')
         kde_i.fit(feature_i)
         return kde_i
+
+class NormTest(object):
+    def __init__(self, alpha=0.05):
+        self.name="test"
+        self.alpha=alpha
+  
+    def __call__(self,feature_i):
+        k2,p=stats.normaltest(feature_i)
+        return int(p>self.alpha)
