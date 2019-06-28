@@ -35,7 +35,14 @@ def save_ts(ts,out_path):
     plt.close()
 
 if __name__ == "__main__":
-    ts_dataset=dataset.read_dataset("raw/max_z")
+    ts_dataset=dataset.read_dataset("raw/all")
     transform=tools.FourrierNoise()
+    ts_dataset=ts_dataset(transform)
+    #transform=tools.NormTest()
+    #ts_dataset=ts_dataset(transform)
+    #x=ts_dataset.to_array()
+    #print(np.mean(x,axis=0))
+    
+    transform=tools.Autocorl()
     ts_dataset=ts_dataset(transform)
     plot_by_feat(ts_dataset)
