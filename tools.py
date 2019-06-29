@@ -58,6 +58,7 @@ class Autocorl(object):
         self.name="autocorl"
 
     def __call__(self,feature_i):
+        feature_i-=np.mean(feature_i)
         magnitude_i=np.abs(np.fft.fft(feature_i)**2)
         r2=np.fft.ifft(magnitude_i).real
         c=(r2/feature_i.shape-np.mean(feature_i)**2)/np.std(feature_i)**2

@@ -1,21 +1,14 @@
 import numpy as np
-import read
+import files
 
 class TSDataset(object):
     def __init__(self,ts_dict,name="dataset"):
         self.ts_dict=ts_dict
         self.name=name
-
-    def ts_names(self):
-        return self.ts_dict.keys()
-
-    def as_features(self,name):
-        return [ x_i for x_i in self.ts_dict[name].T]
     
-    def n_feats(self):
-        ts=self.ts_dict.values()[0]
-        return ts.shape[1]
-        
+    def __getitem__(self,name_i):
+        return self.ts_dict[name_i]
+
     def __call__(self,transform):
         new_ts_dict={}
         for ts_name_i in self.ts_names():
@@ -25,9 +18,22 @@ class TSDataset(object):
         new_name=self.name+'_'+transform.name
         return TSDataset(new_ts_dict,new_name)
 
+    def ts_names(self):
+        return self.ts_dict.keys()
+
+    def as_features(self,name):
+        return [ x_i for x_i in self.ts_dict[name].T]
+
+    def to_array(self):
+        return np.array(self.ts_dict.values())
+    
+    def n_feats(self):
+        ts=self.ts_dict.values()[0]
+        return ts.shape[1]
+
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]
-    paths=read.bottom_files(in_path)
+    paths=files.bottom_files(in_path)
     if(not paths):
         raise Exception("No data at:"+in_path)
     ts_dataset={}
