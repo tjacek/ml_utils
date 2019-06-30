@@ -14,7 +14,7 @@ class TSDataset(object):
         for ts_name_i in self.ts_names():
             feats_i=self.as_features(ts_name_i)
             new_feats=[ transform(feat_ij) for feat_ij in feats_i]
-            new_ts_dict[ts_name_i]=np.array(new_feats).T
+            new_ts_dict[ts_name_i]=np.swapaxes(np.array(new_feats),0,1)
         new_name=self.name+'_'+transform.name
         return TSDataset(new_ts_dict,new_name)
 
@@ -22,7 +22,8 @@ class TSDataset(object):
         return self.ts_dict.keys()
 
     def as_features(self,name):
-        return [ x_i for x_i in self.ts_dict[name].T]
+        ts_i=self.ts_dict[name]
+        return [ts_i[:,j] for j in range(self.n_feats()) ]
 
     def to_array(self):
         return np.array(self.ts_dict.values())

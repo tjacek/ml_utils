@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import read,dataset,tools
+import unify,files,tools
 
-def plot_ts(ts_dataset):
-    out_path=ts_dataset.name
-    read.make_dir(out_path)
+def plot_by_action(ts_dataset):
+    out_path=ts_dataset.name+"_actions"
+    files.make_dir(out_path)
     for name_ts in ts_dataset.ts_names():
         path_i=out_path+'/'+name_ts
-        read.make_dir(path_i)
+        files.make_dir(path_i)
         features_i=ts_dataset.as_features(name_ts)
         print(name_ts)
         for j,feat_j in enumerate(features_i):
@@ -16,11 +16,11 @@ def plot_ts(ts_dataset):
 
 def plot_by_feat(ts_dataset):
     out_path=ts_dataset.name+"_feats"
-    read.make_dir(out_path)
+    files.make_dir(out_path)
     feats_dict=[ out_path+'/feat'+str(i) 
                     for i in range(ts_dataset.n_feats())]
     for dict_i in feats_dict:
-        read.make_dir(dict_i)
+        files.make_dir(dict_i)
     for name_ts in ts_dataset.ts_names():
         features_i=ts_dataset.as_features(name_ts)
         for j,feat_j in enumerate(features_i):
@@ -28,21 +28,22 @@ def plot_by_feat(ts_dataset):
             save_ts(feat_j,path_ij)
 
 def save_ts(ts,out_path):
-    x=np.arange(ts.shape[0])
-    plt.plot(x,ts)
+    if(ts.ndim==2):
+        plt.scatter(ts[:,0],ts[:,1]) 
+    else:
+        x=np.arange(ts.shape[0])
+        plt.plot(x,ts)
     plt.savefig(out_path)
     plt.clf()
     plt.close()
 
 if __name__ == "__main__":
-    ts_dataset=dataset.read_dataset("raw/all")
-    transform=tools.FourrierNoise()
-    ts_dataset=ts_dataset(transform)
+    ts_dataset=unify.read("mra")
+    ts_dataset=ts_dataset(tools.ResPairs())
+    plot_by_feat(ts_dataset)
+    #transform=tools.FourrierNoise()
+    #ts_dataset=ts_dataset(transform)
     #transform=tools.NormTest()
     #ts_dataset=ts_dataset(transform)
     #x=ts_dataset.to_array()
     #print(np.mean(x,axis=0))
-    
-    transform=tools.Autocorl()
-    ts_dataset=ts_dataset(transform)
-    plot_by_feat(ts_dataset)
