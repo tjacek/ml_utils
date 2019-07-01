@@ -1,5 +1,5 @@
 import numpy as np
-import files
+import files,feats
 
 class TSDataset(object):
     def __init__(self,ts_dict,name="dataset"):
@@ -31,6 +31,16 @@ class TSDataset(object):
     def n_feats(self):
         ts=self.ts_dict.values()[0]
         return ts.shape[1]
+
+    def to_feats(self,extractor):
+        names=self.ts_names()
+        def feat_helper(name_i):
+            feats_i=[extractor(feat_j) 
+                        for feat_j in self.as_features(name_i)]
+            return np.array(feats_i).flatten()
+        X=np.array([feat_helper(name_i)
+                            for name_i in names])
+        return feats.FeatureSet(X,names)
 
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]
