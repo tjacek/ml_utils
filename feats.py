@@ -1,10 +1,15 @@
 import numpy as np 
 import scipy.stats
+import re
 
 class FeatureSet(object):
     def __init__(self,X,info):
         self.X=X
         self.info=info
+    
+    def to_dict(self):
+        return { self.info[i]:x_i 
+                    for i,x_i in enumerate(self.X)}
 
     def save(self,out_path,decimals=4):
         lines=[ np.array2string(x_i,separator=",",precision=decimals) for x_i in self.X]
@@ -21,13 +26,18 @@ def read(in_path):
     X,info=[],[]
     for line_i in lines:
         data_i,info_i=line_i.split('#')
+        info_i=re.sub(r'[a-z]','',info_i.strip())
         X.append(np.fromstring(data_i,sep=','))
         info.append(info_i)
     return FeatureSet(np.array(X),info)
+
+def from_dict(feat_dict):
+    info=feat_dict.keys()
+    X=np.array([feat_dict[info_i] 
+                    for info_i in info])
+    return FeatureSet(X,info)
 
 def basic_stats(feat_i):
     if(np.all(feat_i==0)):
         return [0.0,0.0,0.0]
     return np.array([np.mean(feat_i),np.std(feat_i),scipy.stats.skew(feat_i)])
-
-print(read('btf.txt').X.shape)
