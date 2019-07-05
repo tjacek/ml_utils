@@ -1,7 +1,6 @@
-import feats
+import feats,extract,unify
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
-#from sets import Set
 
 def exper_single(in_path):
     feat_dataset=feats.read(in_path)
@@ -26,5 +25,11 @@ def split_data(feat_dataset):
 def person_selector(name_i):
     return (int(name_i.split('_')[1])%2)==1 
 
+def gen_feats(seq_path,out_path):
+    ts_dataset=unify.read(seq_path)
+    feat_dataset=ts_dataset.to_feats(extract.basic_stats)
+    feat_dataset.save(out_path)
+
 if __name__ == "__main__":
+    #gen_feats("mra","btf.txt")
     exper_single("btf.txt")

@@ -1,5 +1,4 @@
 import numpy as np 
-import scipy.stats
 import re
 from sklearn import preprocessing
 
@@ -43,8 +42,3 @@ def from_dict(feat_dict):
     X=np.array([feat_dict[info_i] 
                     for info_i in info])
     return FeatureSet(X,info)
-
-def basic_stats(feat_i):
-    if(np.all(feat_i==0)):
-        return [0.0,0.0,0.0]
-    return np.array([np.mean(feat_i),np.std(feat_i),scipy.stats.skew(feat_i)])
