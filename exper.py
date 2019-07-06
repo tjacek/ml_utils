@@ -25,11 +25,13 @@ def split_data(feat_dataset):
 def person_selector(name_i):
     return (int(name_i.split('_')[1])%2)==1 
 
-def gen_feats(seq_path,out_path):
+def gen_feats(seq_path,out_path,extractor=None):
     ts_dataset=unify.read(seq_path)
-    feat_dataset=ts_dataset.to_feats(extract.basic_stats)
+    if(not extract):
+        extractor=extract.basic_stats
+    feat_dataset=ts_dataset.to_feats(extractor)
     feat_dataset.save(out_path)
 
 if __name__ == "__main__":
-    #gen_feats("mra","btf.txt")
-    exper_single("btf.txt")
+    #gen_feats("mra","nonlin.txt",extract.non_linear)
+    exper_single("datasets")

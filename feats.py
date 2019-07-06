@@ -1,5 +1,6 @@
+import files
 import numpy as np 
-import re
+import os,re
 from sklearn import preprocessing
 
 class FeatureSet(object):
@@ -28,6 +29,14 @@ class FeatureSet(object):
         file_str.close()
 
 def read(in_path):
+    if(os.path.isdir(in_path)):
+        datasets=[ read_single(path_i) for path_i in files.top_files(in_path)]
+        new_X=np.concatenate([data_i.X for data_i in datasets],axis=1)
+        return FeatureSet(new_X,datasets[0].info)
+    else:
+        return read_single(in_path)
+
+def read_single(in_path):
     lines=open(in_path,'r').readlines()
     X,info=[],[]
     for line_i in lines:
