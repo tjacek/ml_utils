@@ -1,12 +1,12 @@
-import feats,extract,unify
+import feats,extract,unify,learn
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
-def exper_single(in_path):
+def exper_single(in_path,clf_type="SVC"):
     feat_dataset=feats.read(in_path)
     feat_dataset.norm()
     train,test=split_data(feat_dataset)
-    clf=LogisticRegression()
+    clf=learn.get_cls(clf_type)    
     clf.fit(train.X,train.get_labels())
     y_pred=clf.predict(test.X)
     y_true=test.get_labels()
@@ -34,4 +34,4 @@ def gen_feats(seq_path,out_path,extractor=None):
 
 if __name__ == "__main__":
     #gen_feats("mra","nonlin.txt",extract.non_linear)
-    exper_single("datasets")
+    exper_single("datasets/btf.txt")
