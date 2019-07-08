@@ -1,6 +1,7 @@
 import sklearn.grid_search as gs
 import sklearn.cross_validation as cv
 from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 
 import pandas as pd
 from sklearn.metrics import classification_report

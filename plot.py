@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+import seaborn as sn
 import matplotlib.pyplot as plt
 import unify,files,tools
 
@@ -37,13 +39,14 @@ def save_ts(ts,out_path):
     plt.clf()
     plt.close()
 
+def heat_map(conf_matrix):
+    conf_matrix=np.around(conf_matrix,2)
+    dim=conf_matrix.shape
+    df_cm = pd.DataFrame(conf_matrix, range(dim[0]),range(dim[1]))
+    sn.set(font_scale=1.0)#for label size
+    sn.heatmap(df_cm, annot=True,annot_kws={"size": 8}, fmt='g')
+    plt.show()
+
 if __name__ == "__main__":
     ts_dataset=unify.read("mra")
-    ts_dataset=ts_dataset(tools.ResPairs())
-    plot_by_feat(ts_dataset)
-    #transform=tools.FourrierNoise()
-    #ts_dataset=ts_dataset(transform)
-    #transform=tools.NormTest()
-    #ts_dataset=ts_dataset(transform)
-    #x=ts_dataset.to_array()
-    #print(np.mean(x,axis=0))
+    heat_map(ts_dataset.feat_corl())

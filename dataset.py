@@ -42,6 +42,11 @@ class TSDataset(object):
                             for name_i in names])
         return feats.FeatureSet(X,names)
 
+    def feat_corl(self):
+        X=np.concatenate([ ts_i 
+            for ts_i in self.ts_dict.values()],axis=0)
+        return np.corrcoef(X.T)
+
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]
     paths=files.bottom_files(in_path)

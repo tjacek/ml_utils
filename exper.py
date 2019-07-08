@@ -1,5 +1,4 @@
 import feats,extract,unify,learn
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
 def exper_single(in_path,clf_type="SVC"):
@@ -34,4 +33,4 @@ def gen_feats(seq_path,out_path,extractor=None):
 
 if __name__ == "__main__":
     #gen_feats("mra","nonlin.txt",extract.non_linear)
-    exper_single("datasets/btf.txt")
+    exper_single("datasets","SVC")
