@@ -9,20 +9,24 @@ class TSDataset(object):
     def __getitem__(self,name_i):
         return self.ts_dict[name_i]
 
-    def __call__(self,transform):
+    def __call__(self,transform,as_array=True):
         new_ts_dict={}
         for ts_name_i in self.ts_names():
             feats_i=self.as_features(ts_name_i)
             new_feats=[ transform(feat_ij) for feat_ij in feats_i]
-            new_ts_dict[ts_name_i]=np.swapaxes(np.array(new_feats),0,1)
-        new_name=self.name+'_'+transform.name
-        return TSDataset(new_ts_dict,new_name)
+            if(as_array):
+                new_ts_dict[ts_name_i]=np.swapaxes(np.array(new_feats),0,1)
+            else:
+                new_ts_dict[ts_name_i]=new_feats
+        return TSDataset(new_ts_dict,self.get_name(transform))
 
     def ts_names(self):
         return self.ts_dict.keys()
 
     def as_features(self,name):
         ts_i=self.ts_dict[name]
+        if(type(ts_i)==list):
+            return ts_i
         return [ts_i[:,j] for j in range(self.n_feats()) ]
 
     def to_array(self):
@@ -30,6 +34,8 @@ class TSDataset(object):
     
     def n_feats(self):
         ts=self.ts_dict.values()[0]
+        if(type(ts)==list):
+            return len(ts)
         return ts.shape[1]
 
     def to_feats(self,extractor):
@@ -46,6 +52,13 @@ class TSDataset(object):
         X=np.concatenate([ ts_i 
             for ts_i in self.ts_dict.values()],axis=0)
         return np.corrcoef(X.T)
+
+    def get_name(self,transform):
+        if hasattr(transform,'name'):
+            trans_name=transform.name
+        else:
+            trans_name=transform.__name__
+        return self.name+'_'+trans_name
 
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]
