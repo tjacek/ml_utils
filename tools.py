@@ -10,16 +10,6 @@ class Fourrier(object):
         rft = np.fft.rfft(feature_i)
         return np.abs(rft)
 
-class FourrierNoise(object):
-    def __init__(self, n=5):
-        self.name="fourrier_noise"
-        self.n=n
-
-    def __call__(self,feature_i):
-        rft = np.fft.rfft(feature_i)
-        rft[:self.n] = 0
-        return np.fft.irfft(rft)
-
 class KernelDist(object):
     def __init__(self):
         self.name="KD"
@@ -63,15 +53,3 @@ class Autocorl(object):
         r2=np.fft.ifft(magnitude_i).real
         c=(r2/feature_i.shape-np.mean(feature_i)**2)/np.std(feature_i)**2
         return c[:len(feature_i)//2]
-
-class ResPairs(object):
-    def __init__(self):
-        self.name="ResSmooth"
-        self.residuals=FourrierNoise()
-
-    def __call__(self,feature_i):
-        residuals_i=self.residuals(feature_i)
-        feature_i=feature_i[:len(residuals_i)]
-        smooth_i=feature_i-residuals_i
-        pairs_i=np.array([residuals_i,smooth_i]).T
-        return pairs_i
