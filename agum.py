@@ -1,10 +1,16 @@
 import numpy as np
-import dataset,smooth,plot
+import unify,smooth,plot,filtr
 
 def dtw_agum(in_path):
-    raw_ts=dataset.read_dataset(in_path)
+    raw_ts=unify.read(in_path)
     smooth_ts=raw_ts(smooth.Gauss())
-    print(smooth_ts.n_feats()) 
+    start_ts=smooth_ts(cut_ts,as_array=False)
+    name_by_cat=filtr.train_by_cat(start_ts)
+    print(name_by_cat)
+
+def show_cut(in_path):
+    raw_ts=unify.read(in_path)
+    smooth_ts=raw_ts(smooth.Gauss())
     start_ts=smooth_ts(cut_ts,as_array=False)
     plot.plot_by_feat(start_ts)
 
