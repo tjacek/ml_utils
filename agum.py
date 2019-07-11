@@ -4,18 +4,27 @@ import dataset,unify,smooth,plot,filtr
 
 def dtw_agum(in_path):
     raw_ts=unify.read(in_path)
-    smooth_ts=raw_ts(smooth.Gauss())
-    name_by_cat=filtr.train_by_cat(smooth_ts)
-    name_pairs=[ filtr.random_pairs(cat_i) for i,cat_i in name_by_cat.items()]
-    name_pairs = list(itertools.chain(*name_pairs))
-    new_ts=dict([merge_seq(pair_i, smooth_ts) for pair_i in name_pairs])
-    return dataset.TSDataset(new_ts,raw_ts.name+"_agum")
+    agum_ts=basic_agum(raw_ts)
+    img_dataset(raw_ts)
+    img_dataset(agum_ts)
 
 def show_cut(in_path):
     raw_ts=unify.read(in_path)
     smooth_ts=raw_ts(smooth.Gauss())
     start_ts=smooth_ts(cut_ts,as_array=False)
     plot.plot_by_feat(start_ts)
+
+def img_dataset(ts_dataset):
+    spline_ts=ts_dataset(smooth.SplineUpsampling())
+    dataset.as_imgs(spline_ts)
+
+def basic_agum(raw_ts):
+    smooth_ts=raw_ts(smooth.Gauss())
+    name_by_cat=filtr.train_by_cat(smooth_ts)
+    name_pairs=[ filtr.random_pairs(cat_i) for i,cat_i in name_by_cat.items()]
+    name_pairs = list(itertools.chain(*name_pairs))
+    new_ts=dict([merge_seq(pair_i, smooth_ts) for pair_i in name_pairs])
+    return dataset.TSDataset(new_ts,raw_ts.name+"_agum")
 
 def merge_seq(pair_i, ts_data):
     a_feats,b_feats=ts_data.as_features(pair_i[0]),ts_data.as_features(pair_i[1])
@@ -25,7 +34,10 @@ def merge_seq(pair_i, ts_data):
 
 def merge_feats(x_i,y_i):
     new_start=cut_ts(y_i)
-    new_end=x_i[y_i.shape[0]:]
+    new_end=x_i[new_start.shape[0]:,]
+    if(new_end.shape[0]>0):
+        diff_i=new_start[-1]-new_end[0]
+        new_start=new_start- diff_i
     new_feat=np.concatenate([new_start,new_end])
     return new_feat
 
@@ -39,4 +51,4 @@ def local_extr(feature_i):
     diff_i=np.diff(feature_i)
     return np.diff( np.sign(diff_i))
 
-plot.plot_by_feat( dtw_agum("mra"))
+dtw_agum("mra")

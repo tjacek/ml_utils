@@ -1,5 +1,21 @@
 import numpy as np
 import scipy.signal
+from scipy.interpolate import CubicSpline
+
+class SplineUpsampling(object):
+    def __init__(self,new_size=128):
+        self.name="spline"
+        self.new_size=new_size
+
+    def __call__(self,feat_i):
+        old_size=feat_i.shape[0]
+        old_x=np.arange(old_size)
+        old_x=old_x.astype(float)  
+        step=float(self.new_size)/float(old_size)
+        old_x*=step     
+        cs=CubicSpline(old_x,feat_i)
+        new_x=np.arange(self.new_size)
+        return cs(new_x)
 
 class Gauss(object):
     def __init__(self, window=10,sigma=5.0):

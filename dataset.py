@@ -1,4 +1,6 @@
 import numpy as np
+import cv2
+import re
 import files,feats
 
 class TSDataset(object):
@@ -60,6 +62,10 @@ class TSDataset(object):
             trans_name=transform.__name__
         return self.name+'_'+trans_name
 
+    def select(self,names):
+        new_dict={ name_i:self.ts_dict[name_i] for name_i in names}
+        return TSDataset(new_dict,self.name)
+
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]
     paths=files.bottom_files(in_path)
@@ -70,9 +76,19 @@ def read_dataset(in_path):
         ts_i=np.loadtxt(path_i,dtype=float,delimiter=",")
         ts_name_i=path_i.split('/')[-1]
         ts_name_i=ts_name_i.split(".")[0]
+        ts_name_i=re.sub(r'[a-z]','',ts_name_i.strip()) 
         ts_dataset[ts_name_i]=ts_i
     print(dataset_name)
     return TSDataset(ts_dataset,dataset_name)
+
+def as_imgs(ts_dataset):
+    dir_name=ts_dataset.name+'_img'
+    files.make_dir(dir_name)
+    for name_i in ts_dataset.ts_names():
+        img_i=ts_dataset[name_i]
+        img_i*=10.0
+        out_i=dir_name+'/'+name_i+".png"
+        cv2.imwrite(out_i,img_i)
 
 if __name__ == "__main__":
     read_dataset("seqs/inert")
