@@ -1,16 +1,23 @@
 import re
 from collections import defaultdict
+import random,copy
 
 def train_by_cat(ts_dataset):
-    names=clean_str(ts_dataset.ts_names())
+    names=ts_dataset.ts_names()
     train,test=split(names,get_person)
     return by_cat(train)
 
 def by_cat(names):
+#    names=clean_str(names)
     names_by_cat=defaultdict(lambda:[])
     for name_i in names:
     	names_by_cat[get_cat(name_i)].append(name_i)
     return names_by_cat
+
+def random_pairs(names):
+    random_names=copy.copy(names)
+    random.shuffle(random_names)
+    return [ (x_i,y_i) for x_i,y_i in zip(names,random_names)]
 
 def split(names,selector):
     train,test=[],[]
