@@ -48,6 +48,17 @@ def prepare_matrix(s,t):
         cost_matrix[0][i]=np.inf
     return cost_matrix,n,m
 
+def metric_matrix(ts_list):
+    n_size=len(ts_list)
+    metric_arr=np.zeros((n_size,n_size))
+    for i in range(n_size):
+        metric_arr[i][i]=np.inf
+    for i in range(1,n_size):
+        for j in range(0,i):
+            metric_arr[i][j]=dtw_metric(ts_list[i],ts_list[j])
+            metric_arr[j][i]=metric_arr[i][j]
+    return metric_arr
+
 if __name__ == "__main__":
     ts_dataset=unify.read("mra/max_z")
     make_pairwise_distance(ts_dataset).save('dtw_pairs')
