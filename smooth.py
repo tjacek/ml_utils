@@ -11,12 +11,16 @@ class SplineUpsampling(object):
         old_size=feat_i.shape[0]
         old_x=np.arange(old_size)
         old_x=old_x.astype(float)  
-        step=float(self.new_size)/float(old_size)
-        old_x*=step     
-        cs=CubicSpline(old_x,feat_i)
-        new_x=np.arange(self.new_size)
-        return cs(new_x)
-
+        if(self.new_size):
+            step=float(self.new_size)/float(old_size)
+            old_x*=step     
+            cs=CubicSpline(old_x,feat_i)
+            new_size=np.arange(self.new_size)  
+            return cs(new_size)
+        else:
+            cs=CubicSpline(old_x,feat_i)
+            return cs(old_x)
+            
 class Gauss(object):
     def __init__(self, window=10,sigma=5.0):
         self.name="gauss"
