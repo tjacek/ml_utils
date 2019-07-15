@@ -36,5 +36,5 @@ class Fourrier(object):
 
     def __call__(self,feature_i):
         rft = np.fft.rfft(feature_i)
-        rft[:self.n] = 0
+        rft[self.n:] = 0
         return np.fft.irfft(rft)
