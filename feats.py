@@ -8,6 +8,9 @@ class FeatureSet(object):
         self.X=X
         self.info=info
     
+    def dim(self):
+        return self.X.shape[1]
+
     def get_labels(self):
         return [ int(info_i.split('_')[0]) for info_i in self.info]
 
@@ -38,16 +41,15 @@ def read(in_path):
 
 def read_single(in_path):
     lines=open(in_path,'r').readlines()
-    X,info=[],[]
+    feat_dict={}
     for line_i in lines:
         data_i,info_i=line_i.split('#')
         info_i=re.sub(r'[a-z]','',info_i.strip())
-        X.append(np.fromstring(data_i,sep=','))
-        info.append(info_i)
-    return FeatureSet(np.array(X),info)
+        feat_dict[info_i]=np.fromstring(data_i,sep=',')
+    return from_dict(feat_dict)
 
 def from_dict(feat_dict):
-    info=feat_dict.keys()
+    info=files.natural_sort(feat_dict.keys())
     X=np.array([feat_dict[info_i] 
                     for info_i in info])
     return FeatureSet(X,info)

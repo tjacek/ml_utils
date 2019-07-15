@@ -1,4 +1,4 @@
-import feats,extract,unify,learn
+import feats,extract,unify,learn,smooth
 from sklearn.metrics import classification_report
 
 def exper_single(in_path,clf_type="SVC"):
@@ -24,13 +24,16 @@ def split_data(feat_dataset):
 def person_selector(name_i):
     return (int(name_i.split('_')[1])%2)==1 
 
-def gen_feats(seq_path,out_path,extractor=None):
+def gen_feats(seq_path,out_path,extractor=None,transform=None):
     ts_dataset=unify.read(seq_path)
+    ts_dataset.normalize()
+    if(transform):
+        ts_dataset=ts_dataset(transform)
     if(not extract):
         extractor=extract.basic_stats
     feat_dataset=ts_dataset.to_feats(extractor)
     feat_dataset.save(out_path)
 
 if __name__ == "__main__":
-    #gen_feats("mra","nonlin.txt",extract.non_linear)
+    gen_feats("mra","datasets/nonlin.txt",extract.Nonlinearity())
     exper_single("datasets","SVC")

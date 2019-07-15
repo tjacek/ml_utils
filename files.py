@@ -3,6 +3,9 @@ import os,os.path,re
 def top_files(in_path):
     return [in_path+'/'+path_i for path_i in os.listdir(in_path)]
 
+def has_dicts(in_path):
+    return any([ os.path.isdir(path_i) for path_i in top_files(in_path)])
+
 def bottom_files(path):
     all_paths=[]
     for root, directories, filenames in os.walk(path):
@@ -12,6 +15,9 @@ def bottom_files(path):
             all_paths+=paths
     all_paths.sort(key=natural_keys)        
     return all_paths
+
+def natural_sort(l):
+    return sorted(l,key=natural_keys)
 
 def natural_keys(text):
     return [ atoi(c) for c in re.split('(\d+)', text) ]
