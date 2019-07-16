@@ -8,7 +8,8 @@ def show_feats(in_path):
     tsne=manifold.TSNE(n_components=2,perplexity=30)#init='pca', random_state=0)
     X=tsne.fit_transform(feat_dataset.X)
     y=feat_dataset.get_labels()
-    color_helper=lambda i,y_i:y_i 
+    #color_helper=lambda i,y_i:y_i
+    color_helper=PersonColors(feat_dataset)
     plot_embedding(X,y,title="tsne",color_helper=color_helper,show=True)
 
 def plot_embedding(X,y,title="plot",color_helper=None,show=True):
@@ -34,5 +35,13 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True):
         plt.show()
     return plt
 
+class PersonColors(object):
+    def __init__(self, dataset):
+        self.info=dataset.info
+
+    def __call__(self,i,y_i):
+        person_i=int(self.info[i].split('_')[1])
+        return person_i %2       
+
 if __name__ == "__main__":
-    show_feats('datasets/btf.txt')
+    show_feats('datasets/noise.txt')
