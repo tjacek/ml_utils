@@ -11,16 +11,23 @@ class TSDataset(object):
     def __getitem__(self,name_i):
         return self.ts_dict[name_i]
 
-    def __call__(self,transform,as_array=True):
+    def __call__(self,transform,as_array=True,whole_seq=False):
         new_ts_dict={}
         for ts_name_i in self.ts_names():
-            feats_i=self.as_features(ts_name_i)
-            new_feats=[ transform(feat_ij) for feat_ij in feats_i]
-            if(as_array):
-                new_ts_dict[ts_name_i]=np.swapaxes(np.array(new_feats),0,1)
+            if(whole_seq):
+
+                new_ts_dict[ts_name_i]=transform(self.ts_dict[ts_name_i])
             else:
-                new_ts_dict[ts_name_i]=new_feats
+                new_ts_dict[ts_name_i]=self.feat_transform(ts_name_i,transform,as_array)
         return TSDataset(new_ts_dict,self.get_name(transform))
+ 
+    def feat_transform(self,ts_name_i,transform,as_array):
+        feats_i=self.as_features(ts_name_i)
+        new_feats=[ transform(feat_ij) for feat_ij in feats_i]
+        if(as_array):
+            return np.swapaxes(np.array(new_feats),0,1)
+        else:
+            return new_feats
 
     def ts_names(self):
         return self.ts_dict.keys()
@@ -32,7 +39,8 @@ class TSDataset(object):
         return [ts_i[:,j] for j in range(self.n_feats()) ]
 
     def to_array(self):
-        return np.array(self.ts_dict.values())
+        return np.concatenate([ ts_i 
+                for ts_i in self.ts_dict.values()],axis=0)
     
     def n_feats(self):
         ts=self.ts_dict.values()[0]
@@ -40,7 +48,7 @@ class TSDataset(object):
             return len(ts)
         return ts.shape[1]
 
-    def to_feats(self,extractor):
+    def to_feats(self,extractor,prec=4):
         names=self.ts_names()
         def feat_helper(name_i):
             feats_i=[extractor(feat_j) 
@@ -48,12 +56,12 @@ class TSDataset(object):
             return np.array(feats_i).flatten()
         X=np.array([feat_helper(name_i)
                             for name_i in names])
+        if(type(prec)==int):
+            X=np.round(X,prec)
         return feats.FeatureSet(X,names)
 
     def feat_corl(self):
-        X=np.concatenate([ ts_i 
-            for ts_i in self.ts_dict.values()],axis=0)
-        return np.corrcoef(X.T)
+        return np.corrcoef(self.to_array().T)
 
     def get_name(self,transform):
         if hasattr(transform,'name'):
@@ -62,9 +70,20 @@ class TSDataset(object):
             trans_name=transform.__name__
         return self.name+'_'+trans_name
 
+    def save(self):
+        files.make_dir(self.name)
+        for name_i,data_i in self.ts_dict.items():
+            np.savetxt(self.name+'/'+name_i,data_i,fmt='%.4e', delimiter=',')
+
     def select(self,names):
         new_dict={ name_i:self.ts_dict[name_i] for name_i in names}
         return TSDataset(new_dict,self.name)
+    
+    def normalize(self):
+        feat_means=np.mean(self.to_array(),axis=0)
+        for name_i in self.ts_names():
+            self.ts_dict[name_i]=[feat_i /feat_means[i]
+                    for i,feat_i in enumerate(self.as_features(name_i))]
 
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]

@@ -35,5 +35,5 @@ def gen_feats(seq_path,out_path,extractor=None,transform=None):
     feat_dataset.save(out_path)
 
 if __name__ == "__main__":
-    gen_feats("mra","datasets/nonlin.txt",extract.Nonlinearity())
+    gen_feats("mra","datasets/noise.txt",extract.NoiseCorl())
     exper_single("datasets","SVC")

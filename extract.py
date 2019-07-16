@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats
-import smooth
+import res,smooth
 
 class Nonlinearity(object):
     def __init__(self,k=2,smoothing=None,epsilion=0.01):
@@ -22,6 +22,16 @@ class Nonlinearity(object):
         nonlinearity=np.abs(resid_i/resized_feat_i) 
         return [np.mean(nonlinearity),np.median(nonlinearity),np.amax(nonlinearity)]
 
+class NoiseCorl(object):
+    def __init__(self, smoothing=None):
+        if(not smoothing):
+            smoothing=smooth.Fourrier()
+        self.res_points= res.ResPoints(smoothing)
+
+    def __call__(self,feat_i):
+        res_i=self.res_points(feat_i).T
+        return scipy.stats.pearsonr(res_i[0],res_i[1])[0]
+        
 def basic_stats(feat_i):
     if(np.all(feat_i==0)):
         return [0.0,0.0,0.0,0.0]
