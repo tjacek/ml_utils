@@ -2,6 +2,8 @@ import files
 import numpy as np 
 import os,re
 from sklearn import preprocessing
+from sklearn.svm import SVC
+from sklearn.feature_selection import RFE
 
 class FeatureSet(object):
     def __init__(self,X,info):
@@ -21,6 +23,14 @@ class FeatureSet(object):
     def norm(self):
         self.X=preprocessing.scale(self.X)
     
+    def reduce(self,n=100):
+        if(self.dim()>n):
+            svc = SVC(kernel='linear',C=1)
+            rfe = RFE(estimator=svc,n_features_to_select=n,step=1)
+            rfe.fit(self.X,self.get_labels())
+            self.X= rfe.transform(self.X)
+        return self
+
     def save(self,out_path,decimals=4):
         lines=[ np.array2string(x_i,separator=",",precision=decimals) for x_i in self.X]
         lines=[ line_i.replace('\n',"")+'#'+info_i 

@@ -1,10 +1,13 @@
 import feats,extract,unify,learn,smooth
 from sklearn.metrics import classification_report
 
-def exper_single(in_path,clf_type="SVC"):
+def exper_single(in_path,clf_type="SVC",n_select=None):
     feat_dataset=feats.read(in_path)
     feat_dataset.norm()
+    if(n_select):
+        feat_dataset.reduce(n_select)
     train,test=split_data(feat_dataset)
+    print("Number of features:%d" % train.X.shape[1])
     clf=learn.get_cls(clf_type)    
     clf.fit(train.X,train.get_labels())
     y_pred=clf.predict(test.X)
@@ -35,5 +38,5 @@ def gen_feats(seq_path,out_path,extractor=None,transform=None):
     feat_dataset.save(out_path)
 
 if __name__ == "__main__":
-    gen_feats("mra","datasets/noise.txt",extract.NoiseCorl())
-    exper_single("datasets","SVC")
+    #gen_feats("mra","datasets/noise.txt",extract.NoiseCorl())
+    exper_single("datasets/binary","LR",100)
