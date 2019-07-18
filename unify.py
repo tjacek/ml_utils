@@ -1,7 +1,10 @@
 import numpy as np
+import os.path
 import dataset,files
 
 def read(in_path):
+    if(not files.multiple_dataset(in_path)):
+        return dataset.read_dataset(in_path)
     dir_paths=files.top_files(in_path)
     datasets=[dataset.read_dataset(path_i) for path_i in dir_paths]
     unified_dict=datasets[0]
@@ -22,4 +25,4 @@ def unify_ts(ts1,ts2):
     return np.concatenate([ts1,ts2],axis=1)
 
 if __name__ == "__main__":
-    read('mra')
+    dict_i=read('mra/max_z')

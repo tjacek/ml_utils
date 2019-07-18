@@ -3,16 +3,21 @@ import os,os.path,re
 def top_files(in_path):
     return [in_path+'/'+path_i for path_i in os.listdir(in_path)]
 
-def has_dicts(in_path):
-    return any([ os.path.isdir(path_i) for path_i in top_files(in_path)])
+def multiple_dataset(in_path):
+    names=bottom_files(in_path,False)
+    first=names[0]
+    for name_i in names[1:]:
+        if(first==name_i):
+            return True
+    return False
 
-def bottom_files(path):
+def bottom_files(path,full_paths=True):
     all_paths=[]
     for root, directories, filenames in os.walk(path):
         if(not directories):
-            paths=[ root+'/'+filename_i 
-                for filename_i in filenames]
-            all_paths+=paths
+            for filename_i in filenames:
+                path_i= root+'/'+filename_i if(full_paths) else filename_i
+                all_paths.append(path_i)
     all_paths.sort(key=natural_keys)        
     return all_paths
 

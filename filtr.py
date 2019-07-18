@@ -19,7 +19,9 @@ def random_pairs(names):
     random.shuffle(random_names)
     return [ (x_i,y_i) for x_i,y_i in zip(names,random_names)]
 
-def split(names,selector):
+def split(names,selector=None):
+    if(not selector):
+        selector=get_person
     train,test=[],[]
     for name_i in names:
         if(selector(name_i)):
