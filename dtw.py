@@ -1,10 +1,19 @@
 import numpy as np
 import pickle
-import unify
+import unify,filtr,feats
 
 class DTWPairs(object):
     def __init__(self,pairs):
         self.pairs=pairs
+    
+    def to_features(self):
+        all_names=self.pairs.keys()
+        train,test=filtr.split(all_names)
+        def dtw_helper(name_i):
+            return np.array([ self.pairs[name_i][name_j] 
+                                for name_j in train])
+        feat_dict={name_i:dtw_helper(name_i) for name_i in all_names} 
+        return feats.from_dict(feat_dict) 
     
     def save(self,out_path):
     	with open(out_path, 'wb') as handle:
@@ -12,7 +21,7 @@ class DTWPairs(object):
 
 def read(in_path):
     with open(in_path, 'rb') as handle:
-        return pickle.load(handle)
+        return DTWPairs(pickle.load(handle))
 
 def make_pairwise_distance(ts_dataset):
     names=ts_dataset.ts_names()
@@ -60,5 +69,8 @@ def metric_matrix(ts_list):
     return metric_arr
 
 if __name__ == "__main__":
-    ts_dataset=unify.read("mra/max_z")
-    make_pairwise_distance(ts_dataset).save('dtw_pairs')
+    #ts_dataset=unify.read("mra/max_z")
+    #make_pairwise_distance(ts_dataset).save('dtw_pairs')
+    dtw_pairs=read('dtw_pairs')
+    dtw_feats=dtw_pairs.to_features()
+    dtw_feats.save("dtw.txt")
