@@ -2,7 +2,6 @@ import sklearn.grid_search as gs
 import sklearn.cross_validation as cv
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-
 import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -31,14 +30,10 @@ def show_confusion(cf_matrix):
     print(cf_matrix)
 
 def show_errors(y_pred,y_true,dataset):
-    errors=get_errors(y_pred,y_true)
-    persons=dataset.info['persons']
-    cats=dataset.info['cats']
-    error_names=[ (cats[i],persons[i])
+    names=dataset.info
+    errors= [ pred_i!=true_i 
+            for pred_i,true_i in zip(y_pred,y_true)]
+    error_names=[ (names[i],y_pred[i])
                   for i,error_i in enumerate(errors)
                     if(error_i)]
     return error_names
-
-def get_errors(y_pred,y_true):
-    return [ pred_i!=true_i 
-	        for pred_i,true_i in zip(y_pred,y_true)]
