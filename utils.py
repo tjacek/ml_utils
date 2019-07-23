@@ -1,4 +1,4 @@
-import unify,plot,smooth
+import unify,plot,smooth,agum
 
 def show_smoothing(in_path):
     raw_ts=unify.read(in_path)
@@ -7,4 +7,9 @@ def show_smoothing(in_path):
     smooth_ts=raw_ts(smooth.Fourrier())
     plot.plot_by_feat(smooth_ts)
 
-dataset=show_smoothing("mra")
+def make_agum(in_path):
+    raw_ts=unify.read(in_path)
+    agum_ts=agum.smooth_agum(raw_ts)
+    agum_ts.save()
+
+dataset=make_agum("mra")#,out_path='agum')
