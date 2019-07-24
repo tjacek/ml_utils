@@ -5,6 +5,8 @@ def top_files(in_path):
 
 def multiple_dataset(in_path):
     names=bottom_files(in_path,False)
+    if(not names):
+        raise Exception("No datasets at:"+in_path)
     first=names[0]
     for name_i in names[1:]:
         if(first==name_i):
