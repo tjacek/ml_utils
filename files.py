@@ -5,13 +5,18 @@ def top_files(in_path):
 
 def multiple_dataset(in_path):
     names=bottom_files(in_path,False)
+    names=[clean_str(name_i) for name_i in names]
     if(not names):
         raise Exception("No datasets at:"+in_path)
     first=names[0]
-    for name_i in names[1:]:
+    for name_i in names[1:]:  
         if(first==name_i):
             return True
     return False
+
+def clean_str(name_i):
+    name_i=re.sub(r'\D0','',name_i.strip())
+    return "_".join(re.findall(r'\d+',name_i))
 
 def bottom_files(path,full_paths=True):
     all_paths=[]

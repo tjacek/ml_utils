@@ -94,8 +94,8 @@ def read_dataset(in_path):
     for path_i in paths:
         ts_i=np.loadtxt(path_i,dtype=float,delimiter=",")
         ts_name_i=path_i.split('/')[-1]
-        ts_name_i=ts_name_i.split(".")[0]
-        ts_name_i=re.sub(r'[a-z]','',ts_name_i.strip()) 
+        ts_name_i=files.clean_str( ts_name_i)
+        print(ts_name_i)
         ts_dataset[ts_name_i]=ts_i
     print(dataset_name)
     return TSDataset(ts_dataset,dataset_name)
