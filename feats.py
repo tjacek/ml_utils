@@ -54,7 +54,7 @@ def read_single(in_path):
     feat_dict={}
     for line_i in lines:
         data_i,info_i=line_i.split('#')
-        info_i=re.sub(r'[a-z]','',info_i.strip())
+        info_i= files.clean_str(info_i)#re.sub(r'[a-z]','',info_i.strip())
         feat_dict[info_i]=np.fromstring(data_i,sep=',')
     return from_dict(feat_dict)
 
