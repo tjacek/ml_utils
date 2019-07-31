@@ -10,6 +10,10 @@ class FeatureSet(object):
         self.X=X
         self.info=info
     
+    def __add__(self,feat_i):
+        new_X=np.concatenate([self.X,feat_i.X],axis=1)
+        return FeatureSet(new_X,self.info)
+
     def dim(self):
         return self.X.shape[1]
 
@@ -24,10 +28,11 @@ class FeatureSet(object):
         self.X=preprocessing.scale(self.X)
     
     def reduce(self,n=100):
-        if(self.dim()>n):
+        if(self.dim()>n and n!=0):
             svc = SVC(kernel='linear',C=1)
-            rfe = RFE(estimator=svc,n_features_to_select=n,step=1)
+            rfe = RFE(estimator=svc,n_features_to_select=n,step=10)
             rfe.fit(self.X,self.get_labels())
+            #print(rfe.ranking_)
             self.X= rfe.transform(self.X)
         return self
 
