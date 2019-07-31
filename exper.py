@@ -3,11 +3,11 @@ from sklearn.metrics import classification_report
 
 def exper_single(in_path,clf_type="SVC",n_select=None):
     feat_dataset=feats.read(in_path)
+    feat_dataset.norm()
     y_pred,y_true=predict_labels(feat_dataset,clf_type,n_select)
     print(classification_report(y_true, y_pred,digits=4))
 
 def predict_labels(feat_dataset,clf_type="LR",n_select=None):
-    feat_dataset.norm()
     if(n_select):
         feat_dataset.reduce(n_select)
     train,test=split_data(feat_dataset)
