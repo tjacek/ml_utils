@@ -3,6 +3,10 @@ from sklearn.metrics import classification_report
 
 def exper_single(in_path,clf_type="SVC",n_select=None):
     feat_dataset=feats.read(in_path)
+    y_pred,y_true=predict_labels(feat_dataset,clf_type,n_select)
+    print(classification_report(y_true, y_pred,digits=4))
+
+def predict_labels(feat_dataset,clf_type="LR",n_select=None):
     feat_dataset.norm()
     if(n_select):
         feat_dataset.reduce(n_select)
@@ -10,9 +14,7 @@ def exper_single(in_path,clf_type="SVC",n_select=None):
     print("Number of features:%d" % train.X.shape[1])
     clf=learn.get_cls(clf_type)    
     clf.fit(train.X,train.get_labels())
-    y_pred=clf.predict(test.X)
-    y_true=test.get_labels()
-    print(classification_report(y_true, y_pred,digits=4))
+    return clf.predict(test.X),test.get_labels()
 
 def split_data(feat_dataset):
     train,test={},{}
@@ -39,4 +41,4 @@ def gen_feats(seq_path,out_path,extractor=None,transform=None):
 
 if __name__ == "__main__":
     #gen_feats("mra","datasets/noise.txt",extract.NoiseCorl())
-    exper_single("datasets/binary","LR",100)
+    exper_single("datasets/exp/","SVC")
