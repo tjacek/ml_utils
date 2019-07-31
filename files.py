@@ -15,7 +15,7 @@ def multiple_dataset(in_path):
     return False
 
 def clean_str(name_i):
-    name_i=re.sub(r'\D0','',name_i.strip())
+    name_i=re.sub(r'^_\D0','',name_i.strip())
     return "_".join(re.findall(r'\d+',name_i))
 
 def bottom_files(path,full_paths=True):
