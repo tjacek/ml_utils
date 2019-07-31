@@ -53,9 +53,11 @@ def read_single(in_path):
     lines=open(in_path,'r').readlines()
     feat_dict={}
     for line_i in lines:
-        data_i,info_i=line_i.split('#')
-        info_i= files.clean_str(info_i)#re.sub(r'[a-z]','',info_i.strip())
-        feat_dict[info_i]=np.fromstring(data_i,sep=',')
+        raw=line_i.split('#')
+        if(len(raw)>1):
+            data_i,info_i=raw[0],raw[-1]
+            info_i= files.clean_str(info_i)#re.sub(r'[a-z]','',info_i.strip())
+            feat_dict[info_i]=np.fromstring(data_i,sep=',')
     return from_dict(feat_dict)
 
 def from_dict(feat_dict):

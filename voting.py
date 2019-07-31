@@ -18,15 +18,25 @@ class Ensemble(object):
         return exper.predict_labels(data_i,clf_type=self.clf_type) 
 
 def get_datasets(hc_path,deep_paths,n_feats):
-    hc_feats,full_feats=feats.read(hc_path),[]
-    if(n_feats):
-        hc_feats.norm()
-        hc_feats.reduce(n_feats)
+    hc_feats=read_hc(hc_path,n_feats)
+    if(not deep_paths):
+        return [hc_feats]    
+    full_feats=[]
     for path_i in files.top_files(deep_paths):
-        deep_feats_i=feats.read(path_i)
-        deep_feats_i.norm()
-        full_feats.append( hc_feats +deep_feats_i)
+        deep_i=feats.read(path_i)
+        deep_i.norm()
+        full_i= (hc_feats +deep_i) if(hc_feats) else deep_i
+        full_feats.append( full_i)
     return full_feats
 
-voting=Ensemble("SVC")
-voting('datasets/exp','deep',100)
+def read_hc(hc_path,n_feats):
+    if(not hc_path):
+        return None
+    hc_feats=feats.read(hc_path)
+    hc_feats.norm()
+    if(n_feats):
+        hc_feats.reduce(n_feats)
+    return hc_feats
+
+voting=Ensemble("LR")
+voting(None,'deep',100)
