@@ -2,6 +2,15 @@ import numpy as np
 from sklearn.metrics import classification_report
 import files,feats,exper,learn
 
+class Experiment(object):
+    def __init__(self, deep=True,feats_params=[0,100]):
+        self.deep_params =deep
+        self.feats_params=feats_params
+        
+    def __call__(self,ens,arg_dict):
+        paths=files.bottom_files(arg_dict['hc_path'])
+        hc_path=files.all_subsets()
+
 class Ensemble(object):
     def __init__(self,clf_type="LR"):
         self.clf_type=clf_type
@@ -40,4 +49,4 @@ def read_hc(hc_path,n_feats):
     return hc_feats
 
 voting=Ensemble("SVC")
-print(voting('../AA/hand','../AA/s_deep',100))
+print(voting('../AA/inert/mhad','../AA/s_deep/mhad',100))
