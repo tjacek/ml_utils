@@ -1,4 +1,4 @@
-import unify,plot,smooth,agum
+import unify,plot,smooth,agum.warp
 
 def show_smoothing(in_path):
     raw_ts=unify.read(in_path)
@@ -9,7 +9,7 @@ def show_smoothing(in_path):
 
 def make_agum(in_path):
     raw_ts=unify.read(in_path)
-    agum_ts=agum.smooth_agum(raw_ts)
+    agum_ts=agum.warp.warp_agum(raw_ts)#smooth_agum(raw_ts)
     agum_ts.save()
 
-dataset=make_agum("mra")#,out_path='agum')
+dataset=make_agum("../ActionClassifier/mra/seq")#,out_path='agum')
