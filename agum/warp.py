@@ -1,5 +1,5 @@
 import numpy as np
-import dataset,smooth
+import dataset,smooth,filtr
 
 def warp_agum(ts_dataset):
     spline_transform=smooth.SplineUpsampling()
@@ -7,7 +7,8 @@ def warp_agum(ts_dataset):
     agum_data=[]
     warp_seq=WrapSeq()
     pos_args=[ [False,False],[False,True],[True,False],[True,True]]
-    for name_i in spline_dataset.ts_names():
+    train,test=filtr.split( spline_dataset.ts_names())
+    for name_i in train:
         data_i=spline_dataset[name_i]
         wrap_i=[  (name_i+'_'+str(i),warp_seq(data_i,*pos_i)) 
                   for i,pos_i in enumerate(pos_args)]
