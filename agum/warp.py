@@ -14,6 +14,8 @@ def warp_agum(ts_dataset):
                   for i,pos_i in enumerate(pos_args)]
         wrap_i.append( (name_i,data_i))
         agum_data+=wrap_i
+    for name_i in test:
+        agum_data.append( (name_i,spline_dataset[name_i]))	
     return dataset.TSDataset(dict(agum_data) ,ts_dataset.name+'_warp')
 
 class WrapSeq(object):
