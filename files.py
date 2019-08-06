@@ -15,8 +15,10 @@ def multiple_dataset(in_path):
     return False
 
 def clean_str(name_i):
-    name_i=re.sub(r'^_\D0','',name_i.strip())
-    return "_".join(re.findall(r'\d+',name_i))
+    #name_i=re.sub(r'^_\D0','',name_i.strip())
+    #name_i=re.sub(r0','',name_i.strip())
+    digits=[ str(int(digit_i)) for digit_i in re.findall(r'\d+',name_i)]
+    return "_".join(digits)
 
 def bottom_files(path,full_paths=True):
     all_paths=[]

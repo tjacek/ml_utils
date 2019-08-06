@@ -1,6 +1,7 @@
 import files
 import numpy as np 
 import os,re
+from sets import Set
 from sklearn import preprocessing
 from sklearn.svm import SVC
 from sklearn.feature_selection import RFE
@@ -47,12 +48,23 @@ class FeatureSet(object):
         file_str.close()
 
 def read(in_path):
-    if(os.path.isdir(in_path)):
-        datasets=[ read_single(path_i) for path_i in files.top_files(in_path)]
-        new_X=np.concatenate([data_i.X for data_i in datasets],axis=1)
-        return FeatureSet(new_X,datasets[0].info)
-    else:
-        return read_single(in_path)
+    data_dict=unify_dict(in_path) if(os.path.isdir(in_path)) else read_single(in_path)
+    return from_dict(data_dict)
+#    if(os.path.isdir(in_path)):
+#        new_X=np.concatenate([data_i.X for data_i in datasets],axis=1)
+#        return FeatureSet(new_X,datasets[0].info)
+#    else:
+#        return from_dict(read_single(in_path))
+
+def unify_dict(in_path):
+    datasets=[ read_single(path_i) for path_i in files.top_files(in_path)]
+    name_sets=[ Set(data_i.keys()) for data_i in datasets ]
+    common_names=name_sets[0]
+    for set_i in name_sets[1:]:
+        common_names=common_names.intersection(set_i)
+    def unify_helper(name_i):
+        return np.concatenate([data_i[name_i] for data_i in datasets])
+    return { name_i:unify_helper(name_i) for name_i in common_names}
 
 def read_single(in_path):
     lines=open(in_path,'r').readlines()
@@ -63,7 +75,7 @@ def read_single(in_path):
             data_i,info_i=raw[0],raw[-1]
             info_i= files.clean_str(info_i)#re.sub(r'[a-z]','',info_i.strip())
             feat_dict[info_i]=np.fromstring(data_i,sep=',')
-    return from_dict(feat_dict)
+    return feat_dict
 
 def from_dict(feat_dict):
     info=files.natural_sort(feat_dict.keys())
