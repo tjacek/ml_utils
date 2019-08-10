@@ -1,4 +1,9 @@
-import unify,plot,smooth,agum.warp
+import unify,plot,smooth,agum.warp,dataset
+
+def img_dataset(in_path):
+    raw_ts=unify.read(in_path)
+    smooth_ts=raw_ts(smooth.SplineUpsampling())
+    dataset.as_imgs(smooth_ts)
 
 def show_smoothing(in_path):
     raw_ts=unify.read(in_path)
@@ -12,4 +17,4 @@ def make_agum(in_path):
     agum_ts=agum.warp.warp_agum(raw_ts)#smooth_agum(raw_ts)
     agum_ts.save()
 
-dataset=make_agum("../ActionClassifier/mra/seq")#,out_path='agum')
+img_dataset("mra_")#,out_path='agum')
