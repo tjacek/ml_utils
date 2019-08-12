@@ -28,13 +28,16 @@ class Ensemble(object):
         return exper.predict_labels(data_i,clf_type=self.clf_type) 
 
 def get_datasets(hc_path,deep_paths,n_feats):
-    hc_feats=read_hc(hc_path,n_feats)
+    (n_hc_feats,n_deep_feats)= (n_feats,None) if(type(n_feats)==int) else n_feats
+    hc_feats=read_hc(hc_path,n_hc_feats)
     if(not deep_paths):
         return [hc_feats]    
     full_feats=[]
     for path_i in files.top_files(deep_paths):
         deep_i=feats.read(path_i)
         deep_i.norm()
+        if(n_deep_feats):
+            deep_i.reduce(n_deep_feats)
         full_i= (hc_feats + deep_i) if(hc_feats) else deep_i
         full_feats.append( full_i)
     return full_feats
@@ -49,4 +52,4 @@ def read_hc(hc_path,n_feats):
     return hc_feats
 
 voting=Ensemble("SVC")
-print(voting('../AA/inert/mhad','../AA/s_deep/mhad',100))
+print(voting(None,'../res_ensemble/feat_basic',(0,130)))
