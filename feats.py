@@ -28,6 +28,9 @@ class FeatureSet(object):
     def norm(self):
         self.X=preprocessing.scale(self.X)
     
+    def remove_nan(self):
+        self.X[np.isnan(self.X)]=0.0
+
     def reduce(self,n=100):
         if(self.dim()>n and n!=0):
             svc = SVC(kernel='linear',C=1)
