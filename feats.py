@@ -51,16 +51,20 @@ class FeatureSet(object):
         file_str.close()
 
 def read(in_path):
+    if(type(in_path)==list):
+        dataset_paths=[]
+        for path_i in in_path:
+            if(os.path.isdir(path_i)):
+                dataset_paths+=files.top_files(path_i)
+            else:
+                dataset_paths.append(path_i)
+        return from_dict(unify_dict(dataset_paths))
     data_dict=unify_dict(in_path) if(os.path.isdir(in_path)) else read_single(in_path)
     return from_dict(data_dict)
-#    if(os.path.isdir(in_path)):
-#        new_X=np.concatenate([data_i.X for data_i in datasets],axis=1)
-#        return FeatureSet(new_X,datasets[0].info)
-#    else:
-#        return from_dict(read_single(in_path))
 
 def unify_dict(in_path):
-    datasets=[ read_single(path_i) for path_i in files.top_files(in_path)]
+    paths= in_path if(type(in_path)==list) else  files.top_files(in_path)
+    datasets=[ read_single(path_i) for path_i in paths]
     name_sets=[ Set(data_i.keys()) for data_i in datasets ]
     common_names=name_sets[0]
     for set_i in name_sets[1:]:
