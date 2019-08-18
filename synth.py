@@ -1,5 +1,17 @@
 import numpy as np
+from scipy.linalg import cholesky
+from scipy.stats import norm
 import dataset
+
+def corl_samples(param_i):
+    n_samples=400
+    corl_i=param_i[0]
+    r = np.array([[corl_i, 0.0],
+                 [ 0.0, corl_i]])
+    x = norm.rvs(size=(2, n_samples))
+    c = cholesky(r, lower=True)
+    y = np.dot(c, x)
+    return y
 
 def normal_gen(means,stds,n_size=100,ts_len=128,n_feats=12):
     params=[(mean_i,std_i) 
@@ -21,4 +33,4 @@ def gen(params,make_sample):
                 samples.append((name_j,data_j)) 
     return make_sample
 
-gen([1,2],[1,2])
+corl_samples([0.3])
