@@ -100,8 +100,10 @@ def read_dataset(in_path):
     print(dataset_name)
     return TSDataset(ts_dataset,dataset_name)
 
-def as_imgs(ts_dataset):
+def as_imgs(ts_dataset,out_path=None):
     dir_name=ts_dataset.name+'_img'
+    if(out_path):
+        dir_name=out_path+'/'+dir_name
     files.make_dir(dir_name)
     for name_i in ts_dataset.ts_names():
         img_i=ts_dataset[name_i]

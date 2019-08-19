@@ -1,4 +1,11 @@
-import unify,plot,smooth,agum.warp,dataset
+import unify,plot,smooth,agum.warp,dataset,synth
+
+def synth_dataset(out_path):
+    means=[-1.0,0.0,1.0]
+    stds=[1.0,2.0,3.0]
+    norm_dist=synth.normal_gen(means,stds,n_size=250,
+                            ts_len=128,n_feats=12)
+    dataset.as_imgs(norm_dist,out_path)
 
 def img_dataset(in_path,use_agum=False):
     raw_ts=unify.read(in_path)
@@ -20,4 +27,4 @@ def make_agum(in_path):
     agum_ts=agum.warp.warp_agum(raw_ts)#smooth_agum(raw_ts)
     agum_ts.save()
 
-img_dataset("mra_",True)#,out_path='agum')
+synth_dataset("../pretrain")#,out_path='agum')
