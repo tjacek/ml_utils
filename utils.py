@@ -2,7 +2,7 @@ import unify,plot,smooth,agum.warp,dataset,synth
 
 def synth_dataset(out_path):
     means=[-1.0,0.0,1.0]
-    stds=[1.0,2.0,3.0]
+    stds=[1.0,2.0,3.0,4.0]
     norm_dist=synth.normal_gen(means,stds,n_size=250,
                             ts_len=128,n_feats=12)
     dataset.as_imgs(norm_dist,out_path)
