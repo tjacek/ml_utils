@@ -31,12 +31,28 @@ class NoiseCorl(object):
     def __call__(self,feat_i):
         res_i=self.res_points(feat_i).T
         return scipy.stats.pearsonr(res_i[0],res_i[1])[0]
-        
-def basic_stats(feat_i):
-    if(np.all(feat_i==0)):
-        return [0.0,0.0,0.0,0.0]
-    return np.array([np.mean(feat_i),np.std(feat_i),
-    	                scipy.stats.skew(feat_i),time_corl(feat_i)])
+
+class BasicStats(object):
+    def __init__(self,stats=None):
+        self.stats=stats
+
+    def __call__(self,feat_i):
+        if(np.all(feat_i==0)):
+            return np.zeros((len(self.stats),))
+        return np.array([stat_j(feat_i) 
+                            for stat_j in self.stats])
+def get_basic_stats():
+    return BasicStats([np.mean,np.std,scipy.stats.skew,time_corl])
+
+def get_kurt_stats():
+    return BasicStats([np.mean,np.std,scipy.stats.skew,
+                        time_corl,scipy.stats.kurtosis])
+
+#def basic_stats(feat_i):
+#    if(np.all(feat_i==0)):
+#        return [0.0,0.0,0.0,0.0]
+#    return np.array([np.mean(feat_i),np.std(feat_i),
+#    	                scipy.stats.skew(feat_i),time_corl(feat_i)])
 
 def time_corl(feat_i):
     n_size=feat_i.shape[0]
