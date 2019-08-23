@@ -1,21 +1,28 @@
 import numpy as np
 import random,itertools
 from scipy.linalg import cholesky
-from scipy.stats import norm
+from scipy.stats import norm,skewnorm
 import dataset
 
-def normal_gen(means,stds,n_cats=5,n_size=500,ts_len=128,n_feats=12):
-    params=get_params([means,stds])
+def skew_gen(means,stds,skew,n_cats=20,n_size=500,ts_len=128,n_feats=12):
+    def make_sample(param_i):
+        return skewnorm.rvs(a=param_i[2], loc=param_i[0], scale=param_i[1],size=ts_len)
+    param_values=[means,stds,skew]
+    return gen_template(param_values,make_sample,n_cats,n_size,n_feats,'synth_skew')
+
+def normal_gen(means,stds,n_cats=20,n_size=500,ts_len=128,n_feats=12):
     def make_sample(param_i):
         return np.random.normal(param_i[0],param_i[1],(ts_len,))
+    param_values=[means,stds]
+    return gen_template(param_values,make_sample,n_cats,n_size,n_feats,'synth_gauss')
+
+def gen_template(param_values,make_sample,n_cats=5,n_size=500,n_feats=12,name='synth'):
+    params=list(itertools.product(*param_values))
     samples=[]
     for i in range(n_cats):
         param_subset=random.sample(params,n_feats)
         samples+=gen(i,param_subset,make_sample,n_size)
-    return dataset.TSDataset(dict(samples),'synth_gauss')    
-
-def get_params(param_values):
-    return list(itertools.product(*param_values))
+    return dataset.TSDataset(dict(samples),name)    
 
 def gen(cat_i,params,make_sample,n_size):
     samples=[]

@@ -1,10 +1,12 @@
 import unify,plot,smooth,agum.warp,dataset,synth,extract
 
 def synth_dataset(out_path):
-    means=[-1.0,0.0,1.0]
+    means=[-2.0,-1.0,0.0,1.0,2.0]
     stds=[1.0,2.0,3.0,4.0]
-    norm_dist=synth.normal_gen(means,stds,n_size=250,
-                            ts_len=128,n_feats=12)
+    skew=[-1.0,0.0,1.0]
+    norm_dist=synth.skew_gen(means,stds,skew,n_cats=20,
+                    n_size=250,ts_len=128,n_feats=12)
+    print(len(norm_dist))
     dataset.as_imgs(norm_dist,out_path)
 
 def img_dataset(in_path,use_agum=False):
@@ -33,5 +35,5 @@ def make_agum(in_path):
     agum_ts=agum.warp.warp_agum(raw_ts)#smooth_agum(raw_ts)
     agum_ts.save()
 
-#synth_dataset("../pretrain")
-extrac_feats('mra_','exp2/kurt.txt')
+synth_dataset("../pretrain")
+#extrac_feats('mra_','exp2/kurt.txt')
