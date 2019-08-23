@@ -1,11 +1,16 @@
 import unify,plot,smooth,agum.warp,dataset,synth,extract
 
 def synth_dataset(out_path):
-    means=[-2.0,-1.0,0.0,1.0,2.0]
-    stds=[1.0,2.0,3.0,4.0]
-    skew=[-1.0,0.0,1.0]
-    norm_dist=synth.skew_gen(means,stds,skew,n_cats=20,
-                    n_size=250,ts_len=128,n_feats=12)
+    #means=[-2.0,-1.0,0.0,1.0,2.0]
+    #stds=[1.0,2.0,3.0,4.0]
+    #skew=[-1.0,0.0,1.0]
+    #norm_dist=synth.skew_gen(means,stds,skew,n_cats=20,
+    #                n_size=250,ts_len=128,n_feats=12)
+    a=[-1.0,0.0,1.0]
+    std=[0.25,0.5]
+    param_values=[a,a,a,a,std]
+    norm_dist=synth.autoreg_gen(param_values,n_cats=50,
+                    n_size=100,ts_len=128,n_feats=12)
     print(len(norm_dist))
     dataset.as_imgs(norm_dist,out_path)
 

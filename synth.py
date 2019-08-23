@@ -4,6 +4,19 @@ from scipy.linalg import cholesky
 from scipy.stats import norm,skewnorm
 import dataset
 
+def autoreg_gen(param_values,n_cats=20,n_size=500,ts_len=128,n_feats=12):
+    def make_sample(param_i):
+        c,std=param_i[-2:]
+        params=np.array(param_i[:-2])
+        lag=params.shape[0]
+        noise=np.random.normal(0.0,std,(ts_len,))
+        sample=[0.0 for i in range(lag)]
+        for i in range(ts_len):
+            x_i=sample[-lag:]
+            sample.append(np.dot(x_i,params)+c + noise[i])
+        return np.array(sample[lag:])
+    return gen_template(param_values,make_sample,n_cats,n_size,n_feats,'synth_AR')
+
 def skew_gen(means,stds,skew,n_cats=20,n_size=500,ts_len=128,n_feats=12):
     def make_sample(param_i):
         return skewnorm.rvs(a=param_i[2], loc=param_i[0], scale=param_i[1],size=ts_len)
