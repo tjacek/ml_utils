@@ -7,6 +7,9 @@ class TSDataset(object):
     def __init__(self,ts_dict,name="dataset"):
         self.ts_dict=ts_dict
         self.name=name
+
+    def __len__(self):
+        return len(self.ts_dict)
     
     def __getitem__(self,name_i):
         return self.ts_dict[name_i]
