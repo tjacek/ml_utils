@@ -51,12 +51,13 @@ def read_hc(hc_path,n_feats):
         hc_feats.reduce(n_feats)
     return hc_feats
 
-voting=Ensemble("SVC")
 
-import files
-paths=files.top_files('../res_ensemble/binary_feats')
-paths.sort()
-print(paths)
-for path_i in paths:
-    print(path_i)
-    print(voting(path_i,'../s_deep/mra',(0,0)))
+if __name__ == "__main__":
+    paths=["exp",'../res_ensemble/feats/basic']
+    exper_single(["exp",'../res_ensemble/binary_cats'],"SVC",100)#"../res_ensemble/feats/res1","SVC")
+#    paths=files.top_files('../res_ensemble/binary_feats')
+#    paths.sort()
+#    for path_i in paths:
+#        print(path_i)
+#        paths=["exp",path_i]
+#        exper_single(paths,"SVC",100)

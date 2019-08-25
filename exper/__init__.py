@@ -1,4 +1,4 @@
-import feats,extract,unify,learn,smooth
+import feats,extract,unify,learn,files
 from sklearn.metrics import classification_report
 
 def exper_single(in_path,clf_type="SVC",n_select=None):
@@ -38,7 +38,3 @@ def gen_feats(seq_path,out_path,extractor=None,transform=None):
         extractor=extract.basic_stats
     feat_dataset=ts_dataset.to_feats(extractor)
     feat_dataset.save(out_path)
-
-if __name__ == "__main__":
-    #gen_feats("mra","datasets/noise.txt",extract.NoiseCorl())
-    exper_single("datasets/exp/","SVC")
