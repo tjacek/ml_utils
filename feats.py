@@ -12,6 +12,14 @@ class FeatureSet(object):
         self.info=info
     
     def __add__(self,feat_i):
+        if(self.X.shape[0]!=feat_i.X.shape):
+            new_info=list(Set(self.info).intersection(Set(feat_i.info)))
+            new_info.sort()
+            a_dict,b_dict=self.to_dict(),feat_i.to_dict()
+            a_dict={ name_i:a_dict[name_i] for name_i in new_info}
+            b_dict={ name_i:b_dict[name_i] for name_i in new_info}
+            new_X=np.concatenate([from_dict(a_dict).X,from_dict(b_dict).X],axis=1)
+            return  FeatureSet(new_X,new_info)
         new_X=np.concatenate([self.X,feat_i.X],axis=1)
         return FeatureSet(new_X,self.info)
 

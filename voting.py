@@ -22,7 +22,7 @@ class Ensemble(object):
         y_ens=np.array([vote_i[0] for vote_i in votes]).T    
         y_pred=[np.argmax(np.bincount(vote_i)) for vote_i in y_ens]    
         print(classification_report(y_true, y_pred,digits=4))
-        return learn.compute_score(y_true,y_pred,as_str=True)
+#        return learn.compute_score(y_true,y_pred,as_str=True)
 
     def predict(self,data_i):
         return exper.predict_labels(data_i,clf_type=self.clf_type) 
@@ -52,4 +52,11 @@ def read_hc(hc_path,n_feats):
     return hc_feats
 
 voting=Ensemble("SVC")
-print(voting(None,'../res_ensemble/feat_basic',(0,130)))
+
+import files
+paths=files.top_files('../res_ensemble/binary_feats')
+paths.sort()
+print(paths)
+for path_i in paths:
+    print(path_i)
+    print(voting(path_i,'../s_deep/mra',(0,0)))
