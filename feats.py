@@ -12,7 +12,7 @@ class FeatureSet(object):
         self.info=info
     
     def __add__(self,feat_i):
-        if(self.X.shape[0]!=feat_i.X.shape):
+        if(self.X.shape[0]!=feat_i.X.shape[0]):
             new_info=list(Set(self.info).intersection(Set(feat_i.info)))
             new_info.sort()
             a_dict,b_dict=self.to_dict(),feat_i.to_dict()
