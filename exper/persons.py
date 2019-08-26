@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 import voting,filtr
 
 def quality(**args):
@@ -15,10 +17,18 @@ def pred_acc(data_i):
             if(person_j!=i):
                 rest+=names_j
         return one,rest
+    acc=[]
     for person_i in by_person.keys():
+        print(person_i)	
         one,rest=one_out(person_i)
-        print(len(one))
-        print(len(one)+len(rest))
+        X_rest,y_rest=as_arrays(rest,train_data)
+        clf_i=LogisticRegression()
+        clf_i.fit(X_rest,y_rest)
+        X_one,y_one=as_arrays(one,train_data)
+        y_pred=clf_i.predict(X_one)
+        acc.append(accuracy_score(y_one,y_pred))
+    print(acc)
+    return acc
 
 def samples_by_person(train):
     persons_dict=get_person( train)
@@ -31,3 +41,8 @@ def samples_by_person(train):
 
 def get_person(names):
     return { name_i:name_i.split('_')[1]  for name_i in names}
+
+def as_arrays(names,data_i):
+    X=np.array([data_i[name_i] for name_i in names])
+    y=[int(name_i.split('_')[0]) -1 for name_i in names]
+    return X,y
