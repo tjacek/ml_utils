@@ -5,7 +5,9 @@ import voting,filtr
 
 def quality(**args):
     datasets=voting.get_datasets(**args)
-    pred_acc(datasets[0])
+    acc=[ pred_acc(data_i) for data_i in datasets]
+    print(acc)
+    print(np.argsort(acc))
 
 def pred_acc(data_i):
     train,test=filtr.split(data_i.info)
@@ -28,7 +30,7 @@ def pred_acc(data_i):
         y_pred=clf_i.predict(X_one)
         acc.append(accuracy_score(y_one,y_pred))
     print(acc)
-    return acc
+    return np.mean(acc)
 
 def samples_by_person(train):
     persons_dict=get_person( train)

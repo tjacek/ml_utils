@@ -1,7 +1,9 @@
 import os,os.path,re
 
 def top_files(in_path):
-    return [in_path+'/'+path_i for path_i in os.listdir(in_path)]
+    paths=[in_path+'/'+path_i for path_i in os.listdir(in_path)]
+    paths=sorted(paths,key=natural_keys)
+    return paths
 
 def multiple_dataset(in_path):
     names=bottom_files(in_path,False)

@@ -34,6 +34,7 @@ def get_datasets(hc_path,deep_paths,n_feats):
         return [hc_feats]    
     full_feats=[]
     for path_i in files.top_files(deep_paths):
+        print(path_i)
         deep_i=feats.read(path_i)
         deep_i.norm()
         if(n_deep_feats):
