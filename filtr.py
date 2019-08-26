@@ -1,6 +1,12 @@
 import re
 from collections import defaultdict
 import random,copy
+import feats
+
+def filtered_dict(names,dic):
+    if(type(dic)==feats.FeatureSet):
+        dic=dic.to_dict()
+    return { name_i:dic[name_i] for name_i in names}
 
 def train_by_cat(ts_dataset):
     names=ts_dataset.ts_names()
