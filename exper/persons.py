@@ -7,9 +7,10 @@ def quality(**args):
     datasets=voting.get_datasets(**args)
     acc=[ pred_acc(data_i) for data_i in datasets]
     print(acc)
-    print(np.argsort(acc))
+    return np.flip(np.argsort(acc))
 
 def pred_acc(data_i):
+    print(data_i.dim())
     train,test=filtr.split(data_i.info)
     train_data=filtr.filtered_dict(train,data_i)
     by_person=samples_by_person(train)
