@@ -4,7 +4,7 @@ from sklearn.metrics import classification_report
 def exper_single(in_path,clf_type="SVC",n_select=None):
     feat_dataset=feats.read(in_path)
     feat_dataset.norm()
-    y_pred,y_true=predict_labels(feat_dataset,clf_type,n_select)
+    y_pred,y_true,names=predict_labels(feat_dataset,clf_type,n_select)
     print(classification_report(y_true, y_pred,digits=4))
 
 def predict_labels(feat_dataset,clf_type="LR",n_select=None):
@@ -14,7 +14,7 @@ def predict_labels(feat_dataset,clf_type="LR",n_select=None):
     print("Number of features:%d" % train.X.shape[1])
     clf=learn.get_cls(clf_type)    
     clf.fit(train.X,train.get_labels())
-    return clf.predict(test.X),test.get_labels()
+    return clf.predict(test.X),test.get_labels(),test.info
 
 def split_data(feat_dataset):
     train,test={},{}

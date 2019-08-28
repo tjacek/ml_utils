@@ -1,7 +1,7 @@
 import numpy as np
 import feats,filtr,exper.persons,exper.voting
 
-def make_cat_feats(args,out_path,clf_type="LR"):
+def make_cat_feats(args,out_path,clf_type="LR",binary=True):
     datasets=exper.voting.get_datasets(**args)
     pred_dicts=[pred_dict(data_i,clf_type) 
                     for data_i in datasets]
@@ -11,9 +11,11 @@ def make_cat_feats(args,out_path,clf_type="LR"):
         return np.array([pred_j[name_i] for pred_j in pred_dicts])
     pred_feats={name_i:cat_helper(name_i) for name_i in names}
     pred_feats=feats.from_dict(pred_feats)
+    if(binary):
+    	pred_feats=binary_dataset(pred_feats)
     pred_feats.save(out_path)
 
-def pred_dict(data_i,clf_type="LR"):
+def in_sample(data_i,clf_type="LR"):
     train,test=filtr.split(data_i.info)
     train_data=filtr.filtered_dict(train,data_i)
     by_person=exper.persons.samples_by_person(train)
@@ -22,4 +24,23 @@ def pred_dict(data_i,clf_type="LR"):
     for person_i,pred_i in person_pred.items():
         one,y_one,y_pred=pred_i
         pairs+=zip(one,y_pred)
-    return dict(pairs)
+    return pairs
+
+def pred_dict(data_i,clf_type="LR"):
+    y_pred,y_true,names=exper.predict_labels(data_i,clf_type)
+    test_pred_i=zip(names,[y_i-1 for y_i in y_pred])
+    train_pred=in_sample(data_i,clf_type)
+    return dict(test_pred_i+train_pred)
+
+def binary_dataset(data_i):
+    n_cats=int(np.amax(data_i.X))
+    def helper(x_i):
+    	binary_vec=[]
+        for cat_j in x_i:
+            one_hot=np.zeros((n_cats+1,))
+            one_hot[int(cat_j)]=1
+            binary_vec+=list(one_hot)
+        return np.array(binary_vec)
+    new_X=np.array([helper(x_i) 
+    	        for x_i in data_i.X])
+    return feats.FeatureSet(new_X,data_i.info)

@@ -20,7 +20,7 @@ def pred_acc(data_i,clf_type="LR"):
         one,y_one,y_pred=pred_i
         acc.append(accuracy_score(y_one,y_pred))
     print(acc)
-    return np.min(acc)#np.median(acc)
+    return np.mean(acc)
 
 def samples_by_person(train):
     persons_dict=get_person( train)
