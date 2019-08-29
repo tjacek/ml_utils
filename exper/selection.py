@@ -1,15 +1,20 @@
 import exper,exper.voting,exper.persons
+import feats,files
 from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
+
+def best_feats(args,clf_type="LR"):
+    datasets=voting.get_datasets(**args)
+    paths=files.top_files(args['deep_paths'])
+    acc=[ exper.persons.pred_acc(data_i,clf_type) for data_i in datasets]
+    return [(paths[i],acc[i]) for i in np.argsort(acc)]
 
 def acc_curve(dict_args,clf_type="LR"):
     quality=exper.persons.quality(dict_args,clf_type)
     votes=get_votes(dict_args,clf_type)
     acc=[selected_voting(i+1,quality,votes) 
             for i in range(len(quality)) ]
-    #acc=[ clf_select(i+1,dict_args,quality) 
-    #        for i in range(len(quality))]
     print(acc)    
     plt.plot(acc)
     plt.ylabel("acc")
