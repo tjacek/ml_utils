@@ -8,13 +8,15 @@ class Ensemble(object):
 
     def __call__(self,hc_path,deep_paths,n_feats=None):
         datasets=get_datasets(hc_path,deep_paths,n_feats)
-        votes=[ self.predict(data_i) for data_i in datasets]
-        y_true,y_pred=count_votes(votes)
+        votes=predict(datasets,self.clf_type)
+        y_true,y_pred=predict(datasets,clf_type)
         print(classification_report(y_true, y_pred,digits=4))
 #        return learn.compute_score(y_true,y_pred,as_str=True)
 
-    def predict(self,data_i):
-        return exper.predict_labels(data_i,clf_type=self.clf_type) 
+def predict(datasets,clf_type):
+    votes=[exper.predict_labels(data_i,clf_type)
+                for data_i in datasets]
+    return count_votes(votes)
 
 def count_votes(votes):
     y_true=votes[0][1]
