@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import mode
 import feats,filtr,exper.persons,exper.voting
 
 def make_cat_feats(args,out_path,clf_type="LR",binary=True):
@@ -55,3 +56,10 @@ def from_binary(in_path):
     binary_data=binary_data.to_dict()
     return { name_i:binary_helper(x_i) 
                 for name_i,x_i in binary_data.items()}
+
+def error_votes(votes):
+    names=votes.keys()
+    y_true=filtr.all_cats(names)
+    y_pred=[mode(votes[name_i]).mode[0]+1 for name_i in names]
+    err_names=filtr.erros(names,y_true,y_pred)
+    return filtr.filtered_dict(err_names,votes)

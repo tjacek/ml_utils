@@ -1,3 +1,4 @@
+import numpy as np
 import re
 from collections import defaultdict
 import random,copy
@@ -14,7 +15,6 @@ def train_by_cat(ts_dataset):
     return by_cat(train)
 
 def by_cat(names):
-#    names=clean_str(names)
     names_by_cat=defaultdict(lambda:[])
     for name_i in names:
     	names_by_cat[get_cat(name_i)].append(name_i)
@@ -36,6 +36,12 @@ def split(names,selector=None):
             test.append(name_i)
     return train,test
 
+def n_cats(names):
+    return np.unique(all_cats(names)).shape[0]
+
+def all_cats(names):
+    return [ get_cat(name_i) for name_i in names]
+
 def get_cat(name_i):
     return int(name_i.split('_')[0])	
 
@@ -45,3 +51,8 @@ def get_person(name_i):
 def clean_str(names):
     return [re.sub(r'[a-z]','',str_i.strip()) 
                 for str_i in names]
+
+def erros(names,y_true,y_pred):
+    err=[true_i!=pred_i for true_i,pred_i in zip(y_true,y_pred)]
+    return [name_i for i,name_i in enumerate(names)
+                if(err[i])]
