@@ -44,3 +44,14 @@ def binary_dataset(data_i):
     new_X=np.array([helper(x_i) 
     	        for x_i in data_i.X])
     return feats.FeatureSet(new_X,data_i.info)
+
+def from_binary(in_path):
+    binary_data=feats.read(in_path)
+    n_cats= filtr.n_cats(binary_data.info)
+    n_clfs=binary_data.dim()/n_cats
+    def binary_helper(x_i):
+        one_hot=[ x_i[j*n_cats:(j+1)*n_cats] for j in range(n_clfs)]
+        return [ np.argmax(vec_j) for vec_j in one_hot]
+    binary_data=binary_data.to_dict()
+    return { name_i:binary_helper(x_i) 
+                for name_i,x_i in binary_data.items()}
