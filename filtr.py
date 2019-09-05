@@ -26,6 +26,9 @@ def random_pairs(names):
     return [ (x_i,y_i) for x_i,y_i in zip(names,random_names)]
 
 def split(names,selector=None):
+    if(type(names)==dict):
+        train,test=split(names.keys(),selector)
+        return filtered_dict(train,names),filtered_dict(test,names)
     if(not selector):
         selector=get_person
     train,test=[],[]
@@ -43,7 +46,7 @@ def all_cats(names):
     return [ get_cat(name_i) for name_i in names]
 
 def get_cat(name_i):
-    return int(name_i.split('_')[0])	
+    return int(name_i.split('_')[0])-1
 
 def get_person(name_i):
     return (int(name_i.split('_')[1])%2)==1

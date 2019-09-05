@@ -3,24 +3,35 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import voting,filtr,learn
 
-def quality(args,clf_type="LR"):
-    datasets=voting.get_datasets(**args)
-    acc=[ pred_acc(data_i,clf_type) for data_i in datasets]
-    print(acc)
-    return np.flip(np.argsort(acc))
+#def quality(args,clf_type="LR"):
+#    datasets=voting.get_datasets(**args)
+#    acc=[ pred_acc(data_i,clf_type) for data_i in datasets]
+#    print(acc)
+#    return np.flip(np.argsort(acc))
 
-def pred_acc(data_i,clf_type="LR"):
-    print(data_i.dim())
+#def pred_acc(data_i,clf_type="LR"):
+#    print(data_i.dim())
+#    train,test=filtr.split(data_i.info)
+#    train_data=filtr.filtered_dict(train,data_i)
+#    by_person=samples_by_person(train)
+#    person_pred=pred_by_person(train_data,by_person,clf_type)
+#    acc=[]
+#    for person_i,pred_i in person_pred.items():
+#        one,y_one,y_pred=pred_i
+#        acc.append(accuracy_score(y_one,y_pred))
+#    print(acc)
+#    return np.mean(acc)
+
+def in_sample(data_i,clf_type="LR"):
     train,test=filtr.split(data_i.info)
     train_data=filtr.filtered_dict(train,data_i)
     by_person=samples_by_person(train)
     person_pred=pred_by_person(train_data,by_person,clf_type)
-    acc=[]
+    pairs=[]
     for person_i,pred_i in person_pred.items():
         one,y_one,y_pred=pred_i
-        acc.append(accuracy_score(y_one,y_pred))
-    print(acc)
-    return np.mean(acc)
+        pairs+=zip(one,y_pred)
+    return pairs
 
 def samples_by_person(train):
     persons_dict=get_person( train)

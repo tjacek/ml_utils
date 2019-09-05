@@ -16,21 +16,10 @@ def make_cat_feats(args,out_path,clf_type="LR",binary=True):
     	pred_feats=binary_dataset(pred_feats)
     pred_feats.save(out_path)
 
-def in_sample(data_i,clf_type="LR"):
-    train,test=filtr.split(data_i.info)
-    train_data=filtr.filtered_dict(train,data_i)
-    by_person=exper.persons.samples_by_person(train)
-    person_pred=exper.persons.pred_by_person(train_data,by_person,clf_type)
-    pairs=[]
-    for person_i,pred_i in person_pred.items():
-        one,y_one,y_pred=pred_i
-        pairs+=zip(one,y_pred)
-    return pairs
-
 def pred_dict(data_i,clf_type="LR"):
     y_pred,y_true,names=exper.predict_labels(data_i,clf_type)
     test_pred_i=zip(names,[y_i-1 for y_i in y_pred])
-    train_pred=in_sample(data_i,clf_type)
+    train_pred=exper.persons.in_sample(data_i,clf_type)
     return dict(test_pred_i+train_pred)
 
 def binary_dataset(data_i):
@@ -52,7 +41,7 @@ def from_binary(in_path):
     n_clfs=binary_data.dim()/n_cats
     def binary_helper(x_i):
         one_hot=[ x_i[j*n_cats:(j+1)*n_cats] for j in range(n_clfs)]
-        return [ np.argmax(vec_j) for vec_j in one_hot]
+        return np.array([ np.argmax(vec_j) for vec_j in one_hot])
     binary_data=binary_data.to_dict()
     return { name_i:binary_helper(x_i) 
                 for name_i,x_i in binary_data.items()}
