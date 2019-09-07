@@ -24,16 +24,14 @@ def pred_dict(data_i,clf_type="LR"):
 
 def binary_dataset(data_i):
     n_cats=int(np.amax(data_i.X))
-    def helper(x_i):
-    	binary_vec=[]
-        for cat_j in x_i:
-            one_hot=np.zeros((n_cats+1,))
-            one_hot[int(cat_j)]=1
-            binary_vec+=list(one_hot)
-        return np.array(binary_vec)
-    new_X=np.array([helper(x_i) 
-    	        for x_i in data_i.X])
-    return feats.FeatureSet(new_X,data_i.info)
+    def one_hot(cat_j):
+        one_hot=np.zeros((n_cats+1,))
+        one_hot[int(cat_j)]=1
+        return one_hot
+    new_X=[[one_hot(cat_j) 
+                for cat_j in x_i]
+    	            for x_i in data_i.X]
+    return feats.FeatureSet(np.array(new_X),data_i.info)
 
 def from_binary(in_path):
     binary_data=feats.read(in_path)
