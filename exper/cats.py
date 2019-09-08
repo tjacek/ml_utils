@@ -28,8 +28,8 @@ def binary_dataset(data_i):
         one_hot=np.zeros((n_cats+1,))
         one_hot[int(cat_j)]=1
         return one_hot
-    new_X=[[one_hot(cat_j) 
-                for cat_j in x_i]
+    new_X=[np.concatenate([one_hot(cat_j) 
+                            for cat_j in x_i])
     	            for x_i in data_i.X]
     return feats.FeatureSet(np.array(new_X),data_i.info)
 
