@@ -10,7 +10,10 @@ class FeatureSet(object):
     def __init__(self,X,info):
         self.X=X
         self.info=info
-    
+
+    def __len__(self):
+        return len(self.info)
+
     def __add__(self,feat_i):
         if(self.X.shape[0]!=feat_i.X.shape[0]):
             new_info=list(Set(self.info).intersection(Set(feat_i.info)))

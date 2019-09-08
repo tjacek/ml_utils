@@ -1,16 +1,22 @@
 import feats,extract,unify,learn,files
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report,accuracy_score
 
 def exper_single(in_path,clf_type="SVC",n_select=None):
-    feat_dataset=feats.read(in_path)
+    if(type(in_path)==dict):
+        feat_dataset=feats.from_dict(in_path)
+    else:
+        feat_dataset=feats.read(in_path)
     feat_dataset.norm()
     y_pred,y_true,names=predict_labels(feat_dataset,clf_type,n_select)
     print(classification_report(y_true, y_pred,digits=4))
+    return accuracy_score(y_true,y_pred)
 
 def predict_labels(feat_dataset,clf_type="LR",n_select=None):
     if(n_select):
         feat_dataset.reduce(n_select)
     train,test=split_data(feat_dataset)
+    if(not len(train)):
+        raise Exception("No train data")
     print("Number of features:%d" % train.X.shape[1])
     clf=learn.get_cls(clf_type)    
     clf.fit(train.X,train.get_labels())
