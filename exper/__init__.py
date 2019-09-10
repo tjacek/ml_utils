@@ -1,18 +1,18 @@
 import feats,extract,unify,learn,files
 from sklearn.metrics import classification_report,accuracy_score
 
-def exper_single(in_path,clf_type="SVC",n_select=None,norm=True):
+def exper_single(in_path,clf_type="SVC",n_select=None,norm=True,show=True):
     if(type(in_path)==dict):
         feat_dataset=feats.from_dict(in_path)
     elif(type(in_path)==str):
         feat_dataset=feats.read(in_path)
     else:
         feat_dataset=in_path
-#    raise Exception(feat_dataset.X.shape)
     if(norm):
         feat_dataset.norm()
     y_pred,y_true,names=predict_labels(feat_dataset,clf_type,n_select)
-    print(classification_report(y_true, y_pred,digits=4))
+    if(show):
+        print(classification_report(y_true, y_pred,digits=4))
     return accuracy_score(y_true,y_pred)
 
 def predict_labels(feat_dataset,clf_type="LR",n_select=None):
