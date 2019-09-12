@@ -1,16 +1,23 @@
-import feats
+import feats,files
 from sklearn import manifold
 import matplotlib.pyplot as plt
 import numpy as np
 
-def show_feats(in_path):
-    feat_dataset=feats.read(in_path)
+def all_plots(in_path,out_path):
+    all_paths=files.top_files(in_path)
+    all_plots=[tsne_plot(path_i,show=False)  for path_i in all_paths]    
+    files.make_dir(out_path)
+    for i,plot_i in enumerate(all_plots):
+        out_i=out_path+'/'+ all_paths[i].split('/')[-1]
+        plot_i.savefig(out_i)
+
+def tsne_plot(in_path,show=True):
+    feat_dataset= feats.read(in_path) if(type(in_path)==str) else in_path
     tsne=manifold.TSNE(n_components=2,perplexity=30)#init='pca', random_state=0)
     X=tsne.fit_transform(feat_dataset.X)
     y=feat_dataset.get_labels()
-    #color_helper=lambda i,y_i:y_i
     color_helper=PersonColors(feat_dataset)
-    plot_embedding(X,y,title="tsne",color_helper=color_helper,show=True)
+    return plot_embedding(X,y,title="tsne",color_helper=color_helper,show=show)
 
 def plot_embedding(X,y,title="plot",color_helper=None,show=True):
     n_points=X.shape[0]

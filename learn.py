@@ -11,7 +11,7 @@ def get_cls(clf_type):
     if(clf_type=="SVC"):
         print("SVC")
         return make_SVC()
-    elif(clf_type="MLP"):
+    elif(clf_type=="MLP"):
         print("MLP")
         return make_mlp()
     else:
