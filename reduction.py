@@ -4,11 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def all_plots(in_path,out_path):
-    all_paths=files.top_files(in_path)
-    all_plots=[tsne_plot(path_i,show=False)  for path_i in all_paths]    
     files.make_dir(out_path)
-    for i,plot_i in enumerate(all_plots):
-        out_i=out_path+'/'+ all_paths[i].split('/')[-1]
+    for path_i in files.top_files(in_path):
+        out_i=out_path+'/'+ path_i.split('/')[-1]
+        plot_i=tsne_plot(path_i,show=False)  
         plot_i.savefig(out_i)
 
 def tsne_plot(in_path,show=True):
