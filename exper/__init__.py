@@ -45,7 +45,7 @@ def gen_feats(seq_path,out_path,extractor=None,transform=None):
     ts_dataset.normalize()
     if(transform):
         ts_dataset=ts_dataset(transform)
-    if(not extract):
-        extractor=extract.basic_stats
+    if(not extractor):
+        extractor=extract.get_basic_stats()
     feat_dataset=ts_dataset.to_feats(extractor)
     feat_dataset.save(out_path)

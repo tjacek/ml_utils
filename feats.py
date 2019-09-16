@@ -1,7 +1,6 @@
 import files
 import numpy as np 
 import os,re
-from sets import Set
 from sklearn import preprocessing
 from sklearn.svm import SVC
 from sklearn.feature_selection import RFE
@@ -76,7 +75,7 @@ def read(in_path):
 def unify_dict(in_path):
     paths= in_path if(type(in_path)==list) else  files.top_files(in_path)
     datasets=[ read_single(path_i) for path_i in paths]
-    name_sets=[ Set(data_i.keys()) for data_i in datasets ]
+    name_sets=[ set(data_i.keys()) for data_i in datasets ]
     common_names=name_sets[0]
     for set_i in name_sets[1:]:
         common_names=common_names.intersection(set_i)
@@ -91,7 +90,7 @@ def read_single(in_path):
         raw=line_i.split('#')
         if(len(raw)>1):
             data_i,info_i=raw[0],raw[-1]
-            info_i= files.clean_str(info_i)#re.sub(r'[a-z]','',info_i.strip())
+            info_i= files.clean_str(info_i)
             feat_dict[info_i]=np.fromstring(data_i,sep=',')
     return feat_dict
 
