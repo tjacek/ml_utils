@@ -9,7 +9,7 @@ class Ensemble(object):
     def __call__(self,hc_path,deep_paths,n_feats=None):
         datasets=get_datasets(hc_path,deep_paths,n_feats)
         votes=predict(datasets,self.clf_type)
-        y_true,y_pred=predict(datasets,clf_type)
+        y_true,y_pred=predict(datasets,self.clf_type)
         print(classification_report(y_true, y_pred,digits=4))
 #        return learn.compute_score(y_true,y_pred,as_str=True)
 
@@ -25,6 +25,8 @@ def count_votes(votes):
     return y_true,y_pred
 
 def get_datasets(hc_path,deep_paths,n_feats):
+    if(not n_feats):
+        n_feats=0
     (n_hc_feats,n_deep_feats)= (n_feats,None) if(type(n_feats)==int) else n_feats
     hc_feats=read_hc(hc_path,n_hc_feats)
     if(not deep_paths):
