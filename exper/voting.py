@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report,accuracy_score
 import files,feats,exper,learn
 
 class Ensemble(object):
@@ -11,7 +11,7 @@ class Ensemble(object):
         votes=predict(datasets,self.clf_type)
         y_true,y_pred=predict(datasets,self.clf_type)
         print(classification_report(y_true, y_pred,digits=4))
-#        return learn.compute_score(y_true,y_pred,as_str=True)
+        return accuracy_score(y_true,y_pred)
 
 def predict(datasets,clf_type):
     votes=[exper.predict_labels(data_i,clf_type)
@@ -51,6 +51,12 @@ def read_hc(hc_path,n_feats):
         hc_feats.reduce(n_feats)
     return hc_feats
 
+def select_feats(in_path,out_path,n_feats=130):
+    datasets=get_datasets(None,in_path,(0,n_feats))
+    files.make_dir(out_path)
+    for i,data_i in enumerate(datasets):
+        out_i=out_path+'/feats'+str(i)
+        data_i.save(out_i)
 
 if __name__ == "__main__":
     paths=["exp",'../res_ensemble/feats/basic']
