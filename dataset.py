@@ -46,7 +46,7 @@ class TSDataset(object):
                 for ts_i in self.ts_dict.values()],axis=0)
     
     def n_feats(self):
-        ts=self.ts_dict.values()[0]
+        ts=list(self.ts_dict.values())[0]
         if(type(ts)==list):
             return len(ts)
         return ts.shape[1]
@@ -73,10 +73,12 @@ class TSDataset(object):
             trans_name=transform.__name__
         return self.name+'_'+trans_name
 
-    def save(self):
-        files.make_dir(self.name)
+    def save(self,out_path=None):
+        if(not out_path):
+            out_path=self.name
+        files.make_dir(out_path)
         for name_i,data_i in self.ts_dict.items():
-            np.savetxt(self.name+'/'+name_i,data_i,fmt='%.4e', delimiter=',')
+            np.savetxt(out_path+'/'+name_i,data_i,fmt='%.4e', delimiter=',')
 
     def select(self,names):
         new_dict={ name_i:self.ts_dict[name_i] for name_i in names}
