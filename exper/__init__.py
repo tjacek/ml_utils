@@ -13,6 +13,7 @@ def exper_single(in_path,clf_type="SVC",n_select=None,norm=True,show=True):
     y_pred,y_true,names=predict_labels(feat_dataset,clf_type,n_select)
     if(show):
         print(classification_report(y_true, y_pred,digits=4))
+        print(learn.show_errors(y_pred,y_true,feat_dataset))
     return accuracy_score(y_true,y_pred)
 
 def predict_labels(feat_dataset,clf_type="LR",n_select=None):
