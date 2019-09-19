@@ -35,8 +35,7 @@ def show_confusion(cf_matrix):
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
     print(cf_matrix)
 
-def show_errors(y_pred,y_true,dataset):
-    names=dataset.info
+def show_errors(y_pred,y_true,names):
     errors= [ pred_i!=true_i 
             for pred_i,true_i in zip(y_pred,y_true)]
     error_names=[ (names[i],y_pred[i])
