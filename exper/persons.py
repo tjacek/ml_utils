@@ -12,9 +12,9 @@ def in_sample(data_i,clf_type="LR"):
     for person_i,pred_i in person_pred.items():
         one,y_one,y_pred=pred_i
         pairs+=zip(one,y_pred)
-    y_test=filtr.all_cats(test)
-    for name_i,cat_i in zip(test,y_test):
-        pairs.append((name_i,cat_i))
+#    y_test=filtr.all_cats(test)
+#    for name_i,cat_i in zip(test,y_test):
+#        pairs.append((name_i,cat_i))
     return pairs
 
 def samples_by_person(train):
