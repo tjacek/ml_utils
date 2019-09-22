@@ -14,8 +14,8 @@ def tsne_plot(in_path,show=True):
     feat_dataset= feats.read(in_path) if(type(in_path)==str) else in_path
     tsne=manifold.TSNE(n_components=2,perplexity=30)#init='pca', random_state=0)
     X=tsne.fit_transform(feat_dataset.X)
-    y=feat_dataset.get_labels()
-    color_helper=PersonColors(feat_dataset)
+    y=feat_dataset.get_labels() 
+    color_helper=get_colors_helper(feat_dataset.info,type="cat")
     return plot_embedding(X,y,title="tsne",color_helper=color_helper,show=show)
 
 def plot_embedding(X,y,title="plot",color_helper=None,show=True):
@@ -41,13 +41,10 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True):
         plt.show()
     return plt
 
-class PersonColors(object):
-    def __init__(self, dataset):
-        self.info=dataset.info
-
-    def __call__(self,i,y_i):
-        person_i=int(self.info[i].split('_')[1])
-        return person_i %2       
+def get_colors_helper(info,type="person"):
+    if(type=="cat"):
+        return lambda i,y_i: int(info[i].split('_')[0])
+    return lambda i,y_i: int(info[i].split('_')[1]) %2       
 
 if __name__ == "__main__":
     show_feats('datasets/noise.txt')
