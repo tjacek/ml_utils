@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-import voting,filtr,learn
+import exper.voting,filtr,learn
 
 def in_sample(data_i,clf_type="LR"):
     train,test=filtr.split(data_i.info)
@@ -12,11 +12,14 @@ def in_sample(data_i,clf_type="LR"):
     for person_i,pred_i in person_pred.items():
         one,y_one,y_pred=pred_i
         pairs+=zip(one,y_pred)
+    y_test=filtr.all_cats(test)
+    for name_i,cat_i in zip(test,y_test):
+        pairs.append((name_i,cat_i))
     return pairs
 
 def samples_by_person(train):
     persons_dict=get_person( train)
-    person_ids= list(np.unique(persons_dict.values()))
+    person_ids=  set(persons_dict.values())#list(np.unique(persons_dict.values()))
     by_person={person_i:
                     [name_j for name_j,person_j in persons_dict.items()
                         if(person_j==person_i)]
@@ -27,7 +30,7 @@ def pred_by_person(train_data,by_person,clf_type):
     def one_out(i):
         one,rest=by_person[i],[]
         for person_j,names_j in by_person.items():
-            if(person_j!=i):
+            if(int(person_j)!=i):
                 rest+=names_j
         return one,rest
     def pred_helper(person_i):
