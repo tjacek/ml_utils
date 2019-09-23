@@ -11,7 +11,7 @@ class Ensemble(object):
         votes=predict(datasets,self.clf_type)
         y_true,y_pred=predict(datasets,self.clf_type)
         print(classification_report(y_true, y_pred,digits=4))
-        print(learn.show_errors(y_pred,y_true,datasets[0]))
+        print(learn.show_errors(y_pred,y_true,datasets[0].info))
         return accuracy_score(y_true,y_pred)
 
 def predict(datasets,clf_type):
