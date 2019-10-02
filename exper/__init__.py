@@ -36,7 +36,6 @@ def split_data(feat_dataset):
             train[name_i]=data_i
         else:
             test[name_i]=data_i
-            print(name_i)
     return feats.from_dict(train),feats.from_dict(test)
 
 def person_selector(name_i):
@@ -51,3 +50,9 @@ def gen_feats(seq_path,out_path,extractor=None,transform=None):
         extractor=extract.get_basic_stats()
     feat_dataset=ts_dataset.to_feats(extractor)
     feat_dataset.save(out_path)
+
+def make_model(feat_dataset,clf_type="LR"):
+    train,test=split_data(feat_dataset)
+    clf=learn.get_cls(clf_type) 
+    clf.fit(train.X,train.get_labels())
+    return clf
