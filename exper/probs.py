@@ -1,10 +1,30 @@
-#from sklearn.linear_model import LogisticRegression
+import numpy as np
+from sklearn.metrics import classification_report
 import exper,exper.voting
-import files,feats
+import files,feats,filtr
 
-def votes_dist(args,out_path,split=True):#,clf_type="LR",out_path=None):    
+def voting(args):
+    votes=votes_dist(args,out_path=None,split=True)
+    vote_dict=as_vote_dict(votes)
+    results={name_i:simple_voting(dists_i) for name_i,dists_i in vote_dict.items()}
+    show_result(results)
+
+def simple_voting(votes):
+    cats=np.argmax(votes,axis=1)
+    return np.argmax(np.bincount(cats))
+
+def as_vote_dict(votes):
+    votes=[vote_i.to_dict() for vote_i in votes]
+    names=list(votes[0].keys())
+    vote_dict={}
+    for name_i in names:
+        vote_dict[name_i]=[vote_i[name_i] for vote_i in votes]
+    return vote_dict	
+
+def votes_dist(args,out_path=None,split=True):    
     datasets=exper.voting.get_datasets(**args)
-    files.make_dir(out_path)
+    if(out_path):
+        files.make_dir(out_path)
     votes=[]
     for i,data_i in enumerate( datasets):
         model_i=exper.make_model(data_i)
@@ -19,4 +39,10 @@ def votes_dist(args,out_path,split=True):#,clf_type="LR",out_path=None):
             out_i=out_path+'/votes'+str(i)
             vote_i.save(out_i)
         votes.append(vote_i)
-    return votes    
+    return votes
+
+def show_result(results):
+    names=list(results.keys())
+    y_true=filtr.all_cats(names)
+    y_pred=[  results[name_i] for name_i in names]
+    print(classification_report(y_true, y_pred,digits=4))
