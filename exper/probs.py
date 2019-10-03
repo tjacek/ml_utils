@@ -6,19 +6,8 @@ import files,feats,filtr
 def voting(args,clf_type="LR"):
     votes=votes_dist(args,out_path=None,split=True,clf_type=clf_type)
     vote_dict=as_vote_dict(votes)
-    results={name_i:simple_voting(dists_i) for name_i,dists_i in vote_dict.items()}
+    results={name_i:prob_voting(dists_i) for name_i,dists_i in vote_dict.items()}
     show_result(results)
-
-def threshold_voting(votes,thres=0.7):
-    s_votes=[vote_i for vote_i in votes
-                if(np.amax(vote_i)>thres)]
-    if(len(s_votes)==0):
-        return simple_voting(votes)
-    return simple_voting(s_votes)
-
-def simple_voting(votes):
-    cats=np.argmax(votes,axis=1)
-    return np.argmax(np.bincount(cats))
 
 def as_vote_dict(votes):
     votes=[vote_i.to_dict() for vote_i in votes]
@@ -53,3 +42,17 @@ def show_result(results):
     y_true=filtr.all_cats(names)
     y_pred=[  results[name_i] for name_i in names]
     print(classification_report(y_true, y_pred,digits=4))
+
+def prob_voting(votes):
+    return np.argmax(np.sum(votes,axis=0)) 
+
+def threshold_voting(votes,thres=0.7):
+    s_votes=[vote_i for vote_i in votes
+                if(np.amax(vote_i)>thres)]
+    if(len(s_votes)==0):
+        return simple_voting(votes)
+    return simple_voting(s_votes)
+
+def simple_voting(votes):
+    cats=np.argmax(votes,axis=1)
+    return np.argmax(np.bincount(cats))
