@@ -3,11 +3,18 @@ from sklearn.metrics import classification_report
 import exper,exper.voting
 import files,feats,filtr
 
-def voting(args):
-    votes=votes_dist(args,out_path=None,split=True)
+def voting(args,clf_type="LR"):
+    votes=votes_dist(args,out_path=None,split=True,clf_type=clf_type)
     vote_dict=as_vote_dict(votes)
     results={name_i:simple_voting(dists_i) for name_i,dists_i in vote_dict.items()}
     show_result(results)
+
+def threshold_voting(votes,thres=0.7):
+    s_votes=[vote_i for vote_i in votes
+                if(np.amax(vote_i)>thres)]
+    if(len(s_votes)==0):
+        return simple_voting(votes)
+    return simple_voting(s_votes)
 
 def simple_voting(votes):
     cats=np.argmax(votes,axis=1)
@@ -21,13 +28,13 @@ def as_vote_dict(votes):
         vote_dict[name_i]=[vote_i[name_i] for vote_i in votes]
     return vote_dict	
 
-def votes_dist(args,out_path=None,split=True):    
+def votes_dist(args,out_path=None,split=True,clf_type="LR"):    
     datasets=exper.voting.get_datasets(**args)
     if(out_path):
         files.make_dir(out_path)
     votes=[]
     for i,data_i in enumerate( datasets):
-        model_i=exper.make_model(data_i)
+        model_i=exper.make_model(data_i,clf_type)
         if(split):
             train,test=exper.split_data(data_i)
             X,info=test.X,test.info

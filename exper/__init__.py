@@ -52,6 +52,7 @@ def gen_feats(seq_path,out_path,extractor=None,transform=None):
     feat_dataset.save(out_path)
 
 def make_model(feat_dataset,clf_type="LR"):
+    feat_dataset.norm()
     train,test=split_data(feat_dataset)
     clf=learn.get_cls(clf_type) 
     clf.fit(train.X,train.get_labels())
