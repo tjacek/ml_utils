@@ -6,7 +6,7 @@ import files,feats,filtr
 def voting(args,clf_type="LR"):
     votes=votes_dist(args,out_path=None,split=True,clf_type=clf_type)
     vote_dict=as_vote_dict(votes)
-    results={name_i:kld_voting(dists_i) for name_i,dists_i in vote_dict.items()}
+    results={name_i:max_voting(dists_i) for name_i,dists_i in vote_dict.items()}
     show_result(results)
 
 def as_vote_dict(votes):
@@ -69,3 +69,7 @@ def get_kld_matrix(vote_i):
 
 def kl_divergence(p, q):
     return np.sum(np.where(p != 0, p * np.log(p / q), 0))
+
+def max_voting(votes):
+    votes=np.array(votes)
+    return np.argmax(votes) % votes.shape[0]	
