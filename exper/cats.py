@@ -2,14 +2,20 @@ import numpy as np
 from scipy.stats import mode
 import exper,exper.persons,feats
 
-def adaptive_voting(args,clf_type="LR",out_path=None):    
+def adaptive_voting(args,clf_type="LR"):
     datasets=exper.voting.get_datasets(**args)
-    train_votes=get_train_votes(datasets,clf_type)
-    test_votes=get_test_votes(datasets,clf_type)
-    votes=feats.from_dict( {**train_votes,**test_votes})
-    exper.exper_single(votes,clf_type="LR",norm=False)
-    if(out_path):
-        votes.save(out_path)
+    for data_i in datasets:
+        train_i,test_i=data_i.split()
+        exper.persons.pred_by_person(train_i)
+
+#def adaptive_voting(args,clf_type="LR",out_path=None):    
+#    datasets=exper.voting.get_datasets(**args)
+#    train_votes=get_train_votes(datasets,clf_type)
+#    test_votes=get_test_votes(datasets,clf_type)
+#    votes=feats.from_dict( {**train_votes,**test_votes})
+#    exper.exper_single(votes,clf_type="LR",norm=False)
+#    if(out_path):
+#        votes.save(out_path)
 
 def get_train_votes(datasets,clf_type):
     votes=[exper.persons.in_sample(data_i,clf_type=clf_type)
