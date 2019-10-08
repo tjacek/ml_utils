@@ -3,11 +3,17 @@ from sklearn.metrics import classification_report
 import exper,exper.voting
 import files,feats,filtr
 
-def voting(args,clf_type="LR"):
+def voting(args,clf_type="LR",voting_type="simple"):
     votes=votes_dist(args,out_path=None,split=True,clf_type=clf_type)
     vote_dict=as_vote_dict(votes)
-    results={name_i:max_voting(dists_i) for name_i,dists_i in vote_dict.items()}
+    voting_system=get_voting_system(voting_type)
+    results={name_i:voting_system(dists_i) for name_i,dists_i in vote_dict.items()}
     show_result(results)
+
+def get_voting_system(voting_type):
+    if(voting_type=="prob"):
+        return prob_voting
+    return simple_voting
 
 def as_vote_dict(votes):
     votes=[vote_i.to_dict() for vote_i in votes]
