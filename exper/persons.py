@@ -12,7 +12,7 @@ def pred_by_person(train_i,clf_type="LR"):
         clf_j=learn.get_cls(clf_type)
         clf_j.fit(rest_j.X,rest_j.get_labels())
         dist_j=clf_j.predict_proba(one_j.X)
-        pairs+=list(zip(one_j.info,dist_j))
+        pairs+=pred_vectors(rest_j,one_j,clf_type)#list(zip(one_j.info,dist_j))
     return pairs
 
 def one_out_person(train_i):
@@ -24,6 +24,13 @@ def one_out_person(train_i):
         one_j,rest_j=train_i.split(selector_j)
         one_out_i.append((one_j,rest_j))
     return one_out_i
+
+def pred_vectors(train_j,test_j,clf_type="LR"):
+    clf_j=learn.get_cls(clf_type)
+    clf_j.fit(train_j.X,train_j.get_labels())
+    dist_j=clf_j.predict_proba(test_j.X)
+    return list(zip(test_j.info,dist_j))
+
 #def in_sample(data_i,clf_type="LR"):
 #    train,test=filtr.split(data_i.info)
 #    train_data=filtr.filtered_dict(train,data_i)
