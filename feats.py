@@ -1,4 +1,4 @@
-import files
+import files,filtr
 import numpy as np 
 import os,re
 from sklearn import preprocessing
@@ -46,9 +46,13 @@ class FeatureSet(object):
             svc = SVC(kernel='linear',C=1)
             rfe = RFE(estimator=svc,n_features_to_select=n,step=10)
             rfe.fit(self.X,self.get_labels())
-            #print(rfe.ranking_)
             self.X= rfe.transform(self.X)
         return self
+    
+    def split(self,selector=None):
+        feat_dict=self.to_dict()
+        train,test=filtr.split(feat_dict,selector)
+        return from_dict(train),from_dict(test)
 
     def save(self,out_path,decimals=4):
         lines=[ np.array2string(x_i,separator=",",precision=decimals) for x_i in self.X]
