@@ -1,12 +1,12 @@
 import numpy as np
 import math
-import exper,exper.persons,feats,files
+import exper,exper.persons,feats,files,learn
 
-def adaptive_votes(votes_path,binary=False,clf_type="SVC"):
+def adaptive_votes(votes_path,binary=False,clf_type="SVC",show=True):
     votes=feats.read(votes_path)
     if(binary):
         votes=binarize(votes)
-    exper.exper_single(votes,clf_type=clf_type,norm=True)
+    return exper.exper_single(votes,clf_type=clf_type,norm=False,show=show)
 
 def make_votes(args,out_path,clf_type="LR"):
     datasets=exper.voting.get_datasets(**args)
@@ -35,3 +35,20 @@ def one_hot(dist_i):
     one_hot_i=np.zeros(dist_i.shape)
     one_hot_i[k]=1
     return one_hot_i
+
+def adaptive_exp(votes_path,out_path=None):
+    clf_args=['LR','SVC']
+    binary_args=[True,False]
+    lines=['clf,prob,accuracy,precision,recall,f1']
+    for clf_i in clf_args:
+        for binary_j in binary_args:
+            y_pred,y_true,names=adaptive_votes(votes_path,binary_j,clf_i,show=False)
+            metrics_ij=learn.compute_score(y_true,y_pred,as_str=True)
+            line_ij=",".join([clf_i,str(binary_j),metrics_ij])
+            lines.append(line_ij)
+    result="\n".join(lines)
+    if(not out_path):
+        out_path=votes_path+"_result.csv"
+    file_str = open(out_path,'w')
+    file_str.write(result)
+    file_str.close()
