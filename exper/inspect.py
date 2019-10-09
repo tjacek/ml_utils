@@ -4,6 +4,15 @@ import seaborn as sn
 import feats
 import matplotlib.pyplot as plt
 import exper.probs as probs ,files
+import exper,exper.voting,learn
+
+def clf_acc(args,clf_type="LR"):
+    datasets=exper.voting.get_datasets(**args)
+    results=[exper.exper_single(data_i,clf_type=clf_type,show=False)
+            for data_i in datasets]
+    acc=[learn.compute_score(result_i[1],result_i[0],as_str=False)[0]
+            for result_i in results]
+    print(acc)
 
 def show_errors(args,out_path,clf_type="LR"):
     def helper(name_i,votes):
@@ -43,6 +52,17 @@ def pred_corl(in_path,out_path,test=True):
                     for x_j in data_i.X.T]
                         for y_j in y_i]
         heat_map(corl,out_path+'/nn'+str(i))
+
+def all_pred_corl(in_path,out_path,test=True):
+    datasets=feats.read_list(in_path)
+    corl_matrix=[]
+    for i,data_i in enumerate(datasets):
+        data_i=data_i.split()[int(test)]
+        y_i=to_signal(data_i.get_labels())
+        corl=[ np.corrcoef(x_j, y_i[j])[1][0]
+                    for j,x_j in enumerate(data_i.X.T)]
+        corl_matrix.append(corl)            
+    heat_map(np.array(corl_matrix),out_path)
 
 def to_signal(y):
     y=np.array(y)
