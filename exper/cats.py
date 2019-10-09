@@ -37,14 +37,14 @@ def one_hot(dist_i):
     return one_hot_i
 
 def adaptive_exp(votes_path,out_path=None):
-    clf_args=['LR','SVC']
+    clf_args=['LR','SVC',"MLP"]
     binary_args=[True,False]
     lines=['clf,prob,accuracy,precision,recall,f1']
     for clf_i in clf_args:
         for binary_j in binary_args:
             y_pred,y_true,names=adaptive_votes(votes_path,binary_j,clf_i,show=False)
             metrics_ij=learn.compute_score(y_true,y_pred,as_str=True)
-            line_ij=",".join([clf_i,str(binary_j),metrics_ij])
+            line_ij=",".join([clf_i,str(not binary_j),metrics_ij])
             lines.append(line_ij)
     result="\n".join(lines)
     if(not out_path):
