@@ -3,12 +3,15 @@ from sklearn import manifold
 import matplotlib.pyplot as plt
 import numpy as np
 
-def all_plots(in_path,out_path):
+def all_plots(in_path,out_path=None):
+    if(not out_path):
+        out_path='plots_'+in_path
     files.make_dir(out_path)
     for path_i in files.top_files(in_path):
         out_i=out_path+'/'+ path_i.split('/')[-1]
         plot_i=tsne_plot(path_i,show=False)  
-        plot_i.savefig(out_i)
+        plot_i.savefig(out_i,dpi=2400)
+        plot_i.close()
 
 def tsne_plot(in_path,show=True):
     feat_dataset= feats.read(in_path) if(type(in_path)==str) else in_path
