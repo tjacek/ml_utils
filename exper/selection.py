@@ -3,15 +3,45 @@ import matplotlib.pyplot as plt
 import exper,exper.cats,filtr,feats
 import exper.inspect
 
+from exper.inspect import heat_map
+
 def clf_selection(in_path):
+    corl_train=exper.inspect.all_pred_corl(in_path,None,test=False)
+    corl_test=exper.inspect.all_pred_corl(in_path,None,test=True)
+    diff_corl= corl_test-corl_train
+    print(find_outliners(np.mean(diff_corl,axis=0),neg=True))    
+#    corl_pred=np.abs(1.0-diff_corl)*corl_train
+    exper.inspect.heat_map(diff_corl).show()  
+
+def __clf_selection(in_path):
+    corl_matrix=exper.inspect.all_pred_corl(in_path,None,test=True)
+    corl_matrix-= np.expand_dims(np.mean(corl_matrix,axis=0),axis=1)
+    corl_matrix/=np.expand_dims(np.std(corl_matrix,axis=0),axis=1)
+    
+    better=(corl_matrix>1).astype(int)
+
+#    worse=(corl_matrix<-1).astype(int)
+#    plt=exper.inspect.heat_map( better).show()    
+#    print(np.sum(worse,axis=1))
+    clf_quality=np.sum(better,axis=1)
+    clf_quality= (clf_quality -np.mean(clf_quality))/np.std(clf_quality)   
+    print(clf_quality)
+    print(np.where(clf_quality>1))
+
+def _clf_selection(in_path):
     corl_matrix=exper.inspect.all_pred_corl(in_path,None,test=False)
     hard_cats=find_hard_cats(corl_matrix)
     hard_matrix=corl_matrix[:,hard_cats]
     hard_matrix-= np.expand_dims(np.mean(hard_matrix,axis=1),axis=1)
     hard_matrix/=np.expand_dims(np.std(hard_matrix,axis=1),axis=1)
-    print(np.argmax(hard_matrix,axis=0))
-#    clf_quality=(hard_matrix>1).astype(int)
-#    print(np.sum(clf_quality,axis=0))
+    
+    hard_matrix[hard_matrix>-1]=0
+    hard_matrix[hard_matrix<-1]=1
+
+    heat_map(hard_matrix).show()
+    clf_quality=np.sum(hard_matrix,axis=1)
+    print(clf_quality)
+    print(np.where(clf_quality>1))
 
 def find_hard_cats(corl_matrix):
     cat_quality= np.mean(corl_matrix,axis=0)
@@ -20,48 +50,10 @@ def find_hard_cats(corl_matrix):
     cat_quality/=np.std(cat_quality)
     return (cat_quality<-1)
 
-#def clf_selection(in_path,adapt=True):
-#    votes=exper.cats.from_binary(in_path)
-#    train,test=filtr.split(votes)
-#    quality=err_quality(train)  
-#    if(adapt):
-#        acc=[ adapt_voting(select_votes(k+1,votes,quality))
-#                for k in range(len(quality))]
-#    else:
-#        acc=[ voting(select_votes(k+1,test,quality))
-#                for k in range(len(quality))]
-#    plot_acc(acc)
-
-#def err_quality(train):
-#    n_clfs=train.values()[0].shape[0]
-#    names=train.keys()
-#    cats=filtr.all_cats(train.keys())
-#    wrong_votes={ name_i:np.sum(train[name_i]!=(cats[i]))
-#                    for i,name_i in enumerate(names)}
-#    def clf_helper(i):
-#        quality_i=0
-#        for j,name_j in enumerate( names):
-#            pred_ij= train[name_j][i] 
-#            if(pred_ij==(cats[j])):
-#                quality_i+=wrong_votes[name_j]
-#        return quality_i
-#    return [clf_helper(i) for i in range(n_clfs)]
-
-#def select_votes(k,votes,quality):
-#    ind_quality=np.flip(np.argsort(quality))[:k]
-#    return { name_i: vote_i[ind_quality] for name_i,vote_i in votes.items()}
-
-#def voting(votes):
-#    names=votes.keys()
-#    y_true=filtr.all_cats(names)
-#    y_pred=[np.argmax(np.bincount(votes[name_i]))  for name_i in names]
-#    return np.mean([ int(true_i==pred_i) 
-#                        for true_i,pred_i in zip(y_true,y_pred)])
-
-#def adapt_voting(votes):
-#    votes=exper.cats.binary_dataset(feats.from_dict(votes))
-#    votes.X=np.squeeze(votes.X)
-#    return exper.exper_single(votes,clf_type="LR",norm=False)
+def find_outliners(arr,neg=True):
+    norm_arr= (arr-np.mean(arr))/np.std(arr)
+    bool_arr= norm_arr<-1 if(neg) else norm_arr>1
+    return np.where(bool_arr)
 
 #def plot_acc(acc):
 #    print(acc)    
