@@ -2,16 +2,16 @@ import numpy as np
 import math
 import exper,exper.persons,feats,files,learn
 
-def adaptive_votes(votes_path,binary=False,clf_type="SVC",show=True):
+def adaptive_votes(votes_path,binary=False,clf_type="SVC"):
     votes=feats.read(votes_path)
     if(binary):
         votes=binarize(votes)
     if(not clf_type):
         train,test=votes.split()
-        acc=simple_voting(test)
-        print(acc)
-        return acc
-    return exper.exper_single(votes,clf_type=clf_type,norm=False,show=show)
+        y_pred,y_true,names=simple_voting(test)
+    else:
+        y_pred,y_true,names=exper.exper_single(votes,clf_type=clf_type,norm=False,show=False)
+    learn.show_result(y_pred,y_true,names)
 
 def make_votes(args,out_path,clf_type="LR"):
     datasets=exper.voting.get_datasets(**args)
@@ -44,15 +44,17 @@ def one_hot(dist_i):
 def simple_voting(test):
     n_cats=test.n_cats()
     names=test.info
-    acc=[]
+    y_pred,y_true=[],[]
     for i,x_i in enumerate(test.X):
         size=x_i.shape[0]
         x_i=x_i.reshape((int(size/n_cats),n_cats))
         votes_i=np.sum(x_i,axis=0)
-        pred_cat=np.argmax(votes_i)
-        true_cat=int(names[i].split('_')[0])-1
-        acc.append(int(pred_cat==true_cat))
-    return np.mean(acc)
+        pred_i=np.argmax(votes_i)
+        true_i=int(names[i].split('_')[0])-1
+#        acc.append(int(pred_cat==true_cat))
+        y_pred.append(pred_i)
+        y_true.append(true_i)
+    return y_pred,y_true,names
 
 def adaptive_exp(votes_path,out_path=None):
     clf_args=['LR','SVC',"MLP"]

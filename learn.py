@@ -27,10 +27,9 @@ def make_SVC():
 def make_mlp():
     return MLPClassifier(alpha=1, max_iter=1000)
 
-def show_result(y_pred,y_true,conf=True):
+def show_result(y_pred,y_true,names):
     print(classification_report(y_true, y_pred,digits=4))
-    if(conf):
-       show_confusion(confusion_matrix(y_true, y_pred))
+    print(show_errors(y_pred,y_true,names))
     
 def show_confusion(cf_matrix):
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
