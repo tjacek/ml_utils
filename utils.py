@@ -1,18 +1,18 @@
-import unify,plot,smooth,agum.warp,dataset,synth,extract
+#import unify,plot,smooth,agum.warp,dataset,synth,extract
+import exper.cats,exper.voting,files
 
-def synth_dataset(out_path):
-    #means=[-2.0,-1.0,0.0,1.0,2.0]
-    #stds=[1.0,2.0,3.0,4.0]
-    #skew=[-1.0,0.0,1.0]
-    #norm_dist=synth.skew_gen(means,stds,skew,n_cats=20,
-    #                n_size=250,ts_len=128,n_feats=12)
-    a=[-1.0,0.0,1.0]
-    std=[0.25,0.5]
-    param_values=[a,a,a,a,std]
-    norm_dist=synth.autoreg_gen(param_values,n_cats=50,
-                    n_size=100,ts_len=128,n_feats=12)
-    print(len(norm_dist))
-    dataset.as_imgs(norm_dist,out_path)
+def gen_votes(dataset_path,vote_path,n_feats=None,clf_type="LR"):
+    hc_path,deep_path=dataset_path+'/hc',dataset_path+'/binary_feats'
+    if(not n_feats):
+        n_feats=(100,130)
+    hc_feats,deep_feats=n_feats
+    if(deep_feats):
+        s_deep_path=dataset_path+'/s_binary_feats'
+        exper.voting.select_feats(deep_path,s_deep_path,n_feats=deep_feats)
+        deep_path=s_deep_path
+    args={"hc_path":hc_path,"deep_paths":deep_path,'n_feats':(hc_feats,0)}
+    files.make_dir(vote_path)
+    exper.cats.make_votes(args,vote_path+'/votes',clf_type=clf_type)
 
 def img_dataset(in_path,use_agum=False):
     raw_ts=unify.read(in_path)
@@ -31,14 +31,10 @@ def extrac_feats(in_path,out_path):
 def show_smoothing(in_path):
     raw_ts=unify.read(in_path)
     plot.plot_by_feat(raw_ts)
-    #smooth_ts=raw_ts(smooth.Gauss())
     smooth_ts=raw_ts(smooth.Fourrier())
     plot.plot_by_feat(smooth_ts)
 
 def make_agum(in_path):
     raw_ts=unify.read(in_path)
-    agum_ts=agum.warp.warp_agum(raw_ts)#smooth_agum(raw_ts)
+    agum_ts=agum.warp.warp_agum(raw_ts)
     agum_ts.save()
-
-synth_dataset("../pretrain")
-#extrac_feats('mra_','exp2/kurt.txt')

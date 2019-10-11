@@ -28,6 +28,9 @@ class FeatureSet(object):
     def dim(self):
         return self.X.shape[1]
 
+    def n_cats(self):
+        return len(set(self.get_labels()))
+
     def get_labels(self):
         return [ int(info_i.split('_')[0]) for info_i in self.info]
 
