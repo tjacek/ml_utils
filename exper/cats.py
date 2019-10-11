@@ -1,6 +1,6 @@
 import numpy as np
-#import exper,exper.persons,feats,files,learn
-import exper,feats,learn
+import exper,exper.persons,feats,files,learn
+import matplotlib.pyplot as plt
 
 def adaptive_votes(votes_path,binary=False,clf_type="SVC"):
     votes=feats.read_list(votes_path)
@@ -60,3 +60,16 @@ def adaptive_exp(votes_path,out_path=None):
     file_str = open(out_path,'w')
     file_str.write(result)
     file_str.close()
+
+def acc_curve(vote_path,ord,binary=False):
+    votes=feats.read_list(vote_path)
+    if(binary):
+        votes=[binarize(vote_i) for vote_i in votes]
+    votes=[ votes[k] for k in ord]
+    n_clf=len(votes)
+    results=[simple_voting(votes[:(i+1)]) for i in range(n_clf-1)]
+    acc=[ learn.compute_score(result_i[0],result_i[1],False)[0] 
+            for result_i in results]
+    plt.plot(range(1,n_clf), acc, color='red')
+    plt.show()
+    return acc
