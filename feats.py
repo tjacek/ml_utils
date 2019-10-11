@@ -32,7 +32,17 @@ class FeatureSet(object):
         return len(set(self.get_labels()))
 
     def get_labels(self):
-        return [ int(info_i.split('_')[0]) for info_i in self.info]
+        return [ int(info_i.split('_')[0])-1 for info_i in self.info]
+
+    def labels_array(self):
+        n_cats=self.n_cats()
+        cats=self.get_labels()
+        arr=[]
+        for cat_i in cats:
+            one_hot_i=np.zeros((n_cats,))
+            one_hot_i[cat_i-1]=1
+            arr.append(one_hot_i)
+        return np.array(arr)
 
     def to_dict(self):
         return { self.info[i]:x_i 
@@ -110,3 +120,11 @@ def from_dict(feat_dict):
 def read_list(in_path):
     return [from_dict(read_single(path_i)) 
                 for path_i in files.top_files(in_path)]
+
+def unify(datasets):
+    if(len(datasets)<2):
+        return datasets[0]
+    unified_dict=datasets[0]
+    for data_i in datasets[1:]:
+        unified_dict+=data_i
+    return unified_dict

@@ -1,15 +1,15 @@
 import numpy as np
-import math
-import exper,exper.persons,feats,files,learn
+#import exper,exper.persons,feats,files,learn
+import exper,feats,learn
 
 def adaptive_votes(votes_path,binary=False,clf_type="SVC"):
-    votes=feats.read(votes_path)
+    votes=feats.read_list(votes_path)
     if(binary):
-        votes=binarize(votes)
+        votes=[binarize(vote_i) for vote_i in votes]
     if(not clf_type):
-        train,test=votes.split()
-        y_pred,y_true,names=simple_voting(test)
+        y_pred,y_true,names=simple_voting(votes)
     else:
+        votes=feats.unify(votes)
         y_pred,y_true,names=exper.exper_single(votes,clf_type=clf_type,norm=False,show=False)
     learn.show_result(y_pred,y_true,names)
 
@@ -25,15 +25,10 @@ def make_votes(args,out_path,clf_type="LR"):
         out_i=out_path+'/nn'+str(i)
         votes_feats.save(out_i)
 
-def binarize(votes):
-    n_cats=votes.n_cats()
-    n_clfs=int(votes.X.shape[1]/n_cats)
-    X_parts=[votes.X[:,i*n_cats:(i+1)*n_cats]for i in range(n_clfs)]
-    binary_X=[np.array([ one_hot(dist_i)
-                for dist_i in x_j]) 
-                    for x_j in X_parts]
-    binary_X=np.concatenate(binary_X,axis=1)
-    return feats.FeatureSet(binary_X,votes.info)
+def binarize(data_i):
+    X=np.array([one_hot(dist_i) 
+        for dist_i in data_i.X])
+    return feats.FeatureSet(X,data_i.info)
 
 def one_hot(dist_i):
     k=np.argmax(dist_i)
@@ -41,19 +36,12 @@ def one_hot(dist_i):
     one_hot_i[k]=1
     return one_hot_i
 
-def simple_voting(test):
-    n_cats=test.n_cats()
-    names=test.info
-    y_pred,y_true=[],[]
-    for i,x_i in enumerate(test.X):
-        size=x_i.shape[0]
-        x_i=x_i.reshape((int(size/n_cats),n_cats))
-        votes_i=np.sum(x_i,axis=0)
-        pred_i=np.argmax(votes_i)
-        true_i=int(names[i].split('_')[0])-1
-#        acc.append(int(pred_cat==true_cat))
-        y_pred.append(pred_i)
-        y_true.append(true_i)
+def simple_voting(votes):
+    test=[vote_i.split()[1] for vote_i in votes]
+    y_true,names= test[0].get_labels(),test[0].info
+    X=np.array([ test_i.X for test_i in test])
+    counted_votes=np.sum(X,axis=0)
+    y_pred=np.argmax(counted_votes,axis=1)
     return y_pred,y_true,names
 
 def adaptive_exp(votes_path,out_path=None):
