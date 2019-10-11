@@ -106,3 +106,7 @@ def from_dict(feat_dict):
     X=np.array([feat_dict[info_i] 
                     for info_i in info])
     return FeatureSet(X,info)
+
+def read_list(in_path):
+    return [from_dict(read_single(path_i)) 
+                for path_i in files.top_files(in_path)]
