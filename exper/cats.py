@@ -70,6 +70,17 @@ def acc_curve(vote_path,ord,binary=False):
     results=[simple_voting(votes[:(i+1)]) for i in range(n_clf-1)]
     acc=[ learn.compute_score(result_i[0],result_i[1],False)[0] 
             for result_i in results]
+    show_curve(acc,n_clf,vote_path,binary)
+    return acc
+
+def show_curve(acc,n_clf,vote_path,binary):
+    title="_".join(vote_path.split('/'))
+    title=title.replace(".._","").replace("votes","")
+    voting_type= "HARD" if(binary) else "SOFT"
+    title+=voting_type
+    plt.title(title)
+    plt.xlabel('number of classifiers')
+    plt.ylabel('accuracy')
     plt.plot(range(1,n_clf), acc, color='red')
     plt.show()
     return acc
