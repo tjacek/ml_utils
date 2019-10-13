@@ -39,21 +39,6 @@ def residuals( data_i):
     res_i=data_i.labels_array().astype(float)-data_i.X
     return feats.FeatureSet(res_i,data_i.info)
 
-def kl_divergence(p, q):
-    return np.sum(np.where(p != 0, p * np.log(p / q), 0))
-
-def find_hard_cats(corl_matrix):
-    cat_quality= np.mean(corl_matrix,axis=0)
-    print(cat_quality)
-    cat_quality-=np.mean(cat_quality)
-    cat_quality/=np.std(cat_quality)
-    return (cat_quality<-1)
-
-def find_outliners(arr,neg=True):
-    norm_arr= (arr-np.mean(arr))/np.std(arr)
-    bool_arr= norm_arr<-1 if(neg) else norm_arr>1
-    return np.where(bool_arr)
-
 def from_pairs(pairs):
     values,counts = np.unique(pairs,return_counts=True)
     values=[values[k] for k in np.argsort(counts)]
