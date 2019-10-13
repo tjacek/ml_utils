@@ -55,5 +55,6 @@ def make_model(feat_dataset,clf_type="LR"):
     feat_dataset.norm()
     train,test=split_data(feat_dataset)
     clf=learn.get_cls(clf_type) 
+    print("Number of features:%d" % train.dim())
     clf.fit(train.X,train.get_labels())
     return clf

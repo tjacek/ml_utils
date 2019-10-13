@@ -56,10 +56,12 @@ class FeatureSet(object):
 
     def reduce(self,n=100):
         if(self.dim()>n and n!=0):
+            print("Old dim %d" % self.dim())
             svc = SVC(kernel='linear',C=1)
             rfe = RFE(estimator=svc,n_features_to_select=n,step=10)
             rfe.fit(self.X,self.get_labels())
             self.X= rfe.transform(self.X)
+            print("New dim %d" % self.dim())
         return self
     
     def split(self,selector=None):
