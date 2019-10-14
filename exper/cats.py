@@ -6,12 +6,15 @@ def adaptive_votes(votes_path,binary=False,clf_type="SVC"):
     votes=feats.read_list(votes_path)
     if(binary):
         votes=[binarize(vote_i) for vote_i in votes]
+    y_pred,y_true,names=voting(votes,clf_type)
+    learn.show_result(y_pred,y_true,names)
+
+def voting(votes,clf_type=None):
     if(not clf_type):
-        y_pred,y_true,names=simple_voting(votes)
+        return simple_voting(votes)
     else:
         votes=feats.unify(votes)
-        y_pred,y_true,names=exper.exper_single(votes,clf_type=clf_type,norm=False,show=False)
-    learn.show_result(y_pred,y_true,names)
+        return exper.exper_single(votes,clf_type=clf_type,norm=False,show=False)
 
 def make_votes(args,out_path,clf_type="LR"):
     datasets=exper.voting.get_datasets(**args)
@@ -67,7 +70,7 @@ def acc_curve(vote_path,ord,binary=False):
         votes=[binarize(vote_i) for vote_i in votes]
     votes=[ votes[k] for k in ord]
     n_clf=len(votes)
-    results=[simple_voting(votes[:(i+1)]) for i in range(n_clf-1)]
+    results=[voting(votes[:(i+1)],None) for i in range(n_clf-1)]
     acc=[ learn.compute_score(result_i[0],result_i[1],False)[0] 
             for result_i in results]
     show_curve(acc,n_clf,vote_path,binary)
