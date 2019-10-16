@@ -1,4 +1,4 @@
-#import unify,plot,smooth,agum.warp,dataset,synth,extract
+import unify,agum.warp#,plot,smooth,dataset,synth,extract
 import exper.cats,exper.voting,files
 
 def gen_votes(dataset_path,vote_path,n_feats=None,clf_type="LR"):
@@ -34,7 +34,7 @@ def show_smoothing(in_path):
     smooth_ts=raw_ts(smooth.Fourrier())
     plot.plot_by_feat(smooth_ts)
 
-def make_agum(in_path):
+def make_agum(in_path,out_path=None):
     raw_ts=unify.read(in_path)
     agum_ts=agum.warp.warp_agum(raw_ts)
-    agum_ts.save()
+    agum_ts.save(out_path)
