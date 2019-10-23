@@ -10,13 +10,16 @@ def multiplot(ts_dataset):
     by_cat=filtr.by_cat(per_person)
     n_feats=ts_dataset.n_feats()
     feat_paths=dir_struct("multi_"+ts_dataset.name,n_feats)
+    b: blue
+    colors="grcmyk"
     for i,cat_i in by_cat.items():
         feats_i=[ts_dataset.as_features(name_t)
                     for name_t in cat_i]
         feats_i=list(zip(*feats_i))
         for j,cats_j in enumerate(feats_i):
-            for ts_k in cats_j:
-                plt.plot(ts_k, 'r')
+            for k,ts_k in enumerate(cats_j):
+                color_k= (k % len(colors))
+                plt.plot(ts_k,colors[color_k])
             out_ij=feat_paths[j]+'/cat'+str(i)
             print(out_ij)
             plt.savefig(out_ij)
