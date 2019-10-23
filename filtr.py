@@ -16,7 +16,7 @@ def by_cat(names):
     for name_i in names:
     	names_by_cat[get_cat(name_i)].append(name_i)
     return names_by_cat
-
+        
 def random_pairs(names):
     random_names=copy.copy(names)
     random.shuffle(random_names)
@@ -35,6 +35,16 @@ def split(names,selector=None):
         else:
             test.append(name_i)
     return train,test
+
+def one_per_person(names):
+    alredy_in=set([])
+    per_person=[]
+    for name_i in names:
+        id_i="_".join(name_i.split('_')[:2])
+        if(not (id_i in alredy_in)):
+            alredy_in.add(id_i)
+            per_person.append(name_i)
+    return per_person
 
 def n_cats(names):
     return np.unique(all_cats(names)).shape[0]
