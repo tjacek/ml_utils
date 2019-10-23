@@ -4,10 +4,13 @@ import seaborn as sn
 import matplotlib.pyplot as plt
 import unify,files,tools,filtr
 
-def multiplot(ts_dataset):
+def multiplot(ts_dataset,split=False):
     names=ts_dataset.ts_names()
-    per_person=filtr.one_per_person(names)
-    by_cat=filtr.by_cat(per_person)
+    if(split):
+        names,test=filtr.split(names)
+    else:
+        names=filtr.one_per_person(names)
+    by_cat=filtr.by_cat(names)
     n_feats=ts_dataset.n_feats()
     feat_paths=dir_struct("multi_"+ts_dataset.name,n_feats)
     b: blue
