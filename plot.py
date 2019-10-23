@@ -4,29 +4,40 @@ import seaborn as sn
 import matplotlib.pyplot as plt
 import unify,files,tools,filtr
 
+def muliplot_errors(ts_dataset,errors,out_path):
+    names=ts_dataset.ts_names()
+    train,test=filtr.split(names)
+    by_cat=filtr.by_cat(train)
+    feats=get_feats(by_cat,ts_dataset)
+    files.make_dir(out_path)
+    for i,error_i in enumerate(errors):
+        cat_i=filtr.get_cat(error_i)
+        error_feats=ts_dataset.as_features(error_i)
+        feats_i=feats[cat_i]
+        full=[list(cat_j)+[err_j] 
+                for cat_j,err_j in zip(feats_i,error_feats)]
+        out_i=out_path+'/'+error_i
+        files.make_dir(out_i)
+        for j,cat_j in enumerate(full):
+            colors=['b' for ts_k in cat_j]
+            colors[-1]='r'
+            out_ij= out_i+'/feats'+str(j)
+            save_multi(cat_j,out_ij,colors)
+
 def multiplot(ts_dataset,split=False):
     names=ts_dataset.ts_names()
-    if(split):
-        names,test=filtr.split(names)
-    else:
-        names=filtr.one_per_person(names)
+    names=filtr.split(names)[0] if(split) else filtr.one_per_person(names)
     by_cat=filtr.by_cat(names)
     n_feats=ts_dataset.n_feats()
     feat_paths=dir_struct("multi_"+ts_dataset.name,n_feats)
-    b: blue
-    colors="grcmyk"
-    for i,cat_i in by_cat.items():
-        feats_i=[ts_dataset.as_features(name_t)
-                    for name_t in cat_i]
-        feats_i=list(zip(*feats_i))
+    colors="bgrcmyk"
+    feats=get_feats(by_cat,ts_dataset)
+    for i,feats_i in feats.items():
         for j,cats_j in enumerate(feats_i):
-            for k,ts_k in enumerate(cats_j):
-                color_k= (k % len(colors))
-                plt.plot(ts_k,colors[color_k])
+            colors=[colors[k % len(colors)] 
+                       for k,ts_k in enumerate(cats_j)]
             out_ij=feat_paths[j]+'/cat'+str(i)
-            print(out_ij)
-            plt.savefig(out_ij)
-            plt.clf()
+            save_multi(cats_j,out_ij,colors)
 
 def plot_by_action(ts_dataset):
     out_path=ts_dataset.name+"_actions"
@@ -56,6 +67,21 @@ def dir_struct(out_path,n_feats):
     for dict_i in feats_dict:
         files.make_dir(dict_i)
     return feats_dict
+
+def get_feats(by_cat,ts_dataset): 
+    feats={}
+    for i,cat_i in by_cat.items():
+        feats_i=[ts_dataset.as_features(name_t)
+                    for name_t in cat_i]     
+        feats[i]=list(zip(*feats_i))
+    return feats
+
+def save_multi(cats_j,out_ij,colors):
+    for k,ts_k in enumerate(cats_j):
+        plt.plot(ts_k,colors[k])
+    print(out_ij)
+    plt.savefig(out_ij)
+    plt.clf()
 
 def save_ts(ts,out_path):
     if(ts.ndim==2):
