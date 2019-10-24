@@ -1,27 +1,30 @@
 import numpy as np
 import itertools
-import dataset,unify,smooth,filtr
+import dataset,unify,smooth
+import filtr,agum.warp
 
-def scale_agum(ts_dataset):
-    spline_transform=smooth.SplineUpsampling()
-    spline_dataset=ts_dataset(spline_transform)    
-    train,test=filtr.split( spline_dataset.ts_names())
-    agum=[]
-    for name_i in train:
-        data_i=spline_dataset[name_i]
-        for j,scale_j in enumerate([0.5,1.0]):
-        	agum.append((name_i+'_'+str(j+4),scale_j*data_i))
-    for name_i in test:
-        agum.append( (name_i,spline_dataset[name_i]))	
-    return dataset.TSDataset(dict(agum) ,ts_dataset.name+'_warp')
+class AgumSum(object):
+    def __init__(self,agum_func):
+        self.agum_func=agum_func
+        self.upsampling=smooth.SplineUpsampling()
 
-#def smooth_agum(ts_dataset):
-#    smooth_ts=ts_dataset(smooth.Fourrier())
-#    new_dict=smooth_ts.ts_dict.copy()
-#    for name_i,data_i in smooth_ts.ts_dict.items():
-#        new_dict[name_i+'_agum']=data_i
-#    return dataset.TSDataset(new_dict,ts_dataset.name+'_agum')	
+    def __call__(self,ts_dataset):
+        ts_dataset=ts_dataset(self.upsampling)
+        train,test=filtr.split(ts_dataset.ts_names())
+        agum=[]
+        for name_i in train:
+            data_i=ts_dataset[name_i]
+            agum_data=[]
+            for agum_j in self.agum_func:
+                agum_data+=agum_j(data_i)
+            agum+=[ (name_i+'_'+str(j),agum_j)
+                    for j,agum_j in enumerate(agum_data)]
+        for name_i in ts_dataset.ts_names():
+            agum.append( (name_i,ts_dataset[name_i]))
+        return dataset.TSDataset(dict(agum) ,ts_dataset.name+'_agum')
 
-#def img_dataset(ts_dataset):
-#    spline_ts=ts_dataset(smooth.SplineUpsampling())
-#    spline_ts.save()
+def scale_agum(data_i):
+	return [scale_j*data_i for scale_j in [0.5,2.0]]
+
+def basic_warp():
+    return AgumSum([agum.warp.WrapSeq(),scale_agum])

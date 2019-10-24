@@ -1,23 +1,6 @@
 import numpy as np
 import dataset,smooth,filtr
 
-def warp_agum(ts_dataset):
-    spline_transform=smooth.SplineUpsampling()
-    spline_dataset=ts_dataset(spline_transform)
-    agum_data=[]
-    warp_seq=WrapSeq()
-    pos_args=[ [False,False],[False,True],[True,False],[True,True]]
-    train,test=filtr.split( spline_dataset.ts_names())
-    for name_i in train:
-        data_i=spline_dataset[name_i]
-        wrap_i=[  (name_i+'_'+str(i),warp_seq(data_i,*pos_i)) 
-                  for i,pos_i in enumerate(pos_args)]
-        wrap_i.append( (name_i,data_i))
-        agum_data+=wrap_i
-    for name_i in test:
-        agum_data.append( (name_i,spline_dataset[name_i]))	
-    return dataset.TSDataset(dict(agum_data) ,ts_dataset.name+'_warp')
-
 class WrapSeq(object):
     def __init__(self,seq_len=128,sub_seq_len=32):
         self.seq_len=seq_len
@@ -27,7 +10,14 @@ class WrapSeq(object):
         self.long_spline=smooth.SplineUpsampling(2*self.start)
         self.short_spline=smooth.SplineUpsampling(self.start/2)
 
-    def __call__(self,data_i,left=True,short=True):
+    def __call__(self,data_i):
+        agum=[]
+        for left in [True,False]:
+            for short in [True,False]:
+                agum.append(self.warp_sample(data_i,left,short))
+        return agum
+
+    def warp_sample(self,data_i,left=True,short=True):
         return np.array([ self.wrap_feature(feat_i,left,short) 
         	                for feat_i in data_i.T] ).T
 
