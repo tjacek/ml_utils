@@ -26,5 +26,11 @@ class AgumSum(object):
 def scale_agum(data_i):
 	return [scale_j*data_i for scale_j in [0.5,2.0]]
 
-def basic_warp():
-    return AgumSum([agum.warp.WrapSeq(),scale_agum])
+def sigma_agum(data_i):
+    sigma_i=np.std(data_i)	
+    return [data_i+sigma_i,data_i-sigma_i]
+
+def get_warp(type):
+    if(type=="scale"):
+        return AgumSum([agum.warp.WrapSeq(),scale_agum])
+    return AgumSum([agum.warp.WrapSeq()])
