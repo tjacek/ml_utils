@@ -14,12 +14,8 @@ class WrapSeq(object):
         agum=[]
         for left in [True,False]:
             for short in [True,False]:
-                agum.append(self.warp_sample(data_i,left,short))
+                agum.append(self.wrap_feature(data_i,left,short))                
         return agum
-
-    def warp_sample(self,data_i,left=True,short=True):
-        return np.array([ self.wrap_feature(feat_i,left,short) 
-        	                for feat_i in data_i.T] ).T
 
     def wrap_feature(self,data_i,left,short):
         if(left):

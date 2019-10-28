@@ -50,3 +50,12 @@ def make_agum(in_path,out_path=None):
         agum_sum=agum.get_warp(type_i)
         agum_ts=agum_sum(raw_ts)
         agum_ts.save(out_path+'/'+type_i)
+
+def smooth_ens(in_path,out_path):
+    raw_ts=unify.read(in_path)
+    files.make_dir(out_path)
+    agum_funcs=[agum.gauss_agum(i) for i in range(3)]
+#    agum_funcs.append( agum.get_warp("agun"))
+    for i,agum_i in enumerate(agum_funcs):
+        agum_ts=agum_i(raw_ts)
+        agum_ts.save(out_path+'/agum'+str(i))
