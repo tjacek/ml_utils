@@ -71,8 +71,7 @@ def gauss_agum(n=4):
         x_i=np.arange(-3*sigma_i, 3*sigma_i, 1.0)
         kerns.append(np.exp( -(x_i/sigma_i)**2/2) )
     def gauss_helper(data_i):
-        smooth_seq=[np.convolve(data_i,kern_i,mode="full") for kern_i in kerns]
-        raise Exception(smooth_seq[0].shape)
+        smooth_seq=[np.convolve(data_i,kern_i,mode="same") for kern_i in kerns]
         smooth_seq.append(data_i)
         return smooth_seq
     return Agum([agum.warp.WrapSeq(),gauss_helper],sum=False)
