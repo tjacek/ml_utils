@@ -39,9 +39,6 @@ def show_norm(in_path,out_path):
     upsample=smooth.SplineUpsampling()
     norm_ts=norm_ts(upsample)
     norm_ts.save(out_path)
-#    plot.plot_by_feat(raw_ts)
-#    smooth_ts=raw_ts(smooth.Fourrier())
-#    plot.plot_by_feat(smooth_ts)
 
 def make_agum(in_path,out_path=None):
     raw_ts=unify.read(in_path)
@@ -50,13 +47,12 @@ def make_agum(in_path,out_path=None):
     for i,(agum_i,type_i) in enumerate(args):
         agum_sum=agum.get_warp(agum_i,type_i)
         agum_ts=agum_sum(raw_ts)
-        agum_ts.save(out_path+'/agum'+str(i))
+        agum_ts.save(out_path+'/'+agum_i+str(i))
 
 def smooth_ens(in_path,out_path):
     raw_ts=unify.read(in_path)
     files.make_dir(out_path)
     agum_funcs=[agum.gauss_agum(i) for i in range(1,4)]
-#    agum_funcs.append( agum.get_warp("agun"))
     for i,agum_i in enumerate(agum_funcs):
         agum_ts=agum_i(raw_ts)
         agum_ts.save(out_path+'/agum'+str(i))
