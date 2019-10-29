@@ -46,10 +46,11 @@ def show_norm(in_path,out_path):
 def make_agum(in_path,out_path=None):
     raw_ts=unify.read(in_path)
     files.make_dir(out_path)
-    for type_i in ["warp","scale"]:
-        agum_sum=agum.get_warp(type_i)
+    args=[("warp",True),("scale",True),("scale",False)]
+    for i,(agum_i,type_i) in enumerate(args):
+        agum_sum=agum.get_warp(agum_i,type_i)
         agum_ts=agum_sum(raw_ts)
-        agum_ts.save(out_path+'/'+type_i)
+        agum_ts.save(out_path+'/agum'+str(i))
 
 def smooth_ens(in_path,out_path):
     raw_ts=unify.read(in_path)

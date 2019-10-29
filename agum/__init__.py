@@ -51,10 +51,10 @@ class Agum(object):
         test=[ (test_i,ts_dataset[test_i]) for test_i in test]
         return train,test
 
-def get_warp(type):
+def get_warp(type,sum=True):
     if(type=="scale"):
-        return AgumSum([agum.warp.WrapSeq(),scale_agum])
-    return Agum([agum.warp.WrapSeq()])
+        return Agum([agum.warp.WrapSeq(),scale_agum],sum=sum)
+    return Agum([agum.warp.WrapSeq()],sum=sum)
 
 def scale_agum(data_i):
 	return [scale_j*data_i for scale_j in [0.5,2.0]]
