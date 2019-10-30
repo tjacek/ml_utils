@@ -93,12 +93,15 @@ def save_ts(ts,out_path):
     plt.clf()
     plt.close()
 
-def heat_map(conf_matrix):
+def heat_map(conf_matrix,labels=None):
     conf_matrix=np.around(conf_matrix,2)
     dim=conf_matrix.shape
     df_cm = pd.DataFrame(conf_matrix, range(dim[0]),range(dim[1]))
     sn.set(font_scale=1.0)#for label size
     sn.heatmap(df_cm, annot=True,annot_kws={"size": 8}, fmt='g')
+    if(labels):
+        plt.xlabel(labels[0])
+        plt.ylabel(labels[1])
     plt.show()
 
 if __name__ == "__main__":

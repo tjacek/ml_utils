@@ -6,6 +6,7 @@ from sklearn.metrics import precision_recall_fscore_support,accuracy_score
 import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+import plot
 
 def get_cls(clf_type):
     if(clf_type=="SVC"):
@@ -31,9 +32,11 @@ def show_result(y_pred,y_true,names):
     print(classification_report(y_true, y_pred,digits=4))
     print(show_errors(y_pred,y_true,names))
     
-def show_confusion(cf_matrix):
+def show_confusion(result):
+    cf_matrix=confusion_matrix(result[0],result[1])
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
-    print(cf_matrix)
+    labels=["predicted labels","true labels"]
+    plot.heat_map(cf_matrix,labels)
 
 def show_errors(y_pred,y_true,names):
     errors= [ pred_i!=true_i 
