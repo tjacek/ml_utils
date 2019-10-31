@@ -1,9 +1,10 @@
+import numpy as np
+import pandas as pd
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import precision_recall_fscore_support,accuracy_score
-import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 import plot
@@ -32,11 +33,14 @@ def show_result(y_pred,y_true,names):
     print(classification_report(y_true, y_pred,digits=4))
     print(show_errors(y_pred,y_true,names))
     
-def show_confusion(result):
+def show_confusion(result,out_path=None):
     cf_matrix=confusion_matrix(result[0],result[1])
     cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
-    labels=["predicted labels","true labels"]
-    plot.heat_map(cf_matrix,labels)
+    if(out_path):
+        np.savetxt(out_path,cf_matrix,delimiter=",",fmt='%.2e')
+    else:
+        labels=["predicted labels","true labels"]
+        plot.heat_map(cf_matrix,labels)
 
 def show_errors(y_pred,y_true,names):
     errors= [ pred_i!=true_i 
