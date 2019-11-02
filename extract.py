@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats
-import res,smooth
+import smooth
 
 class Nonlinearity(object):
     def __init__(self,k=2,smoothing=None,epsilion=0.01):
@@ -47,12 +47,6 @@ def get_basic_stats():
 def get_kurt_stats():
     return BasicStats([np.mean,np.std,scipy.stats.skew,
                         time_corl,scipy.stats.kurtosis])
-
-#def basic_stats(feat_i):
-#    if(np.all(feat_i==0)):
-#        return [0.0,0.0,0.0,0.0]
-#    return np.array([np.mean(feat_i),np.std(feat_i),
-#    	                scipy.stats.skew(feat_i),time_corl(feat_i)])
 
 def time_corl(feat_i):
     n_size=feat_i.shape[0]
