@@ -41,7 +41,9 @@ def subspace_dataset(k,ts_dataset):
         s_feats_i=[ts_j 
                     for j,ts_j in enumerate(feats_i)
                         if(j!=k)]
-        sub_dict[name_i]=np.array(s_feats_i)
+        sub_dict[name_i]=np.array(s_feats_i).T
+        print(ts_dataset[name_i].shape)
+        raise Exception(sub_dict[name_i].shape)
     return dataset.TSDataset(sub_dict,ts_dataset.name+'_sub')
 
 jackknife("../MSR/agum")
