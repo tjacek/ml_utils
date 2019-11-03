@@ -27,8 +27,11 @@ def sampled_dataset(ts_dataset):
 
 def jackknife(in_path):
     out_path,raw_ts=prepare_date(in_path,name='/jack')
-    for i in range(raw_ts.n_feats()):
-        subspace_dataset(i,raw_ts)
+    for k in range(raw_ts.n_feats()):
+        sub_k=subspace_dataset(k,raw_ts)
+        out_k=out_path+'/knief_'+str(k)
+        sub_k.save(out_k,as_txt=False)
+    raw_ts.save(out_path+'/full',as_txt=False)
 
 def subspace_dataset(k,ts_dataset):
     names=ts_dataset.ts_names()

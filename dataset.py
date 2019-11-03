@@ -73,12 +73,13 @@ class TSDataset(object):
             trans_name=transform.__name__
         return self.name+'_'+trans_name
 
-    def save(self,out_path=None):
+    def save(self,out_path=None,as_txt=True):
         if(not out_path):
             out_path=self.name
         files.make_dir(out_path)
+        save=save_txt if(as_txt) else np.save
         for name_i,data_i in self.ts_dict.items():
-            np.savetxt(out_path+'/'+name_i,data_i,fmt='%.4e', delimiter=',')
+            save(out_path+'/'+name_i,data_i)
 
     def select(self,names):
         new_dict={ name_i:self.ts_dict[name_i] for name_i in names}
@@ -89,6 +90,9 @@ class TSDataset(object):
         for name_i in self.ts_names():
             self.ts_dict[name_i]=[feat_i /feat_means[i]
                     for i,feat_i in enumerate(self.as_features(name_i))]
+
+def save_txt(file,arr):
+    return np.savetxt(file,arr,fmt='%.4e',delimiter=',')
 
 def read_dataset(in_path):
     dataset_name=in_path.split("/")[-1]
@@ -116,5 +120,3 @@ def as_imgs(ts_dataset,out_path=None):
         out_i=dir_name+'/'+name_i+".png"
         cv2.imwrite(out_i,img_i)
 
-if __name__ == "__main__":
-    read_dataset("seqs/inert")
