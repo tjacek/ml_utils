@@ -66,3 +66,17 @@ def erros(names,y_true,y_pred):
     err=[true_i!=pred_i for true_i,pred_i in zip(y_true,y_pred)]
     return [name_i for i,name_i in enumerate(names)
                 if(err[i])]
+
+def cats_id(names):
+    return np.unique(all_cats(names))
+
+def ordered_cats(pairs_dict):
+    uniqe_cats=cats_id(pairs_dict.keys())
+    uniqe_cats={ cat_i:i for i,cat_i in enumerate(uniqe_cats)} 
+    new_pairs={}
+    for name_i,value_i in pairs_dict.items():
+        raw=name_i.split('_')
+        raw[0]= str(uniqe_cats[int(raw[0])-1]+1)
+        new_name="_".join(raw)
+        new_pairs[new_name]=value_i
+    return new_pairs
