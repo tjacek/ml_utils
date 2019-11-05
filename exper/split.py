@@ -1,14 +1,18 @@
 import numpy as np
 import exper,exper.persons
-import feats,filtr
+import feats,filtr,learn
 
-def split_ensemble(args,clf_type="LR",restr=None):
+def split_ensemble(args,clf_type="LR",restr=None,show=False):
     datasets=exper.voting.get_datasets(**args)
     datasets=restr_dataset(datasets,restr)
-    print(len(datasets))
-    acc=[train_cls(list(data_i),clf_type) for data_i in datasets]
-    print(acc)
-    print(np.mean(acc))
+    result=[train_cls(list(data_i),clf_type) for data_i in datasets]
+    if(show):
+        for result_i in result:
+            learn.show_result(*result_i) 
+    scores=[ learn.compute_score(result_i[1],result_i[0],as_str=False)
+                for result_i in result]
+    scores=np.array(scores)
+    print(np.mean(scores,axis=0))
 
 def train_cls(datasets,clf_type="SVC"):
     results=[]
@@ -16,18 +20,17 @@ def train_cls(datasets,clf_type="SVC"):
         train,test=data_i.split()
         pairs=exper.persons.pred_vectors(train,test,clf_type)
         results.append(dict(pairs))
-    names=results[0].keys()
+    names=list(results[0].keys())
     votes={name_i: [result_i[name_i] for result_i in results]
                 for name_i in names}
-    pred=[ correc_pred(name_i,vote_i)
+    y_true=filtr.all_cats(names)
+    y_pred=[ voting(vote_i)
             for name_i,vote_i in votes.items()]
-    return np.mean(pred)
+    return y_pred,y_true,names
 
-def correc_pred(name_i,votes):
-    cat_i=int(name_i.split('_')[0])-1
+def voting(votes):
     dist=np.sum(votes,axis=0)
-    pred_i=np.argmax(dist)
-    return float(cat_i==pred_i)
+    return np.argmax(dist)
 
 def restr_dataset(datasets,restr):
     subset=[[by_cats(data_i,restr_j) 
