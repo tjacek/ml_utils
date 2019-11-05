@@ -16,7 +16,15 @@ def by_cat(names):
     for name_i in names:
     	names_by_cat[get_cat(name_i)].append(name_i)
     return names_by_cat
-        
+
+def by_person(names):
+    persons=all_persons(names)
+    persons_id=np.unique(persons)
+    def person_helper(i):
+        selector=lambda s_i:int(s_i.split('_')[1])==i
+        return split(names,selector)[0]
+    return [person_helper(i) for i in persons_id]    
+
 def random_pairs(names):
     random_names=copy.copy(names)
     random.shuffle(random_names)
@@ -54,6 +62,9 @@ def all_cats(names):
 
 def get_cat(name_i):
     return int(name_i.split('_')[0])-1
+
+def all_persons(names):
+    return [ int(name_i.split('_')[1]) for name_i in names]
 
 def get_person(name_i):
     return (int(name_i.split('_')[1])%2)==1

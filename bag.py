@@ -46,4 +46,16 @@ def subspace_dataset(k,ts_dataset):
         raise Exception(sub_dict[name_i].shape)
     return dataset.TSDataset(sub_dict,ts_dataset.name+'_sub')
 
-jackknife("../MSR/agum")
+def person_ens(in_path,size=6):
+    out_path,raw_ts=prepare_date(in_path,name='/person')
+    names=raw_ts.ts_names() 
+    train,test=filtr.split(names)   
+    one_persons=filtr.by_person(train)
+    files.make_dir(out_path)
+    for i,person_i in enumerate(one_persons):
+        names_i=person_i+test
+        ts_i=raw_ts.select(names_i)
+        out_i=out_path+'/person'+str(i)
+        ts_i.save(out_i)
+
+person_ens("../MSR/agum")
