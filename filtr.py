@@ -17,12 +17,12 @@ def by_cat(names):
     	names_by_cat[get_cat(name_i)].append(name_i)
     return names_by_cat
 
-def by_person(names):
+def by_person(names, train=True):
     persons=all_persons(names)
     persons_id=np.unique(persons)
     def person_helper(i):
         selector=lambda s_i:int(s_i.split('_')[1])==i
-        return split(names,selector)[0]
+        return split(names,selector)[int(train)]
     return [person_helper(i) for i in persons_id]    
 
 def random_pairs(names):

@@ -56,6 +56,7 @@ def person_ens(in_path,size=6):
         names_i=person_i+test
         ts_i=raw_ts.select(names_i)
         out_i=out_path+'/person'+str(i)
-        ts_i.save(out_i)
+        ts_i.save(out_i,as_txt=False)
+    raw_ts.save(out_path+'/full')
 
-person_ens("../MSR/agum")
+person_ens("../MHAD_inert/agum")
