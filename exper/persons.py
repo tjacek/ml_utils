@@ -32,8 +32,5 @@ def pred_vectors(train_j,test_j,clf_type="LR"):
     return list(zip(test_j.info,dist_j))
 
 def unique_persons(data_i):
-    persons_dict=get_person(data_i.info)
-    return list(set(persons_dict.values()))
-
-def get_person(names):
-    return { name_i:name_i.split('_')[1]  for name_i in names}
+    persons_dict=filtr.get_person(data_i.info)
+    return list(set(persons_dict))
