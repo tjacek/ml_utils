@@ -91,3 +91,8 @@ def ordered_cats(pairs_dict):
         new_name="_".join(raw)
         new_pairs[new_name]=value_i
     return new_pairs
+
+def int_cats(cats):
+    uniqe_cats=np.unique(cats)
+    uniqe_cats={ cat_i:i for i,cat_i in enumerate(uniqe_cats)} 
+    return [ uniqe_cats[cat_i] for cat_i in cats]
