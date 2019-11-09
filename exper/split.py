@@ -1,11 +1,10 @@
 import numpy as np
-import exper,exper.persons
-import feats,filtr,learn
+import exper,exper.persons,exper.cats
+import feats,filtr,learn,files
 
-def split_ensemble(args,clf_type="LR",restr=None,show=False):
-    datasets=exper.voting.get_datasets(**args)
-    datasets=restr_dataset(datasets,restr)
-    result=[train_cls(list(data_i),clf_type) for data_i in datasets]
+def voting(in_path,show=True):
+    votes=[ feats.read_list(path_i) for path_i in files.top_files(in_path)]
+    result=[exper.cats.voting(vote_i,None) for vote_i in votes]
     if(show):
         for result_i in result:
             learn.show_result(*result_i) 
@@ -14,29 +13,19 @@ def split_ensemble(args,clf_type="LR",restr=None,show=False):
     scores=np.array(scores)
     print(np.mean(scores,axis=0))
 
-def train_cls(datasets,clf_type="SVC"):
-    results=[]
-    for data_i in datasets:
-        train,test=data_i.split()
-        pairs=exper.persons.pred_vectors(train,test,clf_type)
-        results.append(dict(pairs))
-    names=list(results[0].keys())
-    votes={name_i: [result_i[name_i] for result_i in results]
-                for name_i in names}
-    y_true=filtr.all_cats(names)
-    y_pred=[ voting(vote_i)
-            for name_i,vote_i in votes.items()]
-    return y_pred,y_true,names
-
-def voting(votes):
-    dist=np.sum(votes,axis=0)
-    return np.argmax(dist)
-
-def restr_dataset(datasets,restr):
-    subset=[[by_cats(data_i,restr_j) 
-                for restr_j in restr]
-                    for data_i in datasets] 
-    return list(zip(*subset))
+def make_votes(args,restr,clf_type,out_path):
+    datasets=exper.voting.get_datasets(**args)
+    files.make_dir(out_path)
+    for i,restr_i in enumerate(restr):
+        out_i=out_path+"/restr"+str(i)
+        files.make_dir(out_i)
+        for j,data_j in enumerate(datasets):
+            out_ij=out_i+'/nn'+str(j)
+            data_ij=by_cats(data_j,restr_i)
+            train,test=data_ij.split()
+            pairs=exper.persons.pred_vectors(train,test,clf_type)
+            data_ij= feats.from_dict(dict(pairs))
+            data_ij.save(out_ij)
 
 def by_cats(feat_set,cat_set):
     cat_set=set(cat_set)
