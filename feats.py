@@ -120,6 +120,8 @@ def from_dict(feat_dict):
     return FeatureSet(X,info)
 
 def read_list(in_path):
+    if(not os.path.isdir(in_path)):
+        return [from_dict(read_single(in_path))]
     return [from_dict(read_single(path_i)) 
                 for path_i in files.top_files(in_path)]
 
