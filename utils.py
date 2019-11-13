@@ -29,16 +29,11 @@ def extrac_feats(in_path,out_path):
     stat_feats=raw_ts.to_feats(stats)
     stat_feats.save(out_path)
 
-def show_norm(in_path,out_path):
+def upsampling(in_path,out_path):
     raw_ts=dataset.read_dataset(in_path)
-    def norm_helper(ts_i):
-        ts_i-=np.amin(ts_i)
-        ts_i/=np.amax(ts_i)
-        return ts_i
-    norm_ts=raw_ts(norm_helper)
     upsample=smooth.SplineUpsampling()
-    norm_ts=norm_ts(upsample)
-    norm_ts.save(out_path)
+    long_ts=raw_ts(upsample)
+    long_ts.save(out_path)
 
 def make_agum(in_path,out_path=None,simple=True):
     raw_ts=unify.read(in_path)
