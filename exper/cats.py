@@ -2,7 +2,7 @@ import numpy as np
 import exper,exper.persons,feats,files,learn
 import matplotlib.pyplot as plt
 
-def adaptive_votes(votes_path,binary=False,clf_type="SVC"):
+def adaptive_votes(votes_path,binary=False,clf_type=None):
     votes=feats.read_list(votes_path)
     if(binary):
         votes=[binarize(vote_i) for vote_i in votes]
@@ -24,15 +24,6 @@ def make_votes(args,out_path,clf_type="LR",train_data=True):
         votes_feats=feats.from_dict(votes_dict)
         out_i=out_path+'/nn'+str(i)
         votes_feats.save(out_i)
-
-def cls_votes(in_path,out_path):
-    feat_dataset=feats.read(in_path)
-    files.make_dir(out_path)
-    for cls_i in ['SVC','LR']:
-        model_i=exper.make_model(feat_dataset,cls_i)
-        probs=model_i.predict_proba(feat_dataset.X)
-        feats_i=feats.FeatureSet(probs,feat_dataset.info) 
-        feats_i.save(out_path+"/"+cls_i)
 
 def binarize(data_i):
     X=np.array([one_hot(dist_i) 
