@@ -43,7 +43,6 @@ def subspace_dataset(k,ts_dataset):
                         if(j!=k)]
         sub_dict[name_i]=np.array(s_feats_i).T
         print(ts_dataset[name_i].shape)
-        raise Exception(sub_dict[name_i].shape)
     return dataset.TSDataset(sub_dict,ts_dataset.name+'_sub')
 
 def person_ens(in_path,size=6):
