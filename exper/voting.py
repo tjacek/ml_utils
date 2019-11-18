@@ -14,6 +14,9 @@ class Ensemble(object):
         print(learn.show_errors(y_pred,y_true,datasets[0].info))
         return accuracy_score(y_true,y_pred)
 
+def get_args_dict(path):
+    return {'hc_path':None,'deep_paths':path,'n_feats':0}
+
 def predict(datasets,clf_type):
     votes=[exper.predict_labels(data_i,clf_type)
                 for data_i in datasets]
