@@ -26,8 +26,9 @@ def sampled_dataset(ts_dataset):
     pairs+=[ (name_i,ts_dataset[name_i]) for name_i in test]
     return dataset.TSDataset(dict(pairs) ,ts_dataset.name+'_bag')
 
-def jackknife(in_path):
+def jackknife(in_path,out=None):
     out_path,raw_ts=prepare_date(in_path,name='/jack')
+    out_path= out if(out) else out_path
     for k in range(raw_ts.n_feats()):
         sub_k=subspace_dataset(k,raw_ts)
         out_k=out_path+'/knief_'+str(k)
@@ -60,4 +61,5 @@ def person_ens(in_path,size=6):
     raw_ts.save(out_path+'/full')
 
 data="MSR"
-bag_ens("../"+data+"/agum","../"+data+"/bagging/feats")
+#bag_ens("../"+data+"/agum","../"+data+"/bagging/seq")
+jackknife("../"+data+"/agum","../"+data+"/subspace/seq")
