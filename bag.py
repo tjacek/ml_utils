@@ -2,8 +2,9 @@ import numpy as np
 import random,os.path
 import unify,filtr,dataset,files
 
-def bag_ens(in_path,size=6):
+def bag_ens(in_path,out=None,size=6):
     out_path,raw_ts=prepare_date(in_path,name='/bag')
+    out_path= out if(out) else out_path
     for k in range(size):
         bag_k=sampled_dataset(raw_ts)
         out_k=out_path+'/sample'+str(k)
@@ -58,4 +59,5 @@ def person_ens(in_path,size=6):
         ts_i.save(out_i,as_txt=False)
     raw_ts.save(out_path+'/full')
 
-person_ens("../MHAD_inert/agum")
+data="MSR"
+bag_ens("../"+data+"/agum","../"+data+"/bagging/feats")
