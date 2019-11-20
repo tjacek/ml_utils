@@ -14,7 +14,7 @@ def voting(in_path,show=True):
     print(np.mean(scores,axis=0))
 
 def make_votes(args,restr,clf_type,out_path):
-    datasets=exper.voting.get_datasets(**args)
+    datasets=exper.voting.get_data(args)
     files.make_dir(out_path)
     for i,restr_i in enumerate(restr):
         out_i=out_path+"/restr"+str(i)

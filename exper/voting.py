@@ -28,6 +28,11 @@ def count_votes(votes):
     y_pred=[np.argmax(np.bincount(vote_i)) for vote_i in y_ens]  
     return y_true,y_pred
 
+def get_data(args):
+    if(type(args)==str):
+        args={'hc_path':None,'deep_paths':args,'n_feats':0}
+    return get_datasets(**args,norm=True )
+
 def get_datasets(hc_path,deep_paths,n_feats,norm=True ):
     if(not n_feats):
         n_feats=0

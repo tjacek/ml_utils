@@ -11,7 +11,7 @@ def adaptive_votes(votes_path,binary=False,clf_type=None):
     print(learn.compute_score(y_true,y_pred,as_str=True))
 
 def make_votes(args,out_path,clf_type="LR",train_data=True):
-    datasets=exper.voting.get_datasets(**args)
+    datasets=exper.voting.get_data(args)
     files.make_dir(out_path)
     for i,data_i in enumerate(datasets):
         train_i,test_i=data_i.split()
