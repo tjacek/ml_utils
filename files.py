@@ -45,6 +45,11 @@ def make_dir(path):
     if(not os.path.isdir(path)):
         os.mkdir(path)
 
+def chain_dir(in_path):
+    dir_path=os.path.split(in_path)[0]
+    make_dir(dir_path)
+    make_dir(in_path)
+
 def read_file(path):
     file_object = open(path,'r')
     lines=file_object.readlines()
