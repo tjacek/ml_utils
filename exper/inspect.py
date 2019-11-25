@@ -1,37 +1,42 @@
 import numpy as np
-import pandas as pd
-import seaborn as sn
+from sklearn.metrics import accuracy_score
+
+#import pandas as pd
+#import seaborn as sn
+#import matplotlib.pyplot as plt
+#import exper.probs as probs ,files
+#import exper,exper.voting,learn
 import feats
-import matplotlib.pyplot as plt
-import exper.probs as probs ,files
-import exper,exper.voting,learn
+import exper.cats  
 
-def clf_acc(args,clf_type="LR"):
-    datasets=exper.voting.get_datasets(**args)
-    results=[exper.exper_single(data_i,clf_type=clf_type,show=False)
-            for data_i in datasets]
-    acc=[learn.compute_score(result_i[1],result_i[0],as_str=False)[0]
-            for result_i in results]
-    print(acc)
+def clf_acc(votes_path):
+    votes=feats.read_list(votes_path)
+    result=[ pred(vote_i) for vote_i in votes]
+    return [accuracy_score(*result_i) for result_i in result]
 
-def show_errors(args,out_path,clf_type="LR"):
-    def helper(name_i,votes):
-        true_cat=files.natural_keys(name_i)[1]-1
-        pred_cat=probs.simple_voting(votes)
-        return true_cat!=pred_cat
-    show_probs(args,out_path,clf_type="LR",selector=helper)
+def pred(data_i):
+    y_pred=[np.argmax(x_i) for x_i in data_i.X]
+    y_true=data_i.get_labels()
+    return y_true,y_pred
 
-def show_probs(args,out_path,clf_type="LR",selector=None):
-    votes=probs.votes_dist(args,out_path=None,split=True,clf_type=clf_type)
-    vote_dict=probs.as_vote_dict(votes)
-    files.make_dir(out_path)
-    if(not selector):
-        selector=lambda x,y:True
-    for name_k,vote_i in vote_dict.items():
-        if(selector(name_k,vote_i)):
-            kl_matrix=np.array(vote_i)
-            out_k=out_path+'/'+name_k
-            heat_map(kl_matrix,out_k)
+#def show_errors(args,out_path,clf_type="LR"):
+#    def helper(name_i,votes):
+#        true_cat=files.natural_keys(name_i)[1]-1
+#        pred_cat=probs.simple_voting(votes)
+#        return true_cat!=pred_cat
+#    show_probs(args,out_path,clf_type="LR",selector=helper)
+
+#def show_probs(args,out_path,clf_type="LR",selector=None):
+#    votes=probs.votes_dist(args,out_path=None,split=True,clf_type=clf_type)
+#    vote_dict=probs.as_vote_dict(votes)
+#    files.make_dir(out_path)
+#    if(not selector):
+#        selector=lambda x,y:True
+#    for name_k,vote_i in vote_dict.items():
+#        if(selector(name_k,vote_i)):
+#            kl_matrix=np.array(vote_i)
+#            out_k=out_path+'/'+name_k
+#            heat_map(kl_matrix,out_k)
 
 def heat_map(conf_matrix,out_path):
     conf_matrix=np.around(conf_matrix,2)
@@ -42,27 +47,27 @@ def heat_map(conf_matrix,out_path):
     plt.savefig(out_path,dpi=2000)
     plt.clf()
 
-def pred_corl(in_path,out_path,test=True):
-    datasets=feats.read_list(in_path)
-    files.make_dir(out_path)
-    for i,data_i in enumerate(datasets):
-        data_i=data_i.split()[int(test)]
-        y_i=to_signal(data_i.get_labels())
-        corl=[[ np.corrcoef(x_j, y_j)[1][0]
-                    for x_j in data_i.X.T]
-                        for y_j in y_i]
-        heat_map(corl,out_path+'/nn'+str(i))
+#def pred_corl(in_path,out_path,test=True):
+#    datasets=feats.read_list(in_path)
+#    files.make_dir(out_path)
+#    for i,data_i in enumerate(datasets):
+#        data_i=data_i.split()[int(test)]
+#        y_i=to_signal(data_i.get_labels())
+#        corl=[[ np.corrcoef(x_j, y_j)[1][0]
+#                    for x_j in data_i.X.T]
+#                        for y_j in y_i]
+#        heat_map(corl,out_path+'/nn'+str(i))
 
-def all_pred_corl(in_path,out_path,test=True):
-    datasets=feats.read_list(in_path)
-    corl_matrix=[]
-    for i,data_i in enumerate(datasets):
-        data_i=data_i.split()[int(test)]
-        y_i=to_signal(data_i.get_labels())
-        corl=[ np.corrcoef(x_j, y_i[j])[1][0]
-                    for j,x_j in enumerate(data_i.X.T)]
-        corl_matrix.append(corl)            
-    heat_map(np.array(corl_matrix),out_path)
+#def all_pred_corl(in_path,out_path,test=True):
+#    datasets=feats.read_list(in_path)
+#    corl_matrix=[]
+#    for i,data_i in enumerate(datasets):
+#        data_i=data_i.split()[int(test)]
+#        y_i=to_signal(data_i.get_labels())
+#        corl=[ np.corrcoef(x_j, y_i[j])[1][0]
+#                    for j,x_j in enumerate(data_i.X.T)]
+#        corl_matrix.append(corl)            
+#    heat_map(np.array(corl_matrix),out_path)
 
 def to_signal(y):
     y=np.array(y)
