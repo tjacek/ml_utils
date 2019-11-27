@@ -101,7 +101,11 @@ def read_dataset(in_path):
         raise Exception("No data at:"+in_path)
     ts_dataset={}
     for path_i in paths:
-        ts_i=np.loadtxt(path_i,dtype=float,delimiter=",")
+        postfix=path_i.split(".")[-1]
+        if(postfix=="npy"):
+            ts_i=np.load(path_i)
+        else:
+            ts_i=np.loadtxt(path_i,dtype=float,delimiter=",")
         ts_name_i=path_i.split('/')[-1]
         ts_name_i=files.clean_str( ts_name_i)
         print(ts_name_i)
