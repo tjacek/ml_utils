@@ -15,12 +15,12 @@ def gen_votes(dataset_path,vote_path,n_feats=None,clf_type="LR"):
     files.make_dir(vote_path)
     exper.cats.make_votes(args,vote_path+'/votes',clf_type=clf_type)
 
-def img_dataset(in_path,use_agum=False):
+def img_dataset(in_path,use_agum=False,size=128):
     raw_ts=unify.read(in_path)
     if(use_agum):
         smooth_ts=agum.warp.warp_agum(raw_ts)
     else:
-        smooth_ts=raw_ts(smooth.SplineUpsampling())
+        smooth_ts=raw_ts(smooth.SplineUpsampling(size))
     dataset.as_imgs(smooth_ts)
 
 def extrac_feats(in_path,out_path):
@@ -29,9 +29,9 @@ def extrac_feats(in_path,out_path):
     stat_feats=raw_ts.to_feats(stats)
     stat_feats.save(out_path)
 
-def upsampling(in_path,out_path):
+def upsampling(in_path,out_path,size=128):
     raw_ts=dataset.read_dataset(in_path)
-    upsample=smooth.SplineUpsampling()
+    upsample=smooth.SplineUpsampling(size)
     long_ts=raw_ts(upsample)
     long_ts.save(out_path)
 
