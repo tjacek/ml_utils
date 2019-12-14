@@ -29,7 +29,7 @@ def extrac_feats(in_path,out_path):
     stat_feats=raw_ts.to_feats(stats)
     stat_feats.save(out_path)
 
-def upsampling(in_path,out_path):
+def upsampling(in_path,out_path,size=128):
     raw_ts=dataset.read_dataset(in_path)
     upsample=smooth.SplineUpsampling()
     long_ts=raw_ts(upsample)
