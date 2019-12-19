@@ -47,7 +47,9 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True):
 def get_colors_helper(info,plot_type="person"):
     if(plot_type=="cat"):
         return lambda i,y_i: int(info[i].split('_')[0])
+    if(plot_type=="full_person"):
+        return lambda i,y_i: int(info[i].split('_')[1])
     return lambda i,y_i: int(info[i].split('_')[1]) %2       
 
 if __name__ == "__main__":
-    tsne_plot('../img/feats.txt',plot_type='person')
+    tsne_plot('../time/sim2/feat',plot_type='full_person')
