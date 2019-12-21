@@ -8,7 +8,7 @@ class Ensemble(object):
 
     def __call__(self,hc_path,deep_paths,n_feats=None):
         datasets=get_datasets(hc_path,deep_paths,n_feats)
-        votes=predict(datasets,self.clf_type)
+#        votes=predict(datasets,self.clf_type)
         y_true,y_pred=predict(datasets,self.clf_type)
         print(classification_report(y_true, y_pred,digits=4))
         print(learn.show_errors(y_pred,y_true,datasets[0].info))
@@ -16,17 +16,6 @@ class Ensemble(object):
 
 def get_args_dict(path):
     return {'hc_path':None,'deep_paths':path,'n_feats':0}
-
-def predict(datasets,clf_type):
-    votes=[exper.predict_labels(data_i,clf_type)
-                for data_i in datasets]
-    return count_votes(votes)
-
-def count_votes(votes):
-    y_true=votes[0][1]
-    y_ens=np.array([vote_i[0] for vote_i in votes]).T    
-    y_pred=[np.argmax(np.bincount(vote_i)) for vote_i in y_ens]  
-    return y_true,y_pred
 
 def get_data(args):
     if(type(args)==str):
