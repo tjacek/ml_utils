@@ -3,14 +3,15 @@ from sklearn import manifold
 import matplotlib.pyplot as plt
 import numpy as np
 
-def all_plots(in_path,out_path=None):
+def all_plots(in_path,out_path=None,plot_type="cat"):
     if(not out_path):
         out_path='plots_'+in_path
     files.make_dir(out_path)
-    for path_i in files.top_files(in_path):
+    for i,path_i in enumerate(files.top_files(in_path)):
+        type_i=(plot_type,i)  if(plot_type=="single") else plot_type
         out_i=out_path+'/'+ path_i.split('/')[-1]
-        plot_i=tsne_plot(path_i,show=False)  
-        plot_i.savefig(out_i,dpi=2400)
+        plot_i=tsne_plot(path_i,show=False,plot_type=type_i)  
+        plot_i.savefig(out_i,dpi=1000)
         plot_i.close()
 
 def tsne_plot(in_path,show=True,plot_type="cat"):
@@ -45,6 +46,13 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True):
     return plt
 
 def get_colors_helper(info,plot_type="person"):
+    if(type(plot_type)==tuple):
+        cat_i=plot_type[1]
+        def color_helper(i,y_i):
+            point_cat=int(info[i].split('_')[0])
+            print(point_cat,cat_i)
+            return 5*int(point_cat==(cat_i+1))
+        return color_helper
     if(plot_type=="cat"):
         return lambda i,y_i: int(info[i].split('_')[0])
     if(plot_type=="full_person"):
@@ -52,4 +60,4 @@ def get_colors_helper(info,plot_type="person"):
     return lambda i,y_i: int(info[i].split('_')[1]) %2       
 
 if __name__ == "__main__":
-    tsne_plot('../time/sim2/feat',plot_type='full_person')
+    all_plots('../fusion/feats',"../fusion/plots","single")
