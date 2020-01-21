@@ -10,15 +10,16 @@ def adaptive_votes(votes_path,binary=False,clf_type=None):
     learn.show_result(y_pred,y_true,names)
     print(learn.compute_score(y_true,y_pred,as_str=True))
 
-def make_votes(args,out_path,clf_type="LR",train_data=True):
+def make_votes(args,out_path,clf_type="LR",train_data=False):
     datasets=exper.voting.get_data(args)
     files.make_dir(out_path)
     for i,data_i in enumerate(datasets):
         train_i,test_i=data_i.split()
         test_votes=exper.persons.pred_vectors(train_i,test_i,clf_type)
         if(train_data):
-            train_votes=exper.persons.pred_by_person(train_i,clf_type)
-            votes_dict=dict(train_votes+test_votes)
+             raise Exception("no train_data")
+#            train_votes=exper.persons.pred_by_person(train_i,clf_type)
+#            votes_dict=dict(train_votes+test_votes)
         else:
             votes_dict=dict(test_votes)
         votes_feats=feats.from_dict(votes_dict)
