@@ -4,7 +4,7 @@ from sklearn.metrics import classification_report,accuracy_score
 def exper_single(in_path,clf_type="SVC",n_select=None,norm=True,show=True):
     if(type(in_path)==dict):
         feat_dataset=feats.from_dict(in_path)
-    elif(type(in_path)==str):
+    elif(type(in_path)==str or type(in_path)==list):
         feat_dataset=feats.read(in_path)
     else:
         feat_dataset=in_path
