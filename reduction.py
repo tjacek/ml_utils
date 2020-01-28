@@ -16,6 +16,7 @@ def all_plots(in_path,out_path=None,plot_type="cat"):
 
 def tsne_plot(in_path,show=True,plot_type="cat"):
     feat_dataset= feats.read(in_path) if(type(in_path)==str) else in_path
+    feat_dataset=feat_dataset.split()[1]
     tsne=manifold.TSNE(n_components=2,perplexity=30)#init='pca', random_state=0)
     X=tsne.fit_transform(feat_dataset.X)
     y=feat_dataset.get_labels() 
@@ -60,4 +61,5 @@ def get_colors_helper(info,plot_type="person"):
     return lambda i,y_i: int(info[i].split('_')[1]) %2       
 
 if __name__ == "__main__":
-    all_plots('../fusion/feats',"../fusion/plots","single")
+#    all_plots('../fusion/feats',"../fusion/plots","single")
+    tsne_plot("../MSR_full/feats",show=True,plot_type="cat")
