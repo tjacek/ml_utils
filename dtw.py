@@ -24,7 +24,7 @@ def read(in_path):
         return DTWPairs(pickle.load(handle))
 
 def make_pairwise_distance(ts_dataset):
-    names=ts_dataset.ts_names()
+    names=list(ts_dataset.ts_names())
     n_ts=len(names)   
     pairs_dict={ name_i:{name_i:0.0}
                     for name_i in names}
@@ -69,8 +69,9 @@ def metric_matrix(ts_list):
     return metric_arr
 
 if __name__ == "__main__":
-    #ts_dataset=unify.read("mra/max_z")
-    #make_pairwise_distance(ts_dataset).save('dtw_pairs')
-    dtw_pairs=read('dtw_pairs')
+    name='corl'
+    ts_dataset=unify.read("../MHAD/seqs/"+name)
+    make_pairwise_distance(ts_dataset).save("../MHAD/pairs/"+name)
+    dtw_pairs=read("../MHAD/pairs/"+name)
     dtw_feats=dtw_pairs.to_features()
-    dtw_feats.save("dtw.txt")
+    dtw_feats.save("../MHAD/feats/"+name)
