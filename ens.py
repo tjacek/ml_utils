@@ -19,9 +19,10 @@ def show_acc(in_path,dir_path=None):
         in_path+="/"+dir_path
     print(exper.inspect.clf_acc(in_path))
 
-def selection_result(vote_path,n_select):
+def selection_result(vote_path,n_select,out_path=None):
     ord=exper.selection.clf_selection(vote_path)
     votes=exper.cats.selected_votes(vote_path,ord,binary=False)
     s_votes=votes[:n_select]
-    result=exper.cats.simple_voting(votes)
+    result=exper.cats.simple_voting(s_votes)
     print(classification_report(result[1], result[0],digits=4))
+    learn.show_confusion(result,out_path)
