@@ -6,15 +6,25 @@ class DTWPairs(object):
     def __init__(self,pairs):
         self.pairs=pairs
     
-    def to_features(self):
+    def names(self):
         all_names=self.pairs.keys()
         train,test=filtr.split(all_names)
+        return all_names,train,test
+
+    def to_features(self):
+        all_names,train,test=self.names()
         def dtw_helper(name_i):
             return np.array([ self.pairs[name_i][name_j] 
                                 for name_j in train])
         feat_dict={name_i:dtw_helper(name_i) for name_i in all_names} 
         return feats.from_dict(feat_dict) 
-    
+
+    def distances(self,test,train):
+        dist=[[self.pairs[name_i][name_j] 
+                for name_i in test]
+                    for name_j in train]
+        return np.array(dist)
+
     def save(self,out_path):
     	with open(out_path, 'wb') as handle:
             pickle.dump(self.pairs, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -29,6 +39,17 @@ def make_dtw_feats(dir_path,name):
     dtw_pairs=read(pair_path)
     dtw_feats=dtw_pairs.to_features()
     dtw_feats.save(dtw_path)
+
+def mean_distances(pair_path,out_path):
+    pairs=read(pair_path)
+    all_names,train,test=pairs.names()
+    train,test=filtr.by_cat(train),filtr.by_cat(test)
+    cats=train.keys()
+    dist=[[np.mean(pairs.distances(test[cat_j],train[cat_i]))
+            for cat_j in cats]
+                for cat_i in cats]
+    dist=np.array(dist)
+    np.savetxt(out_path, dist, fmt='%.2e',delimiter=',')
 
 def read(in_path):
     with open(in_path, 'rb') as handle:
@@ -82,3 +103,4 @@ def metric_matrix(ts_list):
 if __name__ == "__main__":
     name='std'
 #    make_dtw_feats("../MHAD2",name)
+    mean_distances("../MSR/pairs/skew","../ml_demo/distance_dtw/raw/MSR/skew")
