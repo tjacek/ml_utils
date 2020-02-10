@@ -19,6 +19,17 @@ class DTWPairs(object):
     	with open(out_path, 'wb') as handle:
             pickle.dump(self.pairs, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+
+def make_dtw_feats(dir_path,name):
+    seq_path=dir_path+ "/seqs/"+name
+    pair_path=dir_path+ "/pairs/"+name
+    dtw_path=dir_path+ "/dtw/"+name
+    ts_dataset=unify.read(seq_path)
+    make_pairwise_distance(ts_dataset).save(pair_path)
+    dtw_pairs=read(pair_path)
+    dtw_feats=dtw_pairs.to_features()
+    dtw_feats.save(dtw_path)
+
 def read(in_path):
     with open(in_path, 'rb') as handle:
         return DTWPairs(pickle.load(handle))
@@ -69,9 +80,5 @@ def metric_matrix(ts_list):
     return metric_arr
 
 if __name__ == "__main__":
-    name='corl'
-    ts_dataset=unify.read("../MHAD/seqs/"+name)
-    make_pairwise_distance(ts_dataset).save("../MHAD/pairs/"+name)
-    dtw_pairs=read("../MHAD/pairs/"+name)
-    dtw_feats=dtw_pairs.to_features()
-    dtw_feats.save("../MHAD/feats/"+name)
+    name='std'
+#    make_dtw_feats("../MHAD2",name)
