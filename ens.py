@@ -1,5 +1,6 @@
 import exper.cats,exper.selection,exper.inspect,learn
 from sklearn.metrics import classification_report,accuracy_score
+import files
 
 def exp(args,in_path,dir_path=None,clf="LR",train=True):
     if(dir_path):
@@ -26,3 +27,12 @@ def selection_result(vote_path,n_select,out_path=None):
     result=exper.cats.simple_voting(s_votes)
     print(classification_report(result[1], result[0],digits=4))
     learn.show_confusion(result,out_path)
+
+def to_csv(in_path,out_path):
+    csv='name,accuracy,precision,recall,f1\n'
+    for path_i in files.top_files(in_path):
+        result_i=exper.cats.adaptive_votes(path_i,show=False) 
+        csv+= "%s,%s,\n"% (path_i.split("/")[-1],result_i)
+    file_str = open(out_path,'w')
+    file_str.write(csv)
+    file_str.close()

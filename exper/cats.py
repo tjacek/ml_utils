@@ -2,13 +2,17 @@ import numpy as np
 import exper,exper.persons,feats,files,learn
 import matplotlib.pyplot as plt
 
-def adaptive_votes(votes_path,binary=False,clf_type=None):
+def adaptive_votes(votes_path,binary=False,clf_type=None,show=True):
     votes=feats.read_list(votes_path)
+    print(votes_path)
     if(binary):
         votes=[binarize(vote_i) for vote_i in votes]
     y_pred,y_true,names=voting(votes,clf_type)
-    learn.show_result(y_pred,y_true,names)
-    print(learn.compute_score(y_true,y_pred,as_str=True))
+    stats=learn.compute_score(y_true,y_pred,as_str=True)
+    if(show):
+        learn.show_result(y_pred,y_true,names)
+        print(learn.compute_score(y_true,y_pred,as_str=True))
+    return stats
 
 def make_votes(args,out_path,clf_type="LR",train_data=False):
     datasets=exper.voting.get_data(args)
@@ -52,22 +56,22 @@ def simple_voting(votes):
     y_pred=np.argmax(counted_votes,axis=1)
     return y_pred,y_true,names
 
-def adaptive_exp(votes_path,out_path=None):
-    clf_args=['LR','SVC',"MLP"]
-    binary_args=[True,False]
-    lines=['clf,prob,accuracy,precision,recall,f1']
-    for clf_i in clf_args:
-        for binary_j in binary_args:
-            y_pred,y_true,names=adaptive_votes(votes_path,binary_j,clf_i,show=False)
-            metrics_ij=learn.compute_score(y_true,y_pred,as_str=True)
-            line_ij=",".join([clf_i,str(not binary_j),metrics_ij])
-            lines.append(line_ij)
-    result="\n".join(lines)
-    if(not out_path):
-        out_path=votes_path+"_result.csv"
-    file_str = open(out_path,'w')
-    file_str.write(result)
-    file_str.close()
+#def adaptive_exp(votes_path,out_path=None):
+#    clf_args=['LR','SVC',"MLP"]
+#    binary_args=[True,False]
+#    lines=['clf,prob,accuracy,precision,recall,f1']
+#    for clf_i in clf_args:
+#        for binary_j in binary_args:
+#            y_pred,y_true,names=adaptive_votes(votes_path,binary_j,clf_i,show=False)
+#            metrics_ij=learn.compute_score(y_true,y_pred,as_str=True)
+#            line_ij=",".join([clf_i,str(not binary_j),metrics_ij])
+#            lines.append(line_ij)
+#    result="\n".join(lines)
+#    if(not out_path):
+#        out_path=votes_path+"_result.csv"
+#    file_str = open(out_path,'w')
+#    file_str.write(result)
+#    file_str.close()
 
 def acc_curve(vote_path,ord,binary=False):
     votes=selected_votes(vote_path,ord,binary)
@@ -84,7 +88,6 @@ def selected_votes(vote_path,ord,binary=False):
         votes=[binarize(vote_i) for vote_i in votes]
     return [ votes[k] for k in ord]
     
-
 def show_curve(acc,n_clf,vote_path,binary):
     title="_".join(vote_path.split('/'))
     title=title.replace(".._","").replace("votes","")
