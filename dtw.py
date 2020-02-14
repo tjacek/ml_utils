@@ -40,16 +40,27 @@ def make_dtw_feats(dir_path,name):
     dtw_feats=dtw_pairs.to_features()
     dtw_feats.save(dtw_path)
 
-def mean_distances(pair_path,out_path):
-    pairs=read(pair_path)
-    all_names,train,test=pairs.names()
-    train,test=filtr.by_cat(train),filtr.by_cat(test)
-    cats=train.keys()
-    dist=[[np.mean(pairs.distances(test[cat_j],train[cat_i]))
-            for cat_j in cats]
-                for cat_i in cats]
-    dist=np.array(dist)
-    np.savetxt(out_path, dist, fmt='%.2e',delimiter=',')
+def mean_dtw(dir_path,name):
+    pair_path=dir_path+ "/pairs/"+name
+    mean_path=dir_path+ "/mean/"+name
+    dtw_pairs=read(pair_path)
+    all_names,train,test=dtw_pairs.names()
+    train=filtr.by_cat(train)
+    dtw_feats=[np.mean(dtw_pairs.distances(cat_i,all_names),axis=1)
+                    for i,cat_i in train.items()]
+    dtw_feats=np.array(dtw_feats).T
+    dtw_feats=feats.FeatureSet(dtw_feats,all_names)
+    dtw_feats.save(mean_path)        
+#def mean_distances(pair_path,out_path):
+#    pairs=read(pair_path)
+#    all_names,train,test=pairs.names()
+#    train,test=filtr.by_cat(train),filtr.by_cat(test)
+#    cats=train.keys()
+#    dist=[[np.mean(pairs.distances(test[cat_j],train[cat_i]))
+#            for cat_j in cats]
+#                for cat_i in cats]
+#    dist=np.array(dist)
+#    np.savetxt(out_path, dist, fmt='%.2e',delimiter=',')
 
 def read(in_path):
     with open(in_path, 'rb') as handle:
@@ -101,6 +112,6 @@ def metric_matrix(ts_list):
     return metric_arr
 
 if __name__ == "__main__":
-    name='std'
-#    make_dtw_feats("../MHAD2",name)
-    mean_distances("../MSR/pairs/skew","../ml_demo/distance_dtw/raw/MSR/skew")
+    name='skew'
+    mean_dtw("../MSR",name)
+#    mean_distances("../MSR/pairs/skew","../ml_demo/distance_dtw/raw/MSR/skew")
