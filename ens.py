@@ -46,7 +46,7 @@ def selection_to_csv(in_path,out_path):
         k=np.argmax(acc_i)
         result_i=get_result(path_i,ord,k+1)
         result_i=learn.compute_score(result_i[1],result_i[0])
-        csv+= "%s,%s,\n"% (path_i.split("/")[-1],result_i)
+        csv+= "%s,%d,%s,\n"% (path_i.split("/")[-1],k,result_i)
     file_str = open(out_path,'w')
     file_str.write(csv)
     file_str.close()
