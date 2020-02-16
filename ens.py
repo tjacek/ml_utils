@@ -1,3 +1,4 @@
+import numpy as np
 import exper.cats,exper.selection,exper.inspect,learn
 from sklearn.metrics import classification_report,accuracy_score
 import files
@@ -36,3 +37,21 @@ def to_csv(in_path,out_path):
     file_str = open(out_path,'w')
     file_str.write(csv)
     file_str.close()
+
+def selection_to_csv(in_path,out_path):
+    csv='name,accuracy,precision,recall,f1\n'
+    for path_i in files.top_files(in_path):
+        ord=exper.selection.clf_selection(path_i)
+        acc_i=exper.cats.acc_curve(path_i,ord,show=False)
+        k=np.argmax(acc_i)
+        result_i=get_result(path_i,ord,k+1)
+        result_i=learn.compute_score(result_i[1],result_i[0])
+        csv+= "%s,%s,\n"% (path_i.split("/")[-1],result_i)
+    file_str = open(out_path,'w')
+    file_str.write(csv)
+    file_str.close()
+
+def get_result(vote_path,ord,n_select):
+    votes=exper.cats.selected_votes(vote_path,ord,binary=False)
+    s_votes=votes[:n_select]
+    return exper.cats.simple_voting(s_votes)

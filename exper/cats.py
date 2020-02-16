@@ -73,13 +73,14 @@ def simple_voting(votes):
 #    file_str.write(result)
 #    file_str.close()
 
-def acc_curve(vote_path,ord,binary=False):
+def acc_curve(vote_path,ord,binary=False,show=True):
     votes=selected_votes(vote_path,ord,binary)
     n_clf=len(votes)
     results=[voting(votes[:(i+1)],None) for i in range(n_clf)]
     acc=[ learn.compute_score(result_i[0],result_i[1],False)[0] 
             for result_i in results]
-    show_curve(acc,len(results),vote_path,binary)
+    if(show):
+        show_curve(acc,len(results),vote_path,binary)
     return acc
 
 def selected_votes(vote_path,ord,binary=False):
