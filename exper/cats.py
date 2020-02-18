@@ -19,11 +19,11 @@ def make_votes(args,out_path,clf_type="LR",train_data=False):
     files.make_dir(out_path)
     for i,data_i in enumerate(datasets):
         train_i,test_i=data_i.split()
-        test_votes=exper.persons.pred_vectors(train_i,test_i,clf_type)
+        test_votes=exper.persons.pred_vectors(train_i,test_i,clf_type)#,train_data)        
+#        votes_dict=dict(test_votes)
         if(train_data):
-             raise Exception("no train_data")
-#            train_votes=exper.persons.pred_by_person(train_i,clf_type)
-#            votes_dict=dict(train_votes+test_votes)
+            train_votes=exper.persons.pred_by_person(train_i,clf_type)
+            votes_dict=dict(train_votes+test_votes)
         else:
             votes_dict=dict(test_votes)
         votes_feats=feats.from_dict(votes_dict)
