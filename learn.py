@@ -9,6 +9,8 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 import plot
 
+from pygam import LogisticGAM
+
 def get_cls(clf_type):
     if(clf_type=="SVC"):
         print("SVC")
@@ -16,9 +18,12 @@ def get_cls(clf_type):
     elif(clf_type=="MLP"):
         print("MLP")
         return make_mlp()
+#    elif(clf_type=="GAM"):
+#        print("GAM")
+#        return make_GAM()
     else:
         print("LR")
-        return LogisticRegression()
+        return LogisticRegression(solver='liblinear')#max_iter=1000)
 
 def make_SVC():
     params=[{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],'C': [1, 10, 50,110, 1000]},
@@ -28,6 +33,9 @@ def make_SVC():
 
 def make_mlp():
     return MLPClassifier(alpha=1, max_iter=1000)
+
+#def make_GAM():
+#    return LogisticGAM()
 
 def show_result(y_pred,y_true,names):
     print(classification_report(y_true, y_pred,digits=4))
