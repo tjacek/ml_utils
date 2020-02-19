@@ -5,13 +5,25 @@ import feats
 import exper.cats  
 
 def clf_acc(votes_path,data="test"):
+    votes=read_votes(votes_path)
+    result=[ pred(vote_i) for vote_i in votes]
+    return [accuracy_score(*result_i) for result_i in result]
+
+def correct_votes(votes_path):
+    votes=read_votes(votes_path,data="test")
+    result=np.array([ binary_result(*pred(vote_i)) 
+                for vote_i in votes])
+    correct=np.mean(result,axis=0)
+    correct[correct>0.5]=1.0
+    raise Exception(correct)
+
+def read_votes(votes_path,data="test"):
     votes=feats.read_list(votes_path)
     if(data=="test"):
         votes=[ vote_i.split()[1] for vote_i in votes]
     if(data=="train"):
         votes=[ vote_i.split()[0] for vote_i in votes]
-    result=[ pred(vote_i) for vote_i in votes]
-    return [accuracy_score(*result_i) for result_i in result]
+    return votes
 
 def pred(data_i):
     y_pred=[np.argmax(x_i) for x_i in data_i.X]
@@ -35,6 +47,10 @@ def show_votes(votes_path,out_path=None):
 #    sn.heatmap(df_cm, annot=True,annot_kws={"size": 4}, fmt='g')
 #    plt.savefig(out_path,dpi=2000)
 #    plt.clf()
+
+def binary_result(y_true,y_pred):
+    return np.array([float(true_i==pred_i) 
+               for true_i,pred_i in zip(y_true,y_pred)])
 
 def to_signal(y):
     y=np.array(y)
