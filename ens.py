@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np,os.path,os
 import exper.cats,exper.selection,exper.inspect,learn
 from sklearn.metrics import classification_report,accuracy_score
 import files
@@ -7,7 +7,7 @@ def exp(args,in_path,dir_path=None,clf="LR",train=True):
     if(dir_path):
     	in_path+="/"+dir_path
     if(train):
-        exper.cats.make_votes(args,in_path,clf_type=clf)
+        exper.cats.make_votes(args,in_path,clf_type=clf,train_data=train)
     exper.cats.adaptive_votes(in_path)
 
 def show_acc_curve(in_path,dir_path=None,n_select=None):
@@ -42,6 +42,7 @@ def selection_to_csv(in_path,out_path):
     csv='name,accuracy,precision,recall,f1\n'
     for path_i in files.top_files(in_path):
         ord=exper.selection.clf_selection(path_i)
+        print(ord)
         acc_i=exper.cats.acc_curve(path_i,ord,show=False)
         k=np.argmax(acc_i)
         result_i=get_result(path_i,ord,k+1)
@@ -55,3 +56,12 @@ def get_result(vote_path,ord,n_select):
     votes=exper.cats.selected_votes(vote_path,ord,binary=False)
     s_votes=votes[:n_select]
     return exper.cats.simple_voting(s_votes)
+
+def res_corl_matrix(in_path,out_path):
+    if(os.path.isdir(in_path)):
+        files.make_dir(out_path) 
+        for i,path_i in enumerate(files.top_files(in_path)):
+            print(path_i)
+            out_i=out_path+'/'+path_i.split("/")[-1]
+            X=exper.selection.get_res_corelation(path_i)
+            np.savetxt(out_i, X, fmt='%.2e', delimiter=',')
