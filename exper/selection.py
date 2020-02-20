@@ -6,10 +6,33 @@ import exper.inspect
 #from exper.inspect import heat_map
 
 def clf_selection(in_path):
-    corl_matrix=get_res_corelation(in_path)
-    mcc= np.mean(corl_matrix,axis=0)
-    print(mcc)
-    return np.argsort(mcc)#find_outliners(mcc,False)
+#    corl_matrix=get_res_corelation(in_path)
+#    mcc= np.mean(corl_matrix,axis=0)
+    clf_ord=best_selection(in_path)
+    print(clf_ord)
+    return clf_ord
+
+def best_selection(in_path):
+    correct=exper.inspect.correct_votes(in_path,data="train")
+    best=np.amax(correct,axis=0)
+    for i,best_i in enumerate(best):
+        correct[:,i][ correct[:,i] <best_i]=0.0
+    correct[correct!=0]=1.0
+    clf_best=np.sum(correct,axis=1)
+    print(clf_best)
+    return np.flip(np.argsort(clf_best))
+#    raise Exception("OK")
+
+def min_max_selection(in_path):
+    correct=exper.inspect.correct_votes(in_path,data="train")
+    print(correct)
+    by_cat=np.sum(correct,axis=0) 
+    worst_cat=correct[:,np.argmin(by_cat)]
+    return np.flip(np.argsort(worst_cat))
+
+def acc_selection(in_path):
+    mcc=exper.inspect.clf_acc(in_path,data="train")
+    return np.flip(np.argsort(mcc))
 
 def get_res_corelation(in_path):
     datasets=[data_i.split()[1] for data_i in feats.read_list(in_path)]
