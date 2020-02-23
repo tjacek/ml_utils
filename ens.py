@@ -1,14 +1,15 @@
 import numpy as np,os.path,os
 import exper.cats,exper.selection,exper.inspect,learn
 from sklearn.metrics import classification_report,accuracy_score
+from exper.ada_boost import ada_boost
 import files
 
 def exp(args,in_path,dir_path=None,clf="LR",train=True):
     if(dir_path):
     	in_path+="/"+dir_path
     if(train):
-        exper.cats.make_votes(args,in_path,clf_type=clf,train_data=train)
-    exper.cats.adaptive_votes(in_path)
+        exper.cats.make_votes(args,in_path,clf_type=clf,train_data=True)
+    exper.cats.adaptive_votes(in_path,binary=False)
 
 def show_acc_curve(in_path,dir_path=None,n_select=None):
     if(dir_path):
@@ -65,3 +66,14 @@ def res_corl_matrix(in_path,out_path):
             out_i=out_path+'/'+path_i.split("/")[-1]
             X=exper.selection.get_res_corelation(path_i)
             np.savetxt(out_i, X, fmt='%.2e', delimiter=',')
+
+def ada_to_csv(in_path,out_path):
+    csv='name,accuracy,precision,recall,f1\n'
+    for path_i in files.top_files(in_path):
+        y_true,y_pred,names=ada_boost(path_i,show=False)
+        line_i=learn.compute_score(y_true,y_pred,as_str=True)
+        print(line_i)
+        csv+="%s,%s\n" %(path_i.split('/')[-1],line_i)
+    file_str = open(out_path,'w')
+    file_str.write(csv)
+    file_str.close()

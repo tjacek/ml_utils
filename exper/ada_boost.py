@@ -2,15 +2,16 @@ import numpy as np
 import feats,exper.cats
 from sklearn.metrics import classification_report
 
-def ada_boost(votes_path,data="test"):
+def ada_boost(votes_path,show=True):
     votes=feats.read_list(votes_path)
     y_pred,y_true,names=exper.cats.simple_voting(votes)
     train,test=zip(*[vote_i.split() for vote_i in votes])
     train=[ exper.cats.binarize(train_i) for train_i in train]
     alphas=samme(train)
     y_pred=weighted_voting(test,alphas)
-#    print(y_true)
-    print(classification_report(y_true,y_pred,digits=4))
+    if(show):
+        print(classification_report(y_true,y_pred,digits=4))
+    return y_true,y_pred,names
 
 def samme(train):
     K=train[0].n_cats()
@@ -24,13 +25,15 @@ def samme(train):
         all_errors= all_errors*active_cls
         t=np.argmax(all_errors)
         err_t=all_errors[t]
+        if(err_t<0.01):
+            err_t=0.01
         alphas[t]=np.log( (1.0-err_t)/err_t)+np.log(K-1)
         weights=recompute_weights(train[t],alphas[t],weights)
     return alphas
 
 def error(train_i,weights):
 	X,y=train_i.X,train_i.get_labels()
-	return sum([weights[j]*x_i[y[j]] for j,x_i in enumerate(X)])
+	return sum([weights[j]*(1.0-x_i[y[j]]) for j,x_i in enumerate(X)])
 
 def init_weigts(train):
     weights=np.ones((len(train),))
@@ -49,7 +52,6 @@ def weighted_voting(votes,alphas):
         vote_i=np.array([alphas[j]*vote_ij 
                     for j,vote_ij in enumerate(vote_i)])	
         vote_i=np.sum(vote_i,axis=0)
-#        raise Exception("OK")
         return np.argmax(vote_i)
     X=np.array([vote_i.X for vote_i in votes])
     X=np.swapaxes(X,0,1)
