@@ -3,12 +3,11 @@ import matplotlib.pyplot as plt
 import exper,exper.cats,filtr,feats
 import exper.inspect
 
-#from exper.inspect import heat_map
-
-def clf_selection(in_path):
-#    corl_matrix=get_res_corelation(in_path)
-#    mcc= np.mean(corl_matrix,axis=0)
-    clf_ord=best_selection(in_path)
+def clf_selection(in_path,s_type="best"):
+    if(s_type=="best"):
+        clf_ord= best_selection(in_path)
+    if(s_type=="acc"):
+        clf_ord=acc_selection(in_path)
     print(clf_ord)
     return clf_ord
 
@@ -18,10 +17,24 @@ def best_selection(in_path):
     for i,best_i in enumerate(best):
         correct[:,i][ correct[:,i] <best_i]=0.0
     correct[correct!=0]=1.0
+    print(correct)
     clf_best=np.sum(correct,axis=1)
     print(clf_best)
     return np.flip(np.argsort(clf_best))
-#    raise Exception("OK")
+
+#def var_selection(in_path):
+#    correct=exper.inspect.correct_votes(in_path,data="train")
+#    correct=correct.astype(float)
+#    for i in range(correct.shape[0]):
+#        correct[:,i]/=np.amax(correct[:,i])
+#    np.fill_diagonal(correct,0)
+#    print(correct)
+#    var=np.std(correct,axis=0)
+#    var-=np.mean(var)
+#    var/=np.std(var)
+#    var_cats=correct[:,(var>1)]
+#    result=np.mean(var_cats,axis=1)
+#    return np.flip(np.argsort(result))
 
 def min_max_selection(in_path):
     correct=exper.inspect.correct_votes(in_path,data="train")
@@ -34,8 +47,13 @@ def acc_selection(in_path):
     mcc=exper.inspect.clf_acc(in_path,data="train")
     return np.flip(np.argsort(mcc))
 
+def mrc_selection(in_path):
+    corl_matrix=get_res_corelation(in_path)
+    mcc= np.mean(corl_matrix,axis=0)
+    return np.argsort(mcc)
+
 def get_res_corelation(in_path):
-    datasets=[data_i.split()[1] for data_i in feats.read_list(in_path)]
+    datasets=[data_i.split()[0] for data_i in feats.read_list(in_path)]
     datasets=[errors(data_i) for data_i in datasets]
     return full_corls_matrix(datasets)
     
@@ -55,4 +73,3 @@ def errors(data_i):
 def residuals( data_i):
     res_i=np.abs(data_i.labels_array().astype(float)-data_i.X)
     return feats.FeatureSet(res_i,data_i.info)
-
