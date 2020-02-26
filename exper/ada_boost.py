@@ -15,9 +15,9 @@ def ada_boost(votes_path,show=True):
 
 def samme(train):
     K=train[0].n_cats()
-    alphas=np.zeros((K,))
+    alphas=np.zeros((len(train),))
     weights=init_weigts(train[0])
-    active_cls=np.zeros((K,))
+    active_cls=np.zeros((len(train),))
     for i in range(len(train)):
         all_errors=np.array([error(train_i,weights)
                                     for train_i in train])
@@ -56,4 +56,6 @@ def weighted_voting(votes,alphas):
         return np.argmax(vote_i)
     X=np.array([vote_i.X for vote_i in votes])
     X=np.swapaxes(X,0,1)
-    return [vote_helper(vote_i) for vote_i in X]
+    y_pred=[vote_helper(vote_i) for vote_i in X]
+    y_true,names= votes[0].get_labels(),votes[0].info
+    return y_pred,y_true,names

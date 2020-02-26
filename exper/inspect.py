@@ -38,6 +38,8 @@ def show_votes(votes_path,out_path,data="train"):
         learn.show_confusion(result_i,out_i) 
 
 def erorr_vector(data_i):
+    if(type(data_i)==list):
+        return [ erorr_vector(data_ij) for data_ij in data_i] 
     y_true=data_i.get_labels()
     y_pred=[np.argmax(x_i) for x_i in data_i.X]
     return binary_result(y_true,y_pred)
