@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score,confusion_matrix
 import feats,learn,files
 import exper.cats  
 
@@ -8,13 +8,13 @@ def clf_acc(votes_path,data="test"):
     result=[ pred(vote_i) for vote_i in votes]
     return [accuracy_score(*result_i) for result_i in result]
 
-def correct_votes(votes_path):
-    votes=read_votes(votes_path,data="test")
-    result=np.array([ binary_result(*pred(vote_i)) 
-                for vote_i in votes])
-    correct=np.mean(result,axis=0)
-    correct[correct>0.5]=1.0
-    raise Exception(correct)
+def correct_votes(votes_path,data="train"):
+    votes=read_votes(votes_path,data)
+    result=[np.diagonal(confusion_matrix(*pred(vote_i))) for vote_i in votes]
+    return np.array(result)
+#    correct=np.mean(result,axis=0)
+#    correct[correct>0.5]=1.0
+#    raise Exception(correct)
 
 def read_votes(votes_path,data="test"):
     votes=feats.read_list(votes_path)
@@ -36,6 +36,11 @@ def show_votes(votes_path,out_path,data="train"):
         out_i="%s/nn%d" % (out_path,i)
         result_i=pred(vote_i)
         learn.show_confusion(result_i,out_i) 
+
+def erorr_vector(data_i):
+    y_true=data_i.get_labels()
+    y_pred=[np.argmax(x_i) for x_i in data_i.X]
+    return binary_result(y_true,y_pred)
 
 def binary_result(y_true,y_pred):
     return np.array([float(true_i==pred_i) 
