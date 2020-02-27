@@ -37,6 +37,10 @@ def show_votes(votes_path,out_path,data="train"):
         result_i=pred(vote_i)
         learn.show_confusion(result_i,out_i) 
 
+def get_voting_acc(data):
+    y_pred,y_true,names=exper.cats.simple_voting(data)
+    return np.mean(binary_result(y_true,y_pred))
+    
 def erorr_vector(data_i):
     if(type(data_i)==list):
         return [ erorr_vector(data_ij) for data_ij in data_i] 
