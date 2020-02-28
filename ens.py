@@ -1,5 +1,5 @@
 import numpy as np,os.path,os
-import exper.cats,exper.selection,exper.inspect,learn
+import exper.cats,exper.selection,exper.inspect,learn,exper.curve
 from sklearn.metrics import classification_report,accuracy_score
 from exper.ada_boost import ada_boost
 import files,feats
@@ -15,7 +15,7 @@ def show_acc_curve(in_path,dir_path=None,n_select=None):
     if(dir_path):
         in_path+="/"+dir_path
     ord=exper.selection.clf_selection(in_path)
-    return exper.cats.acc_curve(in_path,ord)
+    return exper.curve.acc_curve(in_path,ord)
 
 def show_acc(in_path,dir_path=None):
     if(dir_path):
