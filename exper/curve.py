@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import learn,feats,exper.cats
+import learn,feats,exper.cats,files
 
 def acc_curve(vote_path,ord,binary=False,show=True):
     votes=selected_votes(vote_path,ord,binary)
@@ -13,7 +13,7 @@ def acc_curve(vote_path,ord,binary=False,show=True):
         title=title.replace(".._","").replace("votes","")
         voting_type= "HARD" if(binary) else "SOFT"
         title+=voting_type
-        show_curve(acc,len(results),title)
+        show_curve(acc,len(results),title,"test")
     return acc
 
 def selected_votes(vote_path,ord,binary=False):
@@ -21,12 +21,25 @@ def selected_votes(vote_path,ord,binary=False):
     if(binary):
         votes=[binarize(vote_i) for vote_i in votes]
     return [ votes[k] for k in ord]
-    
-def show_curve(acc,n_clf,vote_path):
-    plt.title(title)
+
+def all_curves(in_path,out_path,fun):
+    files.make_dir(out_path)
+    for path_i in files.top_files(in_path):
+        name_i=path_i.split('/')[-1]
+        acc_i=fun(path_i)
+        out_i="%s/%s" % (out_path,name_i)
+        n_clf=len(acc_i)
+        show_curve(acc_i,n_clf,name_i,out_i)
+
+def show_curve(acc,n_clf,name,out_path=None):
+    plt.title(name)
     plt.grid(True)
     plt.xlabel('number of classifiers')
     plt.ylabel('accuracy')
     plt.plot(range(1,n_clf+1), acc, color='red')
-    plt.show()
+    if(out_path):
+        plt.savefig(out_path)
+    else:    
+        plt.show()
+    plt.clf()
     return acc
