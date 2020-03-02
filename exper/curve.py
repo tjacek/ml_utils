@@ -22,6 +22,20 @@ def selected_votes(vote_path,ord,binary=False):
         votes=[binarize(vote_i) for vote_i in votes]
     return [ votes[k] for k in ord]
 
+def acc_to_csv(in_path,out_path,fun):
+    names,acc=[],[]
+    for path_i in files.top_files(in_path):
+        name_i=path_i.split('/')[-1]
+        names.append(name_i)
+        acc.append(fun(path_i))
+    acc=list(zip(*acc))
+    csv=",".join(names)+'\n'
+    for acc_i in acc:
+        csv+= ",".join(map(str,acc_i))+'\n'
+    file_str = open(out_path,'w')
+    file_str.write(csv)
+    file_str.close()
+
 def all_curves(in_path,out_path,fun):
     files.make_dir(out_path)
     for path_i in files.top_files(in_path):
