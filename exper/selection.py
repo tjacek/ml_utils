@@ -10,8 +10,8 @@ def acc_csv(in_path,out_path):
 def make_plots(in_path,out_path):        
     exper.curve.all_curves(in_path,out_path,get_acc)
 
-def get_acc(path_i):
-    ord_i=clf_selection(path_i,s_type="best")
+def get_acc(path_i,s_type="best"):
+    ord_i=clf_selection(path_i,s_type)
     data=feats.read_list(path_i) 
     votes=[data[ord_ij] for ord_ij in ord_i]
     n_clf=len(votes)

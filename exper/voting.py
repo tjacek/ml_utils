@@ -1,18 +1,5 @@
 import numpy as np
-from sklearn.metrics import classification_report,accuracy_score
 import files,feats,exper,learn
-
-class Ensemble(object):
-    def __init__(self,clf_type="LR"):
-        self.clf_type=clf_type
-
-    def __call__(self,hc_path,deep_paths,n_feats=None):
-        datasets=get_datasets(hc_path,deep_paths,n_feats)
-#        votes=predict(datasets,self.clf_type)
-        y_true,y_pred=predict(datasets,self.clf_type)
-        print(classification_report(y_true, y_pred,digits=4))
-        print(learn.show_errors(y_pred,y_true,datasets[0].info))
-        return accuracy_score(y_true,y_pred)
 
 def get_args_dict(path):
     return {'hc_path':None,'deep_paths':path,'n_feats':0}
