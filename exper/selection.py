@@ -12,13 +12,17 @@ def make_plots(in_path,out_path):
 
 def get_acc(path_i,s_type="best"):
     ord_i=clf_selection(path_i,s_type)
+    results=selected_voting(path_i)
+    return [accuracy_score(result_i[0],result_i[1]) 
+                for result_i in results]
+
+def selected_voting(path_i,clf_ord):
     data=feats.read_list(path_i) 
-    votes=[data[ord_ij] for ord_ij in ord_i]
+    votes=[data[ord_ij] for ord_ij in clf_ord]
     n_clf=len(votes)
     results=[exper.cats.voting(votes[:(i+1)],None) 
                 for i in range(n_clf)]
-    return [accuracy_score(result_i[0],result_i[1]) 
-                for result_i in results]
+    return results
 
 def clf_selection(in_path,s_type="best"):
     if(s_type=="best"):
@@ -39,19 +43,6 @@ def best_selection(in_path):
     print(clf_best)
     return np.flip(np.argsort(clf_best))
 
-#def var_selection(in_path):
-#    correct=exper.inspect.correct_votes(in_path,data="train")
-#    correct=correct.astype(float)
-#    for i in range(correct.shape[0]):
-#        correct[:,i]/=np.amax(correct[:,i])
-#    np.fill_diagonal(correct,0)
-#    print(correct)
-#    var=np.std(correct,axis=0)
-#    var-=np.mean(var)
-#    var/=np.std(var)
-#    var_cats=correct[:,(var>1)]
-#    result=np.mean(var_cats,axis=1)
-#    return np.flip(np.argsort(result))
 
 def min_max_selection(in_path):
     correct=exper.inspect.correct_votes(in_path,data="train")
