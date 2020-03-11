@@ -14,8 +14,7 @@ def make_plots(in_path,out_path):
 def get_acc(path_i):
     clf_ord=orth_selection(path_i)
     results=exper.selection.selected_voting(path_i,clf_ord)
-    return [accuracy_score(result_i[0],result_i[1]) 
-                for result_i in results]
+    return learn.acc_arr(results)
 
 def orth_selection(in_path):
     votes=feats.read_list(in_path)
@@ -44,7 +43,7 @@ def full_exper(hc_path,deep_paths,n_feats=500):
     full_data=get_datasets(hc_path,deep_paths,n_feats)
     prob=get_cat_dist(full_data)
     results=exper.selection.selected_voting(prob,clf_ord)
-    true_acc=[accuracy_score(result_i[0],result_i[1]) for result_i in results]
+    true_acc= learn.acc_arr(results)
     print(true_acc)
 
 def get_cat_dist(full_data):    
