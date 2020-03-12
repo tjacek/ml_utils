@@ -1,8 +1,8 @@
 import numpy as np,os.path,os
-import exper.cats,exper.selection,exper.inspect,learn,exper.curve
+import exper.cats,exper.selection,exper.inspect,exper.curve
 from sklearn.metrics import classification_report,accuracy_score
-from exper.ada_boost import ada_boost
-import files,feats
+from boost.ada_boost import ada_boost
+import files,feats,learn
 
 def exp(args,in_path,dir_path=None,clf="LR",train=True):
     if(dir_path):
@@ -11,24 +11,24 @@ def exp(args,in_path,dir_path=None,clf="LR",train=True):
         exper.cats.make_votes(args,in_path,clf_type=clf,train_data=True)
     exper.cats.adaptive_votes(in_path,binary=False)
 
-def show_acc_curve(in_path,dir_path=None,n_select=None):
-    if(dir_path):
-        in_path+="/"+dir_path
-    ord=exper.selection.clf_selection(in_path)
-    return exper.curve.acc_curve(in_path,ord)
+#def show_acc_curve(in_path,dir_path=None,n_select=None):
+#    if(dir_path):
+#        in_path+="/"+dir_path
+#    ord=exper.selection.clf_selection(in_path)
+#    return exper.curve.acc_curve(in_path,ord)
 
 def show_acc(in_path,dir_path=None):
     if(dir_path):
         in_path+="/"+dir_path
     print(exper.inspect.clf_acc(in_path))
 
-def selection_result(vote_path,n_select,out_path=None):
-    ord=exper.selection.clf_selection(vote_path)
-    votes=exper.cats.selected_votes(vote_path,ord,binary=False)
-    s_votes=votes[:n_select]
-    result=exper.cats.simple_voting(s_votes)
-    print(classification_report(result[1], result[0],digits=4))
-    learn.show_confusion(result,out_path)
+#def selection_result(vote_path,n_select,out_path=None):
+#    ord=exper.selection.clf_selection(vote_path)
+#    votes=exper.cats.selected_votes(vote_path,ord,binary=False)
+#    s_votes=votes[:n_select]
+#    result=exper.cats.simple_voting(s_votes)
+#    print(classification_report(result[1], result[0],digits=4))
+#    learn.show_confusion(result,out_path)
 
 def to_csv(in_path,out_path):
     def helper(path_i):
@@ -38,11 +38,12 @@ def to_csv(in_path,out_path):
 
 def selection_to_csv(in_path,out_path):
     def helper(path_i):
-        ord=exper.selection.clf_selection(path_i)
+        clf_ord=exper.selection.clf_selection(path_i)
         print(ord)
-        acc_i=exper.cats.acc_curve(path_i,ord,show=False)
+        results=exper.selection.selected_voting(path_i,clf_ord)
+        acc_i=learn.acc_arr(results)
         k=np.argmax(acc_i)
-        result_i=get_result(path_i,ord,k+1)
+        result_i=results[k]
         result_i=learn.compute_score(result_i[1],result_i[0])
         return "%d,%s" % (k,result_i)
     return to_csv_template(in_path,out_path,helper)
@@ -63,11 +64,6 @@ def to_csv_template(in_path,out_path,fun):
     file_str = open(out_path,'w')
     file_str.write(csv)
     file_str.close()
-
-def get_result(vote_path,ord,n_select):
-    votes=exper.cats.selected_votes(vote_path,ord,binary=False)
-    s_votes=votes[:n_select]
-    return exper.cats.simple_voting(s_votes)
 
 #def res_corl_matrix(in_path,out_path):
 #    if(os.path.isdir(in_path)):
