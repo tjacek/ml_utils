@@ -22,14 +22,6 @@ def show_acc(in_path,dir_path=None):
         in_path+="/"+dir_path
     print(exper.inspect.clf_acc(in_path))
 
-#def selection_result(vote_path,n_select,out_path=None):
-#    ord=exper.selection.clf_selection(vote_path)
-#    votes=exper.cats.selected_votes(vote_path,ord,binary=False)
-#    s_votes=votes[:n_select]
-#    result=exper.cats.simple_voting(s_votes)
-#    print(classification_report(result[1], result[0],digits=4))
-#    learn.show_confusion(result,out_path)
-
 def to_csv(in_path,out_path):
     def helper(path_i):
         stats=exper.cats.adaptive_votes(path_i,show=False) 
@@ -38,15 +30,18 @@ def to_csv(in_path,out_path):
 
 def selection_to_csv(in_path,out_path):
     def helper(path_i):
-        clf_ord=exper.selection.clf_selection(path_i)
-        print(ord)
-        results=exper.selection.selected_voting(path_i,clf_ord)
-        acc_i=learn.acc_arr(results)
-        k=np.argmax(acc_i)
-        result_i=results[k]
+        result_i=selection_result(path_i)
         result_i=learn.compute_score(result_i[1],result_i[0])
         return "%d,%s" % (k,result_i)
     return to_csv_template(in_path,out_path,helper)
+
+def selection_result(path_i):
+    clf_ord=exper.selection.clf_selection(path_i)
+    results=exper.selection.selected_voting(path_i,clf_ord)
+    acc_i=learn.acc_arr(results)
+    k=np.argmax(acc_i)
+    result_i=results[k]
+    return result_i
 
 def ada_to_csv(in_path,out_path):
     def helper(path_i):
@@ -65,14 +60,13 @@ def to_csv_template(in_path,out_path,fun):
     file_str.write(csv)
     file_str.close()
 
-#def res_corl_matrix(in_path,out_path):
-#    if(os.path.isdir(in_path)):
-#        files.make_dir(out_path) 
-#        for i,path_i in enumerate(files.top_files(in_path)):
-#            print(path_i)
-#            out_i=out_path+'/'+path_i.split("/")[-1]
-#            X=exper.selection.get_res_corelation(path_i)
-#            np.savetxt(out_i, X, fmt='%.2e', delimiter=',')
+def selection_conf(in_path,out_path):
+    files.make_dir(out_path) 
+    for i,path_i in enumerate(files.top_files(in_path)):
+        print(path_i)
+        result_i=selection_result(path_i)
+        out_i="%s/%s"% (out_path,path_i.split("/")[-1])
+        learn.show_confusion(result_i,out_i)
 
 #import exper.persons
 
