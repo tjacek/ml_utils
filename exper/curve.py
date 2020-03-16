@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import exper.selection
 import learn,feats,exper.cats,files
 
-
 def acc_curve(vote_path,ord,binary=False,show=True):
     acc=exper.selection.get_acc(vote_path)
     title=vote_path.split('/')[-1]

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
-import exper,exper.cats,filtr,feats
+import exper,exper.cats,filtr,feats,learn
 import exper.inspect,exper.curve
 
 def acc_csv(in_path,out_path):        
@@ -12,12 +12,23 @@ def make_plots(in_path,out_path):
 
 def get_acc(path_i,s_type="best"):
     ord_i=clf_selection(path_i,s_type)
-    results=selected_voting(path_i)
+    results=selected_voting(path_i,ord_i)
     return [accuracy_score(result_i[0],result_i[1]) 
                 for result_i in results]
 
+def selection_result(path_i):
+    clf_ord=clf_selection(path_i)
+    results=selected_voting(path_i,clf_ord)
+    acc_i=learn.acc_arr(results)
+    k=np.argmax(acc_i)
+    result_i=results[k]
+    return result_i
+
 def selected_voting(path_i,clf_ord):
-    data=feats.read_list(path_i) 
+    if(type(path_i)==str):
+        data=feats.read_list(path_i) 
+    else:
+        data=path_i
     votes=[data[ord_ij] for ord_ij in clf_ord]
     n_clf=len(votes)
     results=[exper.cats.voting(votes[:(i+1)],None) 
