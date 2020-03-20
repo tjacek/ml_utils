@@ -80,6 +80,10 @@ class FeatureSet(object):
         file_str.close()
 
 def read(in_path):
+    dataset_paths=get_paths(in_path)
+    return from_dict(unify_dict(dataset_paths))
+
+def get_paths(in_path):
     if(type(in_path)==list):
         dataset_paths=[]
         for path_i in in_path:
@@ -87,12 +91,14 @@ def read(in_path):
                 dataset_paths+=files.top_files(path_i)
             else:
                 dataset_paths.append(path_i)
-        return from_dict(unify_dict(dataset_paths))
-    data_dict=unify_dict(in_path) if(os.path.isdir(in_path)) else read_single(in_path)
-    return from_dict(data_dict)
+        return dataset_paths
+    if(os.path.isdir(in_path)):
+        return files.top_files(in_path)
+    return [in_path]
 
-def unify_dict(in_path):
-    paths= in_path if(type(in_path)==list) else  files.top_files(in_path)
+def unify_dict(paths):
+    if(len(paths)==1):
+        return read_single(paths[0])
     datasets=[ read_single(path_i) for path_i in paths]
     name_sets=[ set(data_i.keys()) for data_i in datasets ]
     common_names=name_sets[0]
