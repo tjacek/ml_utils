@@ -87,10 +87,7 @@ def get_paths(in_path):
     if(type(in_path)==list):
         dataset_paths=[]
         for path_i in in_path:
-            if(os.path.isdir(path_i)):
-                dataset_paths+=files.top_files(path_i)
-            else:
-                dataset_paths.append(path_i)
+            dataset_paths+=get_paths(path_i)
         return dataset_paths
     if(os.path.isdir(in_path)):
         return files.top_files(in_path)
