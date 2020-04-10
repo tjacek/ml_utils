@@ -9,7 +9,7 @@ def multiple_dataset(in_path):
     names=bottom_files(in_path,False)
     names=[clean_str(name_i) for name_i in names]
     if(not names):
-        raise Exception("No datasets at:"+in_path)
+        raise Exception("No datasets at:%s" %in_path)
     first=names[0]
     for name_i in names[1:]:  
         if(first==name_i):
