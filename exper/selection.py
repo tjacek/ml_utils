@@ -11,7 +11,10 @@ def make_plots(in_path,out_path):
     exper.curve.all_curves(in_path,out_path,get_acc)
 
 def get_acc(path_i,s_type="best"):
-    ord_i=clf_selection(path_i,s_type)
+    if(type(s_type)==list):
+        ord_i=s_type
+    else:
+        ord_i=clf_selection(path_i,s_type)
     results=selected_voting(path_i,ord_i)
     return [accuracy_score(result_i[0],result_i[1]) 
                 for result_i in results]

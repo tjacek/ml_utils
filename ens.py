@@ -8,16 +8,15 @@ def exp(args,in_path,dir_path=None,clf="LR",train=True):
     if(dir_path):
     	in_path+="/"+dir_path
     if(train):
-        exper.cats.make_votes(args,in_path,clf_type=clf,train_data=True)
+        exper.cats.make_votes(args,in_path,clf_type=clf,train_data=False)
     exper.cats.adaptive_votes(in_path,binary=False)
 
-def show_acc_curve(in_path):
-    clf_ord=exper.selection.clf_selection(in_path)
+def show_acc_curve(in_path,clf_ord=None):
+    if(not clf_ord):
+        clf_ord=exper.selection.clf_selection(in_path)
     return exper.curve.acc_curve(in_path,clf_ord)
 
-def show_acc(in_path,dir_path=None):
-    if(dir_path):
-        in_path+="/"+dir_path
+def show_acc(in_path,clf_ord=None):
     print(exper.inspect.clf_acc(in_path))
 
 def to_csv(in_path,out_path):

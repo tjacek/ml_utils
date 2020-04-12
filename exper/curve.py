@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import exper.selection
 import learn,feats,exper.cats,files
 
-def acc_curve(vote_path,ord,binary=False,show=True):
-    acc=exper.selection.get_acc(vote_path)
+def acc_curve(vote_path,clf_ord="best",binary=False,show=True):
+    acc=exper.selection.get_acc(vote_path,clf_ord)
     title=vote_path.split('/')[-1]
     show_curve(acc,len(acc),title)
     return acc
