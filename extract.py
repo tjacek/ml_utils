@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats
-import smooth
+#import smooth
 
 class Nonlinearity(object):
     def __init__(self,k=2,smoothing=None,epsilion=0.01):
