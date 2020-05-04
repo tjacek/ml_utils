@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics import accuracy_score
-import feats, exper.cats#,check
+import feats, exper.cats,exper.inspect
 
 def random_ensemble(in_path,n_cats=20,n=100):
     votes=feats.read_list(in_path)
@@ -15,6 +15,18 @@ def subsample(votes,k=5):
     acc=accuracy_score(result[0],result[1])
     return acc
 
-path_i="proj2/ens5/LR/stats_basic"
 
-random_ensemble(path_i,20)
+def total_errors(in_path):
+    votes=feats.read_list(in_path)
+    result=[get_result(vote_i)
+        for vote_i in votes]
+    print(result[0])
+
+def get_result(vote_i):
+    y_true,y_pred=exper.inspect.pred(vote_i)
+    return [ int(true_j==pred_j) 
+                for true_j,pred_j in zip(y_true,y_pred)]
+
+path_i="../result/ens5/LR/stats_basic"
+
+total_errors(path_i)
