@@ -15,12 +15,20 @@ def subsample(votes,k=5):
     acc=accuracy_score(result[0],result[1])
     return acc
 
-
-def total_errors(in_path):
+def absolute_errors(in_path):
     votes=feats.read_list(in_path)
+    names=votes[0].info
     result=[get_result(vote_i)
         for vote_i in votes]
-    print(result[0])
+    result=np.array(result)
+    result=np.sum(result,axis=0)
+    print(np.mean(result))
+    result= (result-np.mean(result))/np.std(result)
+    pairs=[ (name_i,value_i) 
+            for name_i,value_i in zip(names,result)
+              if(value_i<-1)]
+
+    print(list(zip(*pairs))[0])
 
 def get_result(vote_i):
     y_true,y_pred=exper.inspect.pred(vote_i)
@@ -29,4 +37,4 @@ def get_result(vote_i):
 
 path_i="../result/ens5/LR/stats_basic"
 
-total_errors(path_i)
+absolute_errors(path_i)
