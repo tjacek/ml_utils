@@ -45,9 +45,17 @@ def ens_each(vote_path):
         print(acc_i)
         acc.append(acc_i)
     acc=np.array(acc)
-#    raise Exception(acc.shape)
     plot.heat_map(acc,["x","y"])
 
+def ens_outliners(vote_path):
+    votes=feats.read_list(vote_path)
+    y_pred,y_true,names=exper.cats.voting(votes)
+    for vote_i in votes:
+        clf_i=exper.inspect.pred(vote_i)[1]
+        out_i=[ name_j for j,name_j in enumerate(names)
+                if( clf_i[j]==y_true[j] and clf_i[j]!=y_pred[j])]
+        print(out_i)
+
 path_i="../result/ens5/LR/stats_sim"
-path_i="../ens5/basic/LR"
-ens_each(path_i)
+path_i="../ens5/sim/LR"
+ens_outliners(path_i)
