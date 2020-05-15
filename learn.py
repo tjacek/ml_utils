@@ -63,3 +63,8 @@ def compute_score(y_true,y_pred,as_str=True):
 def acc_arr(results):
     return [accuracy_score(result_i[0],result_i[1]) 
                 for result_i in results]
+
+def each_acc(result):
+    cf=confusion_matrix(result[0],result[1])
+    cf=cf.astype('float') / cf.sum(axis=1)[:, np.newaxis]
+    return cf.diagonal()
