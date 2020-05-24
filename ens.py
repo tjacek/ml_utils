@@ -60,17 +60,3 @@ def cf_matrix(in_path,out_path,selection=True):
             result_i=exper.selection.selected_voting(path_i,clf_ord)[-1]
         out_i="%s/%s"% (out_path,path_i.split("/")[-1])
         learn.show_confusion(result_i,out_i)
-
-#import exper.persons
-
-#def unify_common(feat_path,out_path,n_feats):
-#    common=feats.read(feat_path)
-#    common.norm()
-#    if(n_feats>0):
-#        common=common.reduce(n_feats)
-#    train_i,test_i=common.split()
-#    test_votes=exper.persons.pred_vectors(train_i,test_i,"LR")  
-#    train_votes=exper.persons.pred_by_person(train_i,"LR")
-#    votes_dict=dict(train_votes+test_votes)   
-#    votes_feats=feats.from_dict(votes_dict)
-#    votes_feats.save(out_path)
