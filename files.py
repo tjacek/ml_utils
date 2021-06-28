@@ -44,15 +44,16 @@ def top_files(path):
     paths=sorted(paths,key=natural_keys)
     return paths
 
-def split(dict,selector=None):
+def split(dict,selector=None,pairs=True):
     if(not selector):
         selector=person_selector
     train,test=[],[]
     for name_i in dict.keys():
+        pair_i=(name_i,dict[name_i]) if(pairs) else name_i
         if(selector(name_i)):
-            train.append((name_i,dict[name_i]))
+            train.append(pair_i)
         else:
-            test.append((name_i,dict[name_i]))
+            test.append(pair_i)
     return train,test
 
 def person_selector(name_i):

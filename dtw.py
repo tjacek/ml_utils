@@ -1,7 +1,7 @@
 import numpy as np
 import json
 from dtaidistance import dtw, dtw_ndim
-import files,exp
+import files,exp,feats
 
 class DTWpairs(object):
     def __init__(self,pairs):
@@ -10,44 +10,29 @@ class DTWpairs(object):
     def keys(self):
         return self.pairs.keys()
 
-    def features(self,name_i,names):
-        return np.array([self.pairs[name_i][name_j]  
-                    for name_j in names])
- 	
-    def ordering(self,name_i,names):
-        dist_i=self.features(name_i,names)
-        return [names[i] for i in np.argsort(dist_i)]
+    def as_feats(self):
+        train,test=self.split()
+        def helper(name_i):
+            return [self.pairs[name_i][name_j]
+                        for name_j in train]
+        dtw_feats=feats.Feats()
+        for name_i in self.keys():
+            dtw_feats[name_i]=np.array(helper(name_i))
+        return dtw_feats
 
     def set(self,key1,key2,data_i):
         self.pairs[key1][key2]=data_i
 	
     def split(self,selector=None):
-        if(selector is None):
-            selector=files.person_selector
-        train,test=[],[]
-        for name_i in self.pairs.keys():
-            if(selector(name_i)):
-                train.append(name_i)
-            else:
-                test.append(name_i)
-        return train,test
-
-    def dist_matrix(self,names):
-        distance=[[ self[name_i][name_j] for name_i in names]
-                    for name_j in names]
-        return np.array(distance)
+        return files.split(self.pairs,selector,pairs=False)
 
     def save(self,out_path):
         with open('%s.txt' % out_path, 'w') as outfile:
             json.dump(self.pairs, outfile)
-#		with open(out_path, 'wb') as handle:
-#			pickle.dump(self, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def read(in_path):
-    pairs= json.load(open("%s.txt" % in_path))
+    pairs= json.load(open("%s" % in_path))
     return DTWpairs(pairs)
-#	with open(in_path, 'rb') as handle:
-#		return pickle.load(handle)
 
 def make_dtw_pairs(seqs):
 	pairs={ name_i:{name_i:0.0}
@@ -92,4 +77,8 @@ def make_pairwise_distance(seqs):
 	return dtw_pairs
 
 in_path="../MSR/max_z/seqs"
-compute_pairs(in_path)
+#compute_pairs(in_path)
+out_path="../MSR/max_z/pairs.txt"
+dict_i=read(out_path)
+feats_i=dict_i.as_feats()
+feats_i.save("../MSR/max_z/dtw.txt")
