@@ -1,78 +1,64 @@
-import files,filtr
-import numpy as np 
-import os,re
+import numpy as np
+import os.path
 from sklearn import preprocessing
-from sklearn.svm import SVC
-from sklearn.feature_selection import RFE
+import files
 
-class FeatureSet(object):
-    def __init__(self,X,info):
-        self.X=X
-        self.info=info
-
-    def __len__(self):
-        return len(self.info)
-
-    def __add__(self,feat_i):
-        if(self.X.shape[0]!=feat_i.X.shape[0]):
-            new_info=list(set(self.info).intersection(set(feat_i.info)))
-            new_info.sort()
-            a_dict,b_dict=self.to_dict(),feat_i.to_dict()
-            a_dict={ name_i:a_dict[name_i] for name_i in new_info}
-            b_dict={ name_i:b_dict[name_i] for name_i in new_info}
-            new_X=np.concatenate([from_dict(a_dict).X,from_dict(b_dict).X],axis=1)
-            return  FeatureSet(new_X,new_info)
-        new_X=np.concatenate([self.X,feat_i.X],axis=1)
-        return FeatureSet(new_X,self.info)
+class Feats(dict):
+    def __init__(self, arg=[]):
+        super(Feats, self).__init__(arg)
 
     def dim(self):
-        return self.X.shape[1]
+        return list(self.values())[0].shape
 
-    def n_cats(self):
-        return len(set(self.get_labels()))
+    def split(self,selector=None):
+        train,test=files.split(self,selector)
+        return Feats(train),Feats(test)
 
-    def get_labels(self):
-        return [ int(info_i.split('_')[0])-1 for info_i in self.info]
+    def as_dataset(self):
+        names=self.names()
+        return self.get_X(names),self.get_labels(names),names
 
-    def labels_array(self):
-        n_cats=self.n_cats()
-        cats=self.get_labels()
-        arr=[]
-        for cat_i in cats:
-            one_hot_i=np.zeros((n_cats,))
-            one_hot_i[cat_i-1]=1
-            arr.append(one_hot_i)
-        return np.array(arr)
+    def names(self):
+        return sorted(self.keys(),key=files.natural_keys) 
+    
+    def get_X(self,names=None):
+        if(names is None):
+            names=self.names()
+        return np.array([self[name_i] for name_i in names])
 
-    def to_dict(self):
-        return { self.info[i]:x_i 
-                    for i,x_i in enumerate(self.X)}
+    def get_labels(self,names=None):
+        if(names is None):
+            names=self.names()
+        return [ name_i.get_cat() for name_i in names]
+
+    def __add__(self,feat_i):
+        names=common_names(self.keys(),feat_i.keys())
+        names.sort()
+        new_feats=Feats()
+        for name_i in names:
+            x_i=np.concatenate([self[name_i],feat_i[name_i]],axis=0)
+            new_feats[name_i]=x_i
+        return new_feats
+
+    def rename(self,name_dict):
+        new_feats=Feats()
+        for name_i,name_j in name_dict.items():
+            new_feats[files.Name(name_j)]=self[name_i]
+        return new_feats
 
     def norm(self):
-        self.X=preprocessing.scale(self.X)
-    
-    def remove_nan(self):
-        self.X[np.isnan(self.X)]=0.0
+        names=self.names()
+        X=np.array([self[name_i] for name_i in names])
+        new_X=preprocessing.scale(X)
+        for i,name_i in enumerate(names):
+            self[name_i]=new_X[i]
 
-    def reduce(self,n=100):
-        if(self.dim()>n and n!=0):
-            print("Old dim %d" % self.dim())
-            svc = SVC(kernel='linear',C=1)
-            rfe = RFE(estimator=svc,n_features_to_select=n,step=10)
-            rfe.fit(self.X,self.get_labels())
-            self.X= rfe.transform(self.X)
-            print("New dim %d" % self.dim())
-        return self
-    
-    def split(self,selector=None):
-        feat_dict=self.to_dict()
-        train,test=filtr.split(feat_dict,selector)
-        return from_dict(train),from_dict(test)
-
-    def save(self,out_path,decimals=4):
-        lines=[ np.array2string(x_i,separator=",",precision=decimals) for x_i in self.X]
-        lines=[ line_i.replace('\n',"")+'#'+info_i 
-                    for line_i,info_i in zip(lines,self.info)]
+    def save(self,out_path,decimals=10):
+        lines=[]
+        for name_i,x_i in self.items():
+            str_i=np.array2string(x_i,separator=",",precision=decimals)
+            line_i="%s#%s" % (str_i.replace('\n',""),name_i)
+            lines.append(line_i)
         feat_txt='\n'.join(lines)
         feat_txt=feat_txt.replace('[','').replace(']','')
         file_str = open(out_path,'w')
@@ -80,30 +66,12 @@ class FeatureSet(object):
         file_str.close()
 
 def read(in_path):
-    dataset_paths=get_paths(in_path)
-    return from_dict(unify_dict(dataset_paths))
-
-def get_paths(in_path):
     if(type(in_path)==list):
-        dataset_paths=[]
-        for path_i in in_path:
-            dataset_paths+=get_paths(path_i)
-        return dataset_paths
-    if(os.path.isdir(in_path)):
-        return files.top_files(in_path)
-    return [in_path]
-
-def unify_dict(paths):
-    if(len(paths)==1):
-        return read_single(paths[0])
-    datasets=[ read_single(path_i) for path_i in paths]
-    name_sets=[ set(data_i.keys()) for data_i in datasets ]
-    common_names=name_sets[0]
-    for set_i in name_sets[1:]:
-        common_names=common_names.intersection(set_i)
-    def unify_helper(name_i):
-        return np.concatenate([data_i[name_i] for data_i in datasets])
-    return { name_i:unify_helper(name_i) for name_i in common_names}
+        return [read_unified(in_path)]
+    if(not os.path.isdir(in_path)):
+        return [read_single(in_path)]
+    return [read_single(path_i) 
+                for path_i in files.top_files(in_path)]
 
 def read_single(in_path):
     lines=open(in_path,'r').readlines()
@@ -112,26 +80,19 @@ def read_single(in_path):
         raw=line_i.split('#')
         if(len(raw)>1):
             data_i,info_i=raw[0],raw[-1]
-            info_i= files.clean_str(info_i)
-            feat_dict[info_i]=np.fromstring(data_i,sep=',')
-    return feat_dict
+            info_i= files.Name(info_i).clean()
+            x_i=np.fromstring(data_i,sep=',')
+            x_i=np.nan_to_num(x_i,nan=0.0,posinf=0.0, neginf=0.0)
+            feat_dict[info_i]=x_i
+    return Feats(feat_dict)
 
-def from_dict(feat_dict):
-    info=files.natural_sort(feat_dict.keys())
-    X=np.array([feat_dict[info_i] 
-                    for info_i in info])
-    return FeatureSet(X,info)
-
-def read_list(in_path):
-    if(not os.path.isdir(in_path)):
-        return [from_dict(read_single(in_path))]
-    return [from_dict(read_single(path_i)) 
-                for path_i in files.top_files(in_path)]
-
-def unify(datasets):
-    if(len(datasets)<2):
-        return datasets[0]
-    unified_dict=datasets[0]
+def read_unified(paths):
+    datasets=[read_single(path_i) 
+                for path_i in paths]
+    full_data=datasets[0]
     for data_i in datasets[1:]:
-        unified_dict+=data_i
-    return unified_dict
+        full_data+=data_i
+    return full_data
+
+def common_names(names1,names2):
+    return list(set(names1).intersection(set(names2)))

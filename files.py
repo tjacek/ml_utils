@@ -1,42 +1,36 @@
-import os,os.path,re
+import os,re#,itertools
 
-def top_files(in_path):
-    paths=[in_path+'/'+path_i for path_i in os.listdir(in_path)]
-    paths=sorted(paths,key=natural_keys)
-    return paths
+class Name(str):
+    def __new__(cls, p_string):
+        return str.__new__(cls, p_string)
 
-def multiple_dataset(in_path):
-    names=bottom_files(in_path,False)
-    names=[clean_str(name_i) for name_i in names]
-    if(not names):
-        raise Exception("No datasets at:%s" %in_path)
-    first=names[0]
-    for name_i in names[1:]:  
-        if(first==name_i):
-            return True
-    return False
+    def clean(self):
+        digits=[ str(int(digit_i)) 
+                for digit_i in re.findall(r'\d+',self)]
+        return Name("_".join(digits))
 
-def clean_str(name_i):
-    #name_i=re.sub(r'^_\D0','',name_i.strip())
-    #name_i=re.sub(r0','',name_i.strip())
-    digits=[ str(int(digit_i)) for digit_i in re.findall(r'\d+',name_i)]
-    return "_".join(digits)
+    def get_cat(self):
+        return int(self.split('_')[0])-1
 
-def bottom_files(path,full_paths=True):
-    all_paths=[]
-    for root, directories, filenames in os.walk(path):
-        if(not directories):
-            for filename_i in filenames:
-                path_i= root+'/'+filename_i if(full_paths) else filename_i
-                all_paths.append(path_i)
-    all_paths.sort(key=natural_keys)        
-    return all_paths
+    def get_person(self):
+        return int(self.split('_')[1])
+
+    def subname(self,k):
+        subname_k="_".join(self.split("_")[:k])
+        return Name(subname_k)
+
+class SetSelector(object):
+    def __init__(self,names):
+        self.train=set(names)
+
+    def __call__(self,name_i):
+        return name_i in self.train
 
 def natural_sort(l):
     return sorted(l,key=natural_keys)
 
 def natural_keys(text):
-    return [ atoi(c) for c in re.split('(\d+)', text) ]
+    return [ atoi(c) for c in re.split('(\d+)', text)]
 
 def atoi(text):
     return int(text) if text.isdigit() else text
@@ -45,13 +39,33 @@ def make_dir(path):
     if(not os.path.isdir(path)):
         os.mkdir(path)
 
-def chain_dir(in_path):
-    dir_path=os.path.split(in_path)[0]
-    make_dir(dir_path)
-    make_dir(in_path)
+def top_files(path):
+    paths=[ path+'/'+file_i for file_i in os.listdir(path)]
+    paths=sorted(paths,key=natural_keys)
+    return paths
 
-def read_file(path):
-    file_object = open(path,'r')
-    lines=file_object.readlines()
-    file_object.close()
-    return lines
+def split(dict,selector=None):
+    if(not selector):
+        selector=person_selector
+    train,test=[],[]
+    for name_i in dict.keys():
+        if(selector(name_i)):
+            train.append((name_i,dict[name_i]))
+        else:
+            test.append((name_i,dict[name_i]))
+    return train,test
+
+def person_selector(name_i):
+    person_i=int(name_i.split('_')[1])
+    return person_i%2==1
+
+def get_paths(in_path,name="dtw"):
+    return ["%s/%s" % (path_i,name) 
+                for path_i in top_files(in_path)]
+
+def save_txt(text,out_path):
+    if(type(text)==list):
+        text="\n".join(text)
+    file1 = open(out_path,"w")   
+    file1.write(text) 
+    file1.close()

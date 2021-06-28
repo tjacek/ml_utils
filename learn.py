@@ -1,24 +1,112 @@
 import numpy as np
-import pandas as pd
+from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
+from sklearn.metrics import classification_report,accuracy_score
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import precision_recall_fscore_support,accuracy_score
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
-import plot
+import feats
+
+class Result(object):
+    def __init__(self,y_true,y_pred,names):
+        if(type(y_pred)==list):
+            y_pred=np.array(y_pred)
+        self.y_true=y_true
+        self.y_pred=y_pred
+        self.names=names
+
+    def n_cats(self):
+        votes=self.as_numpy()
+        return votes.shape[1]
+
+    def as_numpy(self):
+        if(self.y_pred.ndim==2):
+            return self.y_pred
+        else:           
+            print(len(self.y_pred))
+            n_cats=np.amax(self.y_true)+1
+            votes=np.zeros((len(self.y_true),n_cats))
+            for  i,vote_i in enumerate(self.y_pred):
+                votes[i,vote_i]=1
+            return votes
+    
+    def as_labels(self):
+        if(self.y_pred.ndim==2):
+            pred=np.argmax(self.y_pred,axis=1)
+        else:
+            pred=self.y_pred
+        return self.y_true,pred
+
+    def as_hard_votes(self):
+        hard_pred=[]
+        n_cats=self.n_cats()
+        for y_i in self.y_pred:
+            hard_i=np.zeros((n_cats,))
+            hard_i[np.argmax(y_i)]=1
+            hard_pred.append(hard_i)
+        return np.array(hard_pred)
+   
+    def get_cf(self,out_path=None):
+        y_true,y_pred=self.as_labels()
+        cf_matrix=confusion_matrix(y_true,y_pred)
+        if(out_path):
+            np.savetxt(out_path,cf_matrix,delimiter=",",fmt='%.2e')
+        return cf_matrix
+
+    def true_one_hot(self):
+        return to_one_hot(self.y_true,self.n_cats())
+
+    def get_acc(self):
+        y_true,y_pred=self.as_labels()
+        return accuracy_score(y_true,y_pred)
+
+    def report(self):
+        y_true,y_pred=self.as_labels()
+        print(classification_report(y_true, y_pred,digits=4))
+
+    def metrics(self):
+        y_true,y_pred=self.as_labels()
+        return precision_recall_fscore_support(y_true,y_pred,average='weighted')
+
+    def get_errors(self):
+        errors=[]
+        y_true,y_pred=self.as_labels()
+        for i,y_i in enumerate(y_true):
+            if(y_i!=y_pred[i]):
+                errors.append( (y_i,y_pred[i],self.names[i]))
+        return errors
+    
+    def save(self,out_path):
+        with open(out_path, 'wb') as out_file:
+            pickle.dump(self, out_file)
+
+def train_model(data,binary=False,clf_type="LR",selector=None):
+    if(type(data)==str):    
+        data=feats.read(data)[0]
+    data.norm()
+    print(data.dim())
+    print(len(data))
+    train,test=data.split(selector)
+    model=make_model(train,clf_type)
+    X_test,y_true=test.get_X(),test.get_labels()
+    if(binary):
+        y_pred=model.predict(X_test)
+    else:
+        y_pred=model.predict_proba(X_test)
+    return Result(y_true,y_pred,test.names())
+
+def make_model(train,clf_type):
+    model= get_cls(clf_type)
+    X_train,y_train= train.get_X(),train.get_labels()
+    model.fit(X_train,y_train)
+    return model
 
 def get_cls(clf_type):
     if(clf_type=="SVC"):
         print("SVC")
         return make_SVC()
-    elif(clf_type=="MLP"):
-        print("MLP")
-        return make_mlp()
     else:
         print("LR")
-        return LogisticRegression(solver='liblinear')#max_iter=1000)
+        return LogisticRegression(solver='liblinear')
 
 def make_SVC():
     params=[{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],'C': [1, 10, 50,110, 1000]},
@@ -26,45 +114,14 @@ def make_SVC():
     clf = GridSearchCV(SVC(C=1,probability=True),params, cv=5,scoring='accuracy')
     return clf
 
-def make_mlp():
-    return MLPClassifier(alpha=1, max_iter=1000)
+def to_one_hot(y,n_cats):
+    one_hot=[]
+    for y_i in y:
+        one_hot.append(np.zeros((n_cats,)))
+        one_hot[-1][y_i]=1.0
+    return np.array(one_hot)
 
-def show_result(y_pred,y_true=None,names=None):
-    if((not y_true) or (not names)):
-        y_pred,y_true,names=y_pred
-    print(classification_report(y_true, y_pred,digits=4))
-    print(show_errors(y_pred,y_true,names))
-    
-def show_confusion(result,out_path=None):
-    cf_matrix=confusion_matrix(result[0],result[1])
-    cf_matrix=pd.DataFrame(cf_matrix,index=range(cf_matrix.shape[0]))
-    if(out_path):
-        np.savetxt(out_path,cf_matrix,delimiter=",",fmt='%.2e')
-    else:
-        labels=["predicted labels","true labels"]
-        plot.heat_map(cf_matrix,labels)
 
-def show_errors(y_pred,y_true,names):
-    errors= [ pred_i!=true_i 
-            for pred_i,true_i in zip(y_pred,y_true)]
-    error_names=[ (names[i],y_pred[i])
-                  for i,error_i in enumerate(errors)
-                    if(error_i)]
-    return error_names
-
-def compute_score(y_true,y_pred,as_str=True):
-    precision,recall,f1,support=precision_recall_fscore_support(y_true,y_pred,average='weighted')
-    accuracy=accuracy_score(y_true,y_pred)
-    if(as_str):
-        return "%0.4f,%0.4f,%0.4f,%0.4f" % (accuracy,precision,recall,f1)
-    else:
-        return (accuracy,precision,recall,f1)
-
-def acc_arr(results):
-    return [accuracy_score(result_i[0],result_i[1]) 
-                for result_i in results]
-
-def each_acc(result):
-    cf=confusion_matrix(result[0],result[1])
-    cf=cf.astype('float') / cf.sum(axis=1)[:, np.newaxis]
-    return cf.diagonal()
+if __name__ == "__main__":
+    result=train_model("1D_CNN/feats")
+    result.report()

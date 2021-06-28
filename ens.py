@@ -1,62 +1,72 @@
-import numpy as np,os.path,os
-import exper.cats,exper.selection,exper.inspect,exper.curve
-from sklearn.metrics import classification_report,accuracy_score
-from boost.ada_boost import ada_boost
-import files,feats,learn
+import numpy as np
+import learn,feats
 
-def exp(args,in_path,dir_path=None,clf="LR",train=True):
-    if(dir_path):
-    	in_path+="/"+dir_path
-    if(train):
-        exper.cats.make_votes(args,in_path,clf_type=clf,train_data=False)
-    exper.cats.adaptive_votes(in_path,binary=False)
+class Ensemble(object):
+    def __init__(self,read=None,transform=None):
+        if(read is None):
+            read=read_dataset
+        self.transform=transform
+        self.read=read
 
-def show_acc_curve(in_path,clf_ord=None):
-    if(not clf_ord):
-        clf_ord=exper.selection.clf_selection(in_path)
-    return exper.curve.acc_curve(in_path,clf_ord)
+    def __call__(self,paths,binary=False,clf="LR",s_clf=None):
+        votes,datasets=self.make_votes(self,paths,clf)
+        if(s_clf):
+            votes=Votes([votes.results[i] for i in s_clf])
+        result=votes.voting(binary)
+        print(result.get_acc()) 
+        return result,votes
 
-def show_acc(in_path,clf_ord=None):
-    print(exper.inspect.clf_acc(in_path))
+    def make_votes(self,paths,clf):
+        datasets=self.get_datasets(paths)
+        results=[learn.train_model(data_i,clf_type=clf,binary=False)
+                    for data_i in datasets]
+        votes=Votes(results)   
+        return votes,datasets
 
-def to_csv(in_path,out_path):
-    def helper(path_i):
-        stats=exper.cats.adaptive_votes(path_i,show=False) 
-        return "ALL,"+stats
-    return to_csv_template(in_path,out_path,helper)
+    def get_datasets(self,paths):
+        datasets=self.read(paths["common"],paths["binary"])
+        if(self.transform):
+            datasets=[self.transform(data_i)  for data_i in datasets]
+        return datasets
 
-def selection_to_csv(in_path,out_path):
-    def helper(path_i):
-        result_i=selection_result(path_i)
-        result_i=learn.compute_score(result_i[1],result_i[0])
-        return "%d,%s" % (k,result_i)
-    return to_csv_template(in_path,out_path,helper)
+class Votes(object):
+    def __init__(self,results):
+        self.results=results
 
-def ada_to_csv(in_path,out_path):
-    def helper(path_i):
-        y_true,y_pred,names=ada_boost(path_i,show=False)
-        stats=learn.compute_score(y_true,y_pred,as_str=True)
-        print(stats)
-        return "ALL,"+stats
-    return to_csv_template(in_path,out_path,helper)
+    def __len__(self):
+        return len(self.results)
 
-def to_csv_template(in_path,out_path,fun):
-    csv='name,n_clfs,accuracy,precision,recall,f1\n'
-    for path_i in files.top_files(in_path):
-        result_i=fun(path_i)
-        csv+= "%s,%s,\n"% (path_i.split("/")[-1],result_i)
-    file_str = open(out_path,'w')
-    file_str.write(csv)
-    file_str.close()
-
-def cf_matrix(in_path,out_path,selection=True):
-    files.make_dir(out_path) 
-    for i,path_i in enumerate(files.top_files(in_path)):
-        print(path_i)
-        if(selection):
-            result_i=exper.selection.selection_result(path_i)
+    def voting(self,binary=False):
+        if(binary):
+            votes=np.array([ result_i.as_hard_votes() 
+                    for result_i in self.results])
         else:
-            clf_ord=exper.selection.clf_selection(path_i)
-            result_i=exper.selection.selected_voting(path_i,clf_ord)[-1]
-        out_i="%s/%s"% (out_path,path_i.split("/")[-1])
-        learn.show_confusion(result_i,out_i)
+            votes=np.array([ result_i.as_numpy() 
+                    for result_i in self.results])
+        votes=np.sum(votes,axis=0)
+        return learn.Result(self.results[0].y_true,votes,self.results[0].names)
+
+    def weighted(self,weights):
+        votes=np.array([ weight_i*result_i.as_numpy() 
+                    for weight_i,result_i in zip(weights,self.results)])
+        votes=np.sum(votes,axis=0)
+        return learn.Result(self.results[0].y_true,votes,self.results[0].names)
+
+def read_dataset(common_path,deep_path):
+    if(not common_path):
+        return read_deep(deep_path)#feats.read(deep_path)
+    if(not deep_path):
+        return feats.read(common_path)
+    common_data=feats.read(common_path)[0]
+    deep_data=read_deep(deep_path)
+    datasets=[common_data+ data_i 
+                for data_i in deep_data]
+    return datasets
+
+def read_deep(deep_path):
+    if(type(deep_path)==list):
+        datasets=[]
+        for deep_i in deep_path:
+            datasets+=feats.read(deep_i)
+        return datasets
+    return feats.read(deep_path)
