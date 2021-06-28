@@ -1,117 +1,95 @@
 import numpy as np
-import pickle
-import unify,filtr,feats
+import json
+from dtaidistance import dtw, dtw_ndim
+import files,exp
 
-class DTWPairs(object):
+class DTWpairs(object):
     def __init__(self,pairs):
         self.pairs=pairs
-    
-    def names(self):
-        all_names=self.pairs.keys()
-        train,test=filtr.split(all_names)
-        return all_names,train,test
 
-    def to_features(self):
-        all_names,train,test=self.names()
-        def dtw_helper(name_i):
-            return np.array([ self.pairs[name_i][name_j] 
-                                for name_j in train])
-        feat_dict={name_i:dtw_helper(name_i) for name_i in all_names} 
-        return feats.from_dict(feat_dict) 
+    def keys(self):
+        return self.pairs.keys()
 
-    def distances(self,test,train):
-        dist=[[self.pairs[name_i][name_j] 
-                for name_i in test]
-                    for name_j in train]
-        return np.array(dist)
+    def features(self,name_i,names):
+        return np.array([self.pairs[name_i][name_j]  
+                    for name_j in names])
+ 	
+    def ordering(self,name_i,names):
+        dist_i=self.features(name_i,names)
+        return [names[i] for i in np.argsort(dist_i)]
+
+    def set(self,key1,key2,data_i):
+        self.pairs[key1][key2]=data_i
+	
+    def split(self,selector=None):
+        if(selector is None):
+            selector=files.person_selector
+        train,test=[],[]
+        for name_i in self.pairs.keys():
+            if(selector(name_i)):
+                train.append(name_i)
+            else:
+                test.append(name_i)
+        return train,test
+
+    def dist_matrix(self,names):
+        distance=[[ self[name_i][name_j] for name_i in names]
+                    for name_j in names]
+        return np.array(distance)
 
     def save(self,out_path):
-    	with open(out_path, 'wb') as handle:
-            pickle.dump(self.pairs, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-
-def make_dtw_feats(dir_path,name):
-    seq_path=dir_path+ "/seqs/"+name
-    pair_path=dir_path+ "/pairs/"+name
-    dtw_path=dir_path+ "/dtw/"+name
-    ts_dataset=unify.read(seq_path)
-    make_pairwise_distance(ts_dataset).save(pair_path)
-    dtw_pairs=read(pair_path)
-    dtw_feats=dtw_pairs.to_features()
-    dtw_feats.save(dtw_path)
-
-def mean_dtw(dir_path,name):
-    pair_path=dir_path+ "/pairs/"+name
-    mean_path=dir_path+ "/mean/"+name
-    dtw_pairs=read(pair_path)
-    all_names,train,test=dtw_pairs.names()
-    train=filtr.by_cat(train)
-    dtw_feats=[np.mean(dtw_pairs.distances(cat_i,all_names),axis=1)
-                    for i,cat_i in train.items()]
-    dtw_feats=np.array(dtw_feats).T
-    dtw_feats=feats.FeatureSet(dtw_feats,all_names)
-    dtw_feats.save(mean_path)        
-#def mean_distances(pair_path,out_path):
-#    pairs=read(pair_path)
-#    all_names,train,test=pairs.names()
-#    train,test=filtr.by_cat(train),filtr.by_cat(test)
-#    cats=train.keys()
-#    dist=[[np.mean(pairs.distances(test[cat_j],train[cat_i]))
-#            for cat_j in cats]
-#                for cat_i in cats]
-#    dist=np.array(dist)
-#    np.savetxt(out_path, dist, fmt='%.2e',delimiter=',')
+        with open('%s.txt' % out_path, 'w') as outfile:
+            json.dump(self.pairs, outfile)
+#		with open(out_path, 'wb') as handle:
+#			pickle.dump(self, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def read(in_path):
-    with open(in_path, 'rb') as handle:
-        return DTWPairs(pickle.load(handle))
+    pairs= json.load(open("%s.txt" % in_path))
+    return DTWpairs(pairs)
+#	with open(in_path, 'rb') as handle:
+#		return pickle.load(handle)
 
-def make_pairwise_distance(ts_dataset):
-    names=list(ts_dataset.ts_names())
-    n_ts=len(names)   
-    pairs_dict={ name_i:{name_i:0.0}
-                    for name_i in names}
-    for i in range(1,n_ts):
-        print(i)
-        for j in range(0,i):
-            name_i,name_j=names[i],names[j]
-            distance_ij=dtw_metric(ts_dataset[name_i],ts_dataset[name_j])
-            pairs_dict[name_i][name_j]=distance_ij
-            pairs_dict[name_j][name_i]=distance_ij
-    return DTWPairs(pairs_dict)
+def make_dtw_pairs(seqs):
+	pairs={ name_i:{name_i:0.0}
+				for name_i in seqs.keys()}
+	return DTWpairs(pairs)
 
-def dtw_metric(s,t):
-    dtw,n,m=prepare_matrix(s,t)
-    for i in range(1,n+1):
-        for j in range(1,m+1):
-            t_i,t_j=s[i-1],t[j-1]
-            diff=t_i-t_j
-            cost= np.dot(diff,diff)          
-            dtw[i][j]=cost+min([dtw[i-1][j],dtw[i][j-1],dtw[i-1][j-1]])
-    return np.sqrt(dtw[n][m])
+class Seqs(dict):
+	def __init__(self, arg=[]):
+		super(Seqs, self).__init__(arg)
 
-def prepare_matrix(s,t):
-    n=len(s)
-    m=len(t)
-    cost_matrix=np.zeros((n+1,m+1),dtype=float)
-    for i in range(1,n+1):
-        cost_matrix[i][0]=np.inf
-    for i in range(1,m+1):
-        cost_matrix[0][i]=np.inf
-    return cost_matrix,n,m
+	def split(self):
+		train,test=files.split(self)
+		return Seqs(train),Seqs(test)
 
-def metric_matrix(ts_list):
-    n_size=len(ts_list)
-    metric_arr=np.zeros((n_size,n_size))
-    for i in range(n_size):
-        metric_arr[i][i]=np.inf
-    for i in range(1,n_size):
-        for j in range(0,i):
-            metric_arr[i][j]=dtw_metric(ts_list[i],ts_list[j])
-            metric_arr[j][i]=metric_arr[i][j]
-    return metric_arr
+def compute_pairs(in_path,out_path=None):
+    if(out_path is None):
+        out_path=exp.get_out_path(in_path,"pairs")
+    seqs=read_seqs(in_path)
+    pairs=make_pairwise_distance(seqs)
+    pairs.save(out_path)
 
-if __name__ == "__main__":
-    name='skew'
-    mean_dtw("../MSR",name)
-#    mean_distances("../MSR/pairs/skew","../ml_demo/distance_dtw/raw/MSR/skew")
+def read_seqs(in_path):
+	seqs=Seqs()
+	for path_i in files.top_files(in_path):
+		data_i=np.loadtxt(path_i, delimiter=',')
+		name_i=path_i.split('/')[-1]
+		name_i=files.Name(name_i).clean()#clean(name_i)
+		seqs[name_i]=data_i
+	return seqs
+
+def make_pairwise_distance(seqs):
+	dtw_pairs=make_dtw_pairs(seqs)
+	names=list(seqs.keys())
+	n_ts=len(names)
+	for i in range(1,n_ts):
+		print(i)
+		for j in range(0,i):
+			name_i,name_j=names[i],names[j]
+			distance_ij=dtw_ndim.distance(seqs[name_i],seqs[name_j])
+			dtw_pairs.set(name_i,name_j,distance_ij)
+			dtw_pairs.set(name_j,name_i,distance_ij)
+	return dtw_pairs
+
+in_path="../MSR/max_z/seqs"
+compute_pairs(in_path)
