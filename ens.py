@@ -9,7 +9,7 @@ class Ensemble(object):
         self.read=read
 
     def __call__(self,paths,binary=False,clf="LR",s_clf=None):
-        votes,datasets=self.make_votes(self,paths,clf)
+        votes,datasets=self.make_votes(paths,clf)
         if(s_clf):
             votes=Votes([votes.results[i] for i in s_clf])
         result=votes.voting(binary)
@@ -52,6 +52,9 @@ class Votes(object):
         votes=np.sum(votes,axis=0)
         return learn.Result(self.results[0].y_true,votes,self.results[0].names)
 
+    def get_acc(self):
+        return [ result_i.get_acc() for result_i in self.results]
+
 def read_dataset(common_path,deep_path):
     if(not common_path):
         return read_deep(deep_path)#feats.read(deep_path)
@@ -70,3 +73,10 @@ def read_deep(deep_path):
             datasets+=feats.read(deep_i)
         return datasets
     return feats.read(deep_path)
+
+if __name__ == "__main__":
+    ensemble=Ensemble()
+    binary="../MSR/corl/n_feats"
+    paths={"common":None,"binary":binary}
+    votes=ensemble(paths)[1]
+    print(votes.get_acc())

@@ -1,11 +1,11 @@
 from tslearn.shapelets import LearningShapelets
-import seqs,feats
+import files,seqs,feats
 
-def compute_shaplets(in_path,out_path):
+def compute_shaplets(in_path,out_path,n_feats=40):
     ts=seqs.read_seqs(in_path)
     ts.resize(64)
     train,test=ts.split()
-    model = LearningShapelets(n_shapelets_per_size={3: 40})
+    model = LearningShapelets(n_shapelets_per_size={3: n_feats})
     train_X,train_y,train_names=train.as_dataset()
     model.fit(train_X,train_y)
     X,y,names=ts.as_dataset()
@@ -17,6 +17,13 @@ def compute_shaplets(in_path,out_path):
         print(x_i.shape)	
     dist_feat.save(out_path)
 
-in_path="../MSR/max_z/seqs"
-out_path="../MSR/max_z/shape"
-compute_shaplets(in_path,out_path)
+def feat_exp(in_path,out_path,n=20,step=10):
+    files.make_dir(out_path)
+    for i in range(1,n+1):
+    	n_feats=i*step
+        out_i="%s/%d" % (out_path,n_feats)	
+        compute_shaplets(in_path,out_i,n_feats= n_feats)	
+
+in_path="../MSR/corl/seqs"
+out_path="../MSR/corl/n_feats"
+feat_exp(in_path,out_path)
