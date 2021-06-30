@@ -24,3 +24,24 @@ def get_metrics(result_i):
 	acc_i= result_i.get_acc()
 	metrics="%.4f,%.4f,%.4f" % result_i.metrics()[:3]
 	return "%.4f,%s" % (acc_i,metrics)
+
+def get_out_path(in_path,name):
+    dir_path="_".join(in_path.split("/")[:-1])
+    return "%s/%s" % (in_path,name)
+
+def fill_template(template,elements):
+    tuples=[]  
+    for element_i in elements:
+        if(tuples):
+            if(type(element_i)==str):
+                for tuple_i in tuples:
+                    tuple_i.append(element_i)
+            else:
+                tuples=[ tuple_i+[element_j] 
+                            for tuple_i in tuples
+                                for element_j in element_i]
+        else:
+            if(type(element_i)==str):
+                element_i=[element_i]
+            tuples.append(element_i)
+    return [ template % tuple(tuple_i) for tuple_i in tuples]

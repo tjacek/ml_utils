@@ -76,7 +76,9 @@ def read_deep(deep_path):
 
 if __name__ == "__main__":
     ensemble=Ensemble()
-    binary="../MSR/corl/n_feats"
+    binary="../MHAD/corl/n_feats"
     paths={"common":None,"binary":binary}
     votes=ensemble(paths)[1]
-    print(votes.get_acc())
+    acc=votes.get_acc()
+    print(acc)
+    print(np.argmax(acc))

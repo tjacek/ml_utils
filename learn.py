@@ -80,7 +80,7 @@ class Result(object):
             pickle.dump(self, out_file)
 
 def train_model(data,binary=False,clf_type="LR",selector=None):
-    if(type(data)==str):    
+    if(type(data)==str or type(data)==list):    
         data=feats.read(data)[0]
     data.norm()
     print(data.dim())
@@ -123,5 +123,9 @@ def to_one_hot(y,n_cats):
 
 
 if __name__ == "__main__":
-    result=train_model("1D_CNN/feats")
+    dataset="../MHAD"
+    in_path=["%s/max_z/dtw/feats" % dataset,
+             "%s/corl/dtw/feats" % dataset]
+    result=train_model(in_path)
     result.report()
+    print(result.get_acc())
