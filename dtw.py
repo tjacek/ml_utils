@@ -57,7 +57,10 @@ def make_pairwise_distance(ts):
 		print(i)
 		for j in range(0,i):
 			name_i,name_j=names[i],names[j]
-			distance_ij=dtw_ndim.distance(seqs[name_i],seqs[name_j])
+			distance_ij=dtw_ndim.distance(ts[name_i],ts[name_j])
 			dtw_pairs.set(name_i,name_j,distance_ij)
 			dtw_pairs.set(name_j,name_i,distance_ij)
 	return dtw_pairs
+
+in_path="../3DHOI/max_z/seqs"
+compute_pairs(in_path)

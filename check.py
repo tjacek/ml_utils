@@ -1,50 +1,8 @@
 import numpy as np,os
-import files,dataset
-import exper.inspect
-from exper.selection import get_acc
+import feats
 
-def sparse_feats(in_path):
-    seqs=[ dataset.read_dataset(path_i) 
-            for path_i in files.top_files(in_path)]
-    feat=[np.sum(np.abs(seq_i.to_array()),axis=0)
-            for seq_i in seqs]
-    for feat_i in feat:
-        threshold(feat_i)
+def check_feats(in_path):
+    feat_dict=feats.read(in_path)[0]
+    print("size:%d,dim:%d" % (len(feat_dict),feat_dict.dim()[0]))
 
-def threshold(feat_i):
-    feat_i[feat_i<1]=0.0
-    feat_i[ feat_i>1]=1.0
-    print(np.sum(feat_i))
-
-def std_threshold(feat_i):
-    feat_i=norm(np.sort(feat_i))
-    print(feat_i)
-
-def norm(arr):
-    arr-=np.mean(arr)
-    return arr/np.std(arr)
-
-def ens_inspect(vote_path):
-    paths=files.top_files(vote_path)
-    for path_i in paths:
-        print(path_i)
-        print(max(get_acc(path_i) ))
-#        print( files.has_dirs(path_i))
-#        print(ens_stats(path_i))
-
-def ens_stats(path_i):
-    acc=exper.inspect.clf_acc(path_i,data="test")
-    mean_i=np.mean(acc)
-    med_i=np.median(acc)
-    max_i,k=np.amax(acc),np.argmax(acc)
-    min_i,t=np.amin(acc),np.argmin(acc)
-    return "%s,%s,%s,%s,%s,%s"% (max_i,k,mean_i,med_i,min_i,t)
-
-vote_path="proj2/ens5/LR"
-
-path_i="proj2/ens5/LR/stats_basic"
-
-#print(get_acc(path_i) )
-#ens_inspect(vote_path)
-#acc=exper.inspect.clf_acc(votes_path,data="test")
-#print(acc)
+check_feats("../MHAD/max_z/dtw/feats")

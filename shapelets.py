@@ -20,10 +20,10 @@ def compute_shaplets(in_path,out_path,n_feats=40):
 def feat_exp(in_path,out_path,n=20,step=10):
     files.make_dir(out_path)
     for i in range(1,n+1):
-    	n_feats=i*step
+        n_feats=i*step
         out_i="%s/%d" % (out_path,n_feats)	
         compute_shaplets(in_path,out_i,n_feats= n_feats)	
 
-in_path="../MSR/corl/seqs"
-out_path="../MSR/corl/n_feats"
+in_path="../MHAD/corl/seqs"
+out_path="../MHAD/corl/n_feats"
 feat_exp(in_path,out_path)
