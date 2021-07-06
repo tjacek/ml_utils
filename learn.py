@@ -79,7 +79,8 @@ class Result(object):
         with open(out_path, 'wb') as out_file:
             pickle.dump(self, out_file)
 
-def train_model(data,binary=False,clf_type="LR",selector=None):
+def train_model(data,binary=False,clf_type="LR",selector=None,
+                model_only=False):
     if(type(data)==str or type(data)==list):    
         data=feats.read(data)[0]
     data.norm()
@@ -87,6 +88,8 @@ def train_model(data,binary=False,clf_type="LR",selector=None):
     print(len(data))
     train,test=data.split(selector)
     model=make_model(train,clf_type)
+    if(model_only):
+        return model
     X_test,y_true=test.get_X(),test.get_labels()
     if(binary):
         y_pred=model.predict(X_test)

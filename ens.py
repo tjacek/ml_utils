@@ -74,6 +74,12 @@ def read_deep(deep_path):
         return datasets
     return feats.read(deep_path)
 
+def get_models(paths,clf="LR"):
+    datasets=read_dataset(paths["common"],paths["binary"])
+    models=[learn.train_model(data_i,clf_type=clf,model_only=True) 
+                for data_i in datasets]
+    return models,datasets
+    
 if __name__ == "__main__":
     ensemble=Ensemble()
     binary="../MHAD/corl/n_feats"
