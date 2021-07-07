@@ -9,19 +9,13 @@ class Ensemble(object):
         self.read=read
 
     def __call__(self,paths,binary=False,clf="LR",s_clf=None):
-        votes,datasets=self.make_votes(paths,clf)
+        datasets=self.get_datasets(paths)
+        votes=make_votes(datasets,clf=clf)
         if(s_clf):
             votes=Votes([votes.results[i] for i in s_clf])
         result=votes.voting(binary)
         print(result.get_acc()) 
         return result,votes
-
-    def make_votes(self,paths,clf):
-        datasets=self.get_datasets(paths)
-        results=[learn.train_model(data_i,clf_type=clf,binary=False)
-                    for data_i in datasets]
-        votes=Votes(results)   
-        return votes,datasets
 
     def get_datasets(self,paths):
         datasets=self.read(paths["common"],paths["binary"])
@@ -80,6 +74,11 @@ def get_models(paths,clf="LR"):
                 for data_i in datasets]
     return models,datasets
     
+def make_votes(datasets,clf="LR"):    
+    results=[learn.train_model(data_i,clf_type=clf,binary=False)
+                    for data_i in datasets]
+    return Votes(results)  
+
 if __name__ == "__main__":
     ensemble=Ensemble()
     binary="../MHAD/corl/n_feats"
