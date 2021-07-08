@@ -1,13 +1,17 @@
 import numpy as np
 import feats,exp,ens,learn
 
-def make_dataset(paths,out_path,clf="LR"):
+def make_dataset(paths,out_path,clf="LR",hard=False):
     models,datasets=ens.get_models(paths,clf=clf)
     names=list(datasets[0].keys())        
     prob_votes=[] 
     for model_i,data_i in zip(models,datasets):
         X_i=data_i.get_X(names)
         pred_i=model_i.predict_proba(X_i)
+        if(hard):
+            k=np.argmax(pred_i)
+            pred_i[True]=0
+            pred_i[k]=1
         prob_votes.append(pred_i)
     prob_votes=np.concatenate(prob_votes, axis=1)
     teacher_feats=feats.Feats()
@@ -46,6 +50,6 @@ dir_path="../../2021_VI"
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-#make_dataset(paths,"3DHOI")
-student_path="../conv_frames/student/feats"
-teacher_exp("3DHOI")
+make_dataset(paths,"3DHOI_hard")
+#student_path="../conv_frames/student/feats"
+#teacher_exp(student_path)
