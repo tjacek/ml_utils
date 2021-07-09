@@ -9,15 +9,22 @@ def make_dataset(paths,out_path,clf="LR",hard=False):
         X_i=data_i.get_X(names)
         pred_i=model_i.predict_proba(X_i)
         if(hard):
-            k=np.argmax(pred_i)
-            pred_i[True]=0
-            pred_i[k]=1
+            pred_i=hard_votes(pred_i)
         prob_votes.append(pred_i)
     prob_votes=np.concatenate(prob_votes, axis=1)
     teacher_feats=feats.Feats()
     for i,name_i in enumerate(names):
         teacher_feats[name_i]=prob_votes[i]
     teacher_feats.save(out_path)
+
+def hard_votes(pred_i):
+    hard_pred=[]
+    for x_j in pred_i:
+        k=np.argmax(x_j)
+        hard_j=np.zeros(x_j.shape)
+        hard_j[k]=1
+        hard_pred.append(hard_j)
+    return np.array(hard_pred)
 
 def teacher_exp(in_path,n_cats=12):
     full_dataset=feats.read(in_path)[0]
@@ -45,11 +52,11 @@ def soft_vote(datasets):
         y_true.append(name_i.get_cat())
     return learn.Result(y_true,y_pred,names)
 
-dataset="ICCCI"
-dir_path="../../2021_VI"
+dataset="3DHOI"
+dir_path=".."
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-make_dataset(paths,"3DHOI_hard")
-#student_path="../conv_frames/student/feats"
-#teacher_exp(student_path)
+#make_dataset(paths,"3DHOI",hard=False)
+student_path="../conv_frames/student_hard/feats"
+teacher_exp(student_path)
