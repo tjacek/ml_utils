@@ -44,6 +44,16 @@ def ground_votes(model_i,data_i,names):
         ground_pred.append(ground_j)
     return ground_pred
 
+def label_smoothing(model_i,data_i,names,alpha=0.25):
+    pred_i=base(model_i,data_i,names)
+    smooth_pred=[]
+    for x_j in pred_i:
+        smooth_j=np.ones(x_j.shape)
+        smooth_j/=x_j.shape[0]
+        smooth_j= (1-alpha)*x_j + alpha*smooth_j
+        smooth_pred.append(smooth_j)
+    return smooth_pred
+
 def teacher_exp(in_path,n_cats=12):
     full_dataset=feats.read(in_path)[0]
     datasets=split_dataset(full_dataset,n_cats)
@@ -75,6 +85,6 @@ dir_path="../../2021_VI"
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-make_dataset(paths,"3DHOI_ground",fun=ground_votes)
+make_dataset(paths,"3DHOI_smooth",fun=label_smoothing)
 #student_path="../conv_frames/student_hard/feats"
 #teacher_exp(student_path)
