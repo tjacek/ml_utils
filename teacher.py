@@ -30,6 +30,20 @@ def hard_votes(model_i,data_i,names):
         hard_pred.append(hard_j)
     return np.array(hard_pred)
 
+def ground_votes(model_i,data_i,names):
+    pred_i=base(model_i,data_i,names)
+    ground_pred=[]
+    for j,x_j in enumerate(pred_i):
+        true_cat= names[j].get_cat()
+        k=np.argmax(x_j)
+        if(true_cat!=k):
+            ground_j=np.zeros(x_j.shape)
+            ground_j[true_cat]=1
+        else:
+            ground_j=x_j
+        ground_pred.append(ground_j)
+    return ground_pred
+
 def teacher_exp(in_path,n_cats=12):
     full_dataset=feats.read(in_path)[0]
     datasets=split_dataset(full_dataset,n_cats)
@@ -61,6 +75,6 @@ dir_path="../../2021_VI"
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-make_dataset(paths,"3DHOI_hard",fun=hard_votes)
+make_dataset(paths,"3DHOI_ground",fun=ground_votes)
 #student_path="../conv_frames/student_hard/feats"
 #teacher_exp(student_path)
