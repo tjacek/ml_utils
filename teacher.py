@@ -1,5 +1,5 @@
 import numpy as np
-import feats,exp,ens,learn
+import feats,exp,ens,learn,files
 
 def make_dataset(paths,out_path,clf="LR",fun=None):
     models,datasets=ens.get_models(paths,clf=clf)
@@ -80,11 +80,18 @@ def voting(datasets):
         y_true.append(name_i.get_cat())
     return learn.Result(y_true,y_pred,names)
 
-dataset="ICCCI"
-dir_path="../../2021_VI"
+def dataset_exp(paths,out_path):
+    files.make_dir(out_path)
+    fun_dir={  "base":base,"hard":hard_votes,
+        "ground":ground_votes,"smooth":label_smoothing}
+    for name_i,fun_i in fun_dir.items():
+        make_dataset(paths,"%s/%s" % (out_path,name_i),fun_i)
+
+dataset="3DHOI"
+dir_path=".."
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-make_dataset(paths,"3DHOI_smooth",fun=label_smoothing)
+dataset_exp(paths,dataset)
 #student_path="../conv_frames/student_hard/feats"
 #teacher_exp(student_path)
