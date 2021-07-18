@@ -2,6 +2,8 @@ import numpy as np
 import feats,exp,ens,learn,files
 
 def make_dataset(paths,out_path,clf="LR",fun=None):
+    if(type(paths)==str):
+        paths={"binary":paths,"common":None}
     models,datasets=ens.get_models(paths,clf=clf)
     names=list(datasets[0].keys())        
     if(fun is None):
@@ -87,11 +89,13 @@ def dataset_exp(paths,out_path):
     for name_i,fun_i in fun_dir.items():
         make_dataset(paths,"%s/%s" % (out_path,name_i),fun_i)
 
-dataset="3DHOI"
-dir_path=".."
-paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
-paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
-print(paths)
-dataset_exp(paths,dataset)
-#student_path="../conv_frames/student_hard/feats"
+in_path="../conv_frames/test/simple_feats"
+make_dataset(in_path,"3DHOI_simple")
+#dataset="3DHOI"
+#dir_path=".."
+#paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
+#paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
+#print(paths)
+#dataset_exp(paths,dataset)
+#student_path="../conv_frames/student_ground/feats"
 #teacher_exp(student_path)
