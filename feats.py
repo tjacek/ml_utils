@@ -65,6 +65,9 @@ class Feats(dict):
         file_str.write(feat_txt)
         file_str.close()
 
+    def __str__(self):
+        return "%d,%d"  % (len(self),self.dim()[0])
+
 def read(in_path):
     if(type(in_path)==list):
         return [read_unified(in_path)]

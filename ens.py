@@ -68,9 +68,10 @@ def read_deep(deep_path):
         return datasets
     return feats.read(deep_path)
 
-def get_models(paths,clf="LR"):
-    datasets=read_dataset(paths["common"],paths["binary"])
-    models=[learn.train_model(data_i,clf_type=clf,model_only=True) 
+def get_models(datasets,clf="LR",model_only=True):
+    if(type(datasets)==dict):
+        datasets=read_dataset(paths["common"],paths["binary"])
+    models=[learn.train_model(data_i,clf_type=clf,model_only=model_only) 
                 for data_i in datasets]
     return models,datasets
     
@@ -81,9 +82,9 @@ def make_votes(datasets,clf="LR"):
 
 if __name__ == "__main__":
     ensemble=Ensemble()
-    binary="../MHAD/corl/n_feats"
+    binary="../conv_frames/test/simple_feats"
     paths={"common":None,"binary":binary}
-    votes=ensemble(paths)[1]
-    acc=votes.get_acc()
-    print(acc)
-    print(np.argmax(acc))
+    result,votes=ensemble(paths)
+    result.report()
+#    print(acc)
+#    print(np.argmax(acc))

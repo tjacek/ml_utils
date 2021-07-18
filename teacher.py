@@ -56,10 +56,14 @@ def label_smoothing(model_i,data_i,names,alpha=0.25):
         smooth_pred.append(smooth_j)
     return smooth_pred
 
-def teacher_exp(in_path,n_cats=12):
+def teacher_exp(in_path,n_cats=12,raw_feats=True):
     full_dataset=feats.read(in_path)[0]
     datasets=split_dataset(full_dataset,n_cats)
-    result=voting(datasets)
+    if(raw_feats):
+        results=ens.get_models(datasets,clf="LR",model_only=False)[0]
+        result=ens.Votes(results).voting(False)
+    else:
+        result=voting(datasets)
     result.report()
 
 def split_dataset(full_dataset,n_cats):
@@ -90,12 +94,6 @@ def dataset_exp(paths,out_path):
         make_dataset(paths,"%s/%s" % (out_path,name_i),fun_i)
 
 in_path="../conv_frames/test/simple_feats"
-make_dataset(in_path,"3DHOI_simple")
-#dataset="3DHOI"
-#dir_path=".."
-#paths=exp.basic_paths(dataset,dir_path,"dtw","ens_splitI/feats")
-#paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
-#print(paths)
-#dataset_exp(paths,dataset)
-#student_path="../conv_frames/student_ground/feats"
-#teacher_exp(student_path)
+#make_dataset(in_path,"3DHOI_simple")
+in_path="../conv_frames/student_simple/feats"
+teacher_exp(in_path,n_cats=12)
