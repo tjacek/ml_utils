@@ -65,6 +65,10 @@ class Feats(dict):
         file_str.write(feat_txt)
         file_str.close()
 
+    def append(self,dict_i):
+        for name_i,data_i in dict_i.items():
+            self[name_i]=data_i 
+
     def __str__(self):
         return "%d,%d"  % (len(self),self.dim()[0])
 

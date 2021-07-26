@@ -59,5 +59,5 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True,names=None):
     return plt
 
 in_path="../3DHOI/1D_CNN/feats"
-in_path="../conv_frames/student/ae_30_200_agum/feats"
-tsne_plot(in_path,data="test")
+#in_path="../conv_frames/ae/simple/feats"
+tsne_plot("smooth",data="train")
