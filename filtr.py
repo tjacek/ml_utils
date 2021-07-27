@@ -6,14 +6,22 @@ import feats
 def filtr_outlines(in_path,out_path,k=3):
     raw_feats=feats.read(in_path)[0]
     train,test=raw_feats.split()
-    neigh = KNeighborsClassifier(n_neighbors=k)
-    X,y,names =train.as_dataset()
-    neigh.fit(X, y)
-    y_pred=neigh.predict(X)
-    errors=set(find_errors(y,y_pred,names))
+    errors=get_knn(train,test,k)
     new_feats=get_maping(train,errors,names)
     new_feats.append(test)
     new_feats.save(out_path)
+
+def filtr_wrong(in_path,out_path,k=3):
+    raw_feats=feats.read(in_path)[0]
+    train,test=raw_feats.split()
+    errors=get_knn(test,train,k)
+    new_feats=feats.Feats()
+    for name_i,data_i in raw_feats.items():
+        if(not name_i in errors):
+            new_feats[name_i]=data_i
+    new_feats.save(out_path)
+    train,test= new_feats.split()
+    print(len(train))
 
 def get_maping(old_feats,errors,names):
     good_names=set(names).difference(errors)
@@ -32,6 +40,15 @@ def get_maping(old_feats,errors,names):
                 for old_i,new_i in name_map.items()}
     return feats.Feats(new_feats)
 
+def get_knn(train,test,k=3):
+    neigh = KNeighborsClassifier(n_neighbors=k)
+    X_train,y_train,names =train.as_dataset()
+    neigh.fit(X_train, y_train)
+    X_test,y_test,names =test.as_dataset()
+    y_pred=neigh.predict(X_test)
+    errors=set(find_errors(y_test,y_pred,names))
+    return errors
+
 def find_errors(y_true,y_pred,names):
     errors=[]	
     for i,true_i in enumerate(y_true):
@@ -46,4 +63,4 @@ def by_cat(names):
     return cat_dict
 
 in_path="../3DHOI/1D_CNN/feats"
-filtr_outlines(in_path,"smooth")
+filtr_wrong(in_path,"smooth4")
