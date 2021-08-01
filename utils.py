@@ -12,12 +12,21 @@ def sum_data(paths):
 
 def ens_acc(in_path):
     import os.path
+    results=[]
     for path_i in files.top_files(in_path):
         in_i="%s/feats" % path_i
         if(os.path.isfile(in_i)): 
             result_i=learn.train_model(in_i)#feats.read(in_i)[0]
             print(result_i.get_acc())
+            results.append(result_i)
+    return results
 
+def find_best(results):
+    acc=[ result_i.get_acc() for result_i in results]
+    k=np.argmax(acc)
+    return results[k]
 
-in_path="../conv_frames/early/"
-ens_acc(in_path)
+in_path="../3DHOI2/early/"
+results=ens_acc(in_path)
+result_i=find_best(results)
+print(result_i.get_cf())
