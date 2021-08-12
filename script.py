@@ -13,5 +13,10 @@ def exp1(path1,path2):
     print(i)
     results[i].report()
 
-paths=exp.fill_template("../%s/%s/n_feats",["MHAD",["corl","max_z"]])
-exp1(*paths)
+def prepare_paths(dir_path,dtw="dtw",nn="1D_CNN",binary="ens_splitI"):
+    common="%s/%s" % (dir_path,dtw)
+    common=files.get_paths(common,name="dtw")
+    if(nn):
+        common.append("%s/%s/feats" % (dir_path,nn))
+    binary="%s/%s/feats" % (dir_path,binary)
+    return {"common":common,"binary":binary}

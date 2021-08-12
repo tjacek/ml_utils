@@ -1,5 +1,5 @@
 import numpy as np
-import learn,feats
+import learn,feats,script
 
 class Ensemble(object):
     def __init__(self,read=None,transform=None):
@@ -81,10 +81,8 @@ def make_votes(datasets,clf="LR"):
     return Votes(results)  
 
 if __name__ == "__main__":
+    dir_path="../ICCCI/3DHOI"
+    paths=script.prepare_paths(dir_path)
     ensemble=Ensemble()
-    binary="../conv_frames/test/simple_feats"
-    paths={"common":None,"binary":binary}
     result,votes=ensemble(paths)
     result.report()
-#    print(acc)
-#    print(np.argmax(acc))
