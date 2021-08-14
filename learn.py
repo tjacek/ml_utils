@@ -87,6 +87,7 @@ def train_model(data,binary=False,clf_type="LR",selector=None,
     print(data.dim())
     print(len(data))
     train,test=data.split(selector)
+#    raise Exception(len(train))
     model=make_model(train,clf_type)
     if(model_only):
         return model
@@ -124,11 +125,17 @@ def to_one_hot(y,n_cats):
         one_hot[-1][y_i]=1.0
     return np.array(one_hot)
 
+def order_error(errors):
+    from collections import defaultdict
+    by_cat=defaultdict(lambda:[])
+    for error_i in errors:
+        cat_i=error_i[-1].get_cat()
+        by_cat[cat_i].append(error_i)
+    return by_cat
 
 if __name__ == "__main__":
-    dataset="../MHAD"
-    in_path=["%s/max_z/dtw/feats" % dataset,
-             "%s/corl/dtw/feats" % dataset]
+    in_path="../3DHOI2/try6/clf2/feats"
     result=train_model(in_path)
     result.report()
-    print(result.get_acc())
+    print(result.get_cf())
+    print( result.get_errors())

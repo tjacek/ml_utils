@@ -70,7 +70,7 @@ def read_deep(deep_path):
 
 def get_models(datasets,clf="LR",model_only=True):
     if(type(datasets)==dict):
-        datasets=read_dataset(paths["common"],paths["binary"])
+        datasets=read_dataset(datasets["common"],datasets["binary"])
     models=[learn.train_model(data_i,clf_type=clf,model_only=model_only) 
                 for data_i in datasets]
     return models,datasets
