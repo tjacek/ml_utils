@@ -82,7 +82,11 @@ def make_votes(datasets,clf="LR"):
 
 if __name__ == "__main__":
     dir_path="../ICCCI/3DHOI"
-    paths=script.prepare_paths(dir_path)
+#    paths=script.prepare_paths(dir_path)
     ensemble=Ensemble()
+    paths={'common':"../conv_frames/agum_cross2/feats" ,'binary':None}
     result,votes=ensemble(paths)
     result.report()
+    print(result.get_cf())
+    errors=result.get_errors()
+    print(learn.order_error(errors))

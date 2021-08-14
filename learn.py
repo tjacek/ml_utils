@@ -131,7 +131,8 @@ def order_error(errors):
     for error_i in errors:
         cat_i=error_i[-1].get_cat()
         by_cat[cat_i].append(error_i)
-    return by_cat
+    return [ sorted(cat_i ,key=lambda x: x[1]) 
+                for cat_i in by_cat.values()]
 
 if __name__ == "__main__":
     in_path="../3DHOI2/try6/clf2/feats"
