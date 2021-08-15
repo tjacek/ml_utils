@@ -4,7 +4,7 @@ from sklearn.metrics import classification_report,accuracy_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
-import feats
+import feats,files
 
 class Result(object):
     def __init__(self,y_true,y_pred,names):
@@ -126,8 +126,7 @@ def to_one_hot(y,n_cats):
     return np.array(one_hot)
 
 def order_error(errors):
-    from collections import defaultdict
-    by_cat=defaultdict(lambda:[])
+    by_cat=files.cat_dict()
     for error_i in errors:
         cat_i=error_i[-1].get_cat()
         by_cat[cat_i].append(error_i)
