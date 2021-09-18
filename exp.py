@@ -1,24 +1,29 @@
-import files
+import files,ens
 
-def basic_paths(dataset,dir_path,common,binary,name="dtw"):
-    paths={}
-    if((dataset is None) and (dir_path is None)):
-        paths["binary"]=binary
-        paths["common"]=files.get_paths(common,name=name)
-        return paths
-    if( dataset and dir_path ):
-        paths["dir_path"]="%s/%s" % (dir_path,dataset)
-    elif( dir_path is None):
-        paths["dir_path"]=dataset
-    else:
-        paths["dir_path"]=dir_path
-    common="%s/%s" % (paths["dir_path"],common)
-    paths["common"]=files.get_paths(common,name=name)
-    if(binary):
-        paths["binary"]="%s/%s" % (paths["dir_path"],binary)
-    else:
-        paths["binary"]=None
-    return paths 
+class EnsembleExp(object):
+    def __init__(self,ensemble=None):
+        if(ensemble is None):
+            ensemble=ens.Ensemble()
+        self.ensemble=ensemble
+        
+    def __call__(self,input_dict):
+        lines=[]
+        for desc_i,path_i in simple_gen(input_dict):
+            if(type(path_i)==tuple):
+                path_i={"common":path_i[0],"binary":path_i[1]}
+            print(path_i)
+            result_i=self.ensemble(path_i)[0]
+            line_i="%s,%s" % (desc_i,get_metrics(result_i))
+            lines.append(line_i)
+        print(lines)
+        return lines
+
+def simple_gen(input_dict):
+    print(input_dict)
+    common,binary=input_dict
+    for common_i in common:
+        desc_i=common_i.split("/")[-1]
+        yield desc_i,(common_i,binary)
 
 def get_metrics(result_i):
 	acc_i= result_i.get_acc()
