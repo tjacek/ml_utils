@@ -51,7 +51,7 @@ class Votes(object):
 
 def read_dataset(common_path,deep_path):
     if(not common_path):
-        return read_deep(deep_path)#feats.read(deep_path)
+        return read_deep(deep_path)
     if(not deep_path):
         return feats.read(common_path)
     common_data=feats.read(common_path)[0]
@@ -80,12 +80,26 @@ def make_votes(datasets,clf="LR"):
                     for data_i in datasets]
     return Votes(results)  
 
+def read_multi(common_path,deep_path):
+    if( type(common_path)!=list):
+        common_path=[common_path]
+    deep_data=read_deep(deep_path)
+    datasets=[]
+    for path_i in common_path:
+        common_i=feats.read(path_i)[0]
+        for deep_j in deep_data:
+            datasets.append(common_i+deep_j)
+    return datasets
+
 if __name__ == "__main__":
-    dir_path="../ICCCI/3DHOI"
+    dir_path="../3DHOI/1D_CNN"
+    binary_path="../3DHOI/ens_splitI/feats"
 #    paths=script.prepare_paths(dir_path)
-    ensemble=Ensemble()
-    paths={'common':"../conv_frames/agum_cross2/feats" ,'binary':None}
-    result,votes=ensemble(paths)
+    ensemble=Ensemble(read_multi)
+    in_path1="../deep_dtw/dtw"
+    in_path2="../best2/3_layers/feats"
+    paths={'common':[in_path1,in_path2],'binary':binary_path}
+    result,votes=ensemble(paths,clf="SVC")
     result.report()
     print(result.get_cf())
     errors=result.get_errors()
