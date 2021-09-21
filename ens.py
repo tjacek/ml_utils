@@ -18,7 +18,11 @@ class Ensemble(object):
         return result,votes
 
     def get_datasets(self,paths):
-        datasets=self.read(paths["common"],paths["binary"])
+        if(type(paths)==dict):
+            common,binary=paths["common"],paths["binary"]
+        else:
+            common,binary=paths    
+        datasets=self.read(common,binary)
         if(self.transform):
             datasets=[self.transform(data_i)  for data_i in datasets]
         return datasets
@@ -98,8 +102,8 @@ if __name__ == "__main__":
     ensemble=Ensemble(read_multi)
     in_path1="../deep_dtw/dtw"
     in_path2="../best2/3_layers/feats"
-    paths={'common':[in_path1,in_path2],'binary':binary_path}
-    result,votes=ensemble(paths,clf="SVC")
+    paths={'common':dir_path,'binary':binary_path}
+    result,votes=ensemble(paths,clf="LR")
     result.report()
     print(result.get_cf())
     errors=result.get_errors()

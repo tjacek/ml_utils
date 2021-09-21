@@ -79,6 +79,10 @@ class Result(object):
         with open(out_path, 'wb') as out_file:
             pickle.dump(self, out_file)
 
+def train_ens(datasets,clf="LR",selector=None):
+    return [train_model(data_i,clf_type=clf,selector=selector) 
+                    for data_i in datasets]
+
 def train_model(data,binary=False,clf_type="LR",selector=None,
                 model_only=False):
     if(type(data)==str or type(data)==list):    
@@ -87,7 +91,6 @@ def train_model(data,binary=False,clf_type="LR",selector=None,
     print(data.dim())
     print(len(data))
     train,test=data.split(selector)
-#    raise Exception(len(train))
     model=make_model(train,clf_type)
     if(model_only):
         return model
