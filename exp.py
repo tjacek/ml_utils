@@ -1,21 +1,29 @@
 import files,ens
 
 class EnsembleExp(object):
-    def __init__(self,ensemble=None):
+    def __init__(self,ensemble=None,gen=None):
         if(ensemble is None):
             ensemble=ens.Ensemble()
+        if(gen is None):
+            gen=simple_gen
         self.ensemble=ensemble
+        self.gen=gen
         
-    def __call__(self,input_dict):
+    def __call__(self,input_dict,binary=True,out_path=None):
         lines=[]
-        for desc_i,path_i in simple_gen(input_dict):
+        for desc_i,path_i in self.gen(input_dict):
             if(type(path_i)==tuple):
                 path_i={"common":path_i[0],"binary":path_i[1]}
             print(path_i)
-            result_i=self.ensemble(path_i)[0]
+            result_i=self.ensemble(path_i,binary=binary)[0]
             line_i="%s,%s" % (desc_i,get_metrics(result_i))
             lines.append(line_i)
         print(lines)
+        if(out_path):
+            txt="\n".join(lines)
+            out_file = open(out_path,"w")
+            out_file.write(txt)
+            out_file.close()
         return lines
 
 def simple_gen(input_dict):

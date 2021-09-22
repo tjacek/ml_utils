@@ -23,11 +23,11 @@ def prepare_paths(dir_path,dtw="dtw",nn="1D_CNN",binary="ens_splitI"):
 
 if __name__ == "__main__":
     dir_path="../3DHOI/"
-    binary_path="%s/ens_splitI/feats" % dir_path
+    binary_path="%s/ens/I/feats" % dir_path
     base_path="%s/1D_CNN/feats" % dir_path
     dtw_path="../deep_dtw/dtw"
     ae_path="../best2/3_layers/feats"
     common=[dtw_path,ae_path]
     helper=ConstCommon(base_path)
     ens_exp=exp.EnsembleExp(gen=helper)
-    ens_exp([common,binary_path],out_path="result.csv")
+    ens_exp([common,binary_path],out_path=None)
