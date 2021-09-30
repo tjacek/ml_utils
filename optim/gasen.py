@@ -16,7 +16,9 @@ class Comb(object):
 
 class MSE(object):
     def __init__(self,all_votes):
-        self.all_votes=ens.Votes(all_votes)
+        if(type(all_votes)==list):
+            all_votes=ens.Votes(all_votes)
+        self.all_votes=all_votes
         self.iter=0
 
     def __call__(self,weights):
@@ -55,6 +57,13 @@ def corl(results,d):
             c_ij= (f_i-d)*(f_j-d)
             C[i,j]=np.mean(c_ij)
     return C
+
+def mse_fun(result):
+    y_true=result.true_one_hot()
+    y_pred=result.y_pred
+    squared_mean=[np.sum((true_i- pred_i)**2)
+                for true_i,pred_i in zip(y_true,y_pred)]
+    return  np.mean(squared_mean)
 
 dir_path="../../3DHOI/"
 binary_path="%s/ens/II/feats" % dir_path
