@@ -1,5 +1,18 @@
 import files,ens
 
+class MultiEnsembleExp(object):
+    def __init__(self,all_ensembles):
+        self.all_ensembles=all_ensembles
+
+    def __call__(self,input_dict,out_path=None):
+        lines=[]
+        for desc_i,ensemble_i in self.all_ensembles.items():
+            result_i=ensemble_i(input_dict,binary=True)[0]
+            line_i="%s,%s" % (desc_i,get_metrics(result_i))
+            lines.append(line_i)
+        save_lines(lines,out_path)
+        return lines
+
 class EnsembleExp(object):
     def __init__(self,ensemble=None,gen=None):
         if(ensemble is None):
@@ -18,12 +31,7 @@ class EnsembleExp(object):
             result_i=self.ensemble(path_i,binary=binary)[0]
             line_i="%s,%s" % (desc_i,get_metrics(result_i))
             lines.append(line_i)
-        print(lines)
-        if(out_path):
-            txt="\n".join(lines)
-            out_file = open(out_path,"w")
-            out_file.write(txt)
-            out_file.close()
+        save_lines(lines,out_path)
         return lines
 
 def simple_gen(input_dict):
@@ -32,6 +40,14 @@ def simple_gen(input_dict):
     for common_i in common:
         desc_i=common_i.split("/")[-1]
         yield desc_i,(common_i,binary)
+
+def save_lines(lines,out_path):
+    print(lines)
+    if(out_path):
+        txt="\n".join(lines)
+        out_file = open(out_path,"w")
+        out_file.write(txt)
+        out_file.close()
 
 def get_metrics(result_i):
 	acc_i= result_i.get_acc()
