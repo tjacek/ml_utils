@@ -1,3 +1,5 @@
+import sys
+sys.path.append("..")
 import numpy as np
 from scipy.optimize import differential_evolution
 import ens,learn
@@ -7,20 +9,22 @@ class LossFunction(object):
         self.votes=votes
 	
     def __call__(self,weights):
-        raise Exception(len(weights))	
         norm=weights/np.sum(weights)
         result=self.votes.weighted(norm)
         return 1.0-result.get_acc()
 
 class OptimizeWeights(object):
-    def	__init__(self,loss=None,maxiter=1000):
+    def	__init__(self,loss=None,maxiter=1000,read=None):
         if(loss is None):
             loss=LossFunction
+        if(read is None):
+            read=ens.read_dataset
         self.loss=loss
         self.maxiter=maxiter
+        self.read=read  
 
     def __call__(self,common,deep,clf="LR"):
-        datasets=ens.read_dataset(common,deep)
+        datasets=self.read(common,deep) #ens.read_dataset(common,deep)
         weights=self.find_weights(datasets)
         results=learn.train_ens(datasets,clf="LR")
         votes=ens.Votes(results)
@@ -49,11 +53,12 @@ def validation_votes(datasets,clf="LR"):
 
 if __name__ == "__main__":
     dir_path="../3DHOI/"
-    binary_path="%s/ens/I/feats" % dir_path
+    binary_path="%s/ens/II/feats" % dir_path
     base_path="%s/1D_CNN/feats" % dir_path
     dtw_path="../deep_dtw/dtw"
     ae_path="../best2/3_layers/feats"
-    common=[base_path,dtw_path]
+    common=[base_path,ae_path]
     diff_voting=OptimizeWeights()
     result=diff_voting(common,binary_path)
     result.report()
+    print(result.get_acc())

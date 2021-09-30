@@ -1,3 +1,5 @@
+import sys
+sys.path.append("..")
 import numpy  as np
 import diff_evol,ens
 
@@ -10,7 +12,7 @@ class Comb(object):
     def __call__(self,weights):
         self.iter+=1
         print(self.iter)
-        return self.corl(weights)#+self.mse(weights)     
+        return self.corl(weights)+self.mse(weights)     
 
 class MSE(object):
     def __init__(self,all_votes):
@@ -54,10 +56,14 @@ def corl(results,d):
             C[i,j]=np.mean(c_ij)
     return C
 
-dir_path="../3DHOI/"
-binary_path="%s/ens/I/feats" % dir_path
+dir_path="../../3DHOI/"
+binary_path="%s/ens/II/feats" % dir_path
 base_path="%s/1D_CNN/feats" % dir_path
-common=[base_path]
-optim_weights=diff_evol.OptimizeWeights(Comb,maxiter=100)
-results=optim_weights(common,binary_path)
-results.report()
+dtw_path="../../deep_dtw/dtw"
+ae_path="../../best2/3_layers/feats"
+common=[base_path,ae_path]
+diff_voting=diff_evol.OptimizeWeights(Comb,
+    maxiter=10,read=ens.read_multi)
+result=diff_voting(common,binary_path)
+result.report()
+print(result.get_acc())
