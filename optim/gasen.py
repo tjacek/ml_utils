@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 import numpy  as np
-import diff_evol,ens
+import ens
 
 class Comb(object):
     def __init__(self,all_votes):
@@ -65,14 +65,16 @@ def mse_fun(result):
                 for true_i,pred_i in zip(y_true,y_pred)]
     return  np.mean(squared_mean)
 
-dir_path="../../3DHOI/"
-binary_path="%s/ens/II/feats" % dir_path
-base_path="%s/1D_CNN/feats" % dir_path
-dtw_path="../../deep_dtw/dtw"
-ae_path="../../best2/3_layers/feats"
-common=[base_path,ae_path]
-diff_voting=diff_evol.OptimizeWeights(Comb,
-    maxiter=10,read=ens.read_multi)
-result=diff_voting(common,binary_path)
-result.report()
-print(result.get_acc())
+if __name__ == "__main__":
+    dir_path="../../3DHOI/"
+    binary_path="%s/ens/II/feats" % dir_path
+    base_path="%s/1D_CNN/feats" % dir_path
+    dtw_path="../../deep_dtw/dtw"
+    ae_path="../../best2/3_layers/feats"
+    common=[base_path,ae_path]
+    import diff_evol
+    diff_voting=diff_evol.OptimizeWeights(Comb,
+        maxiter=10,read=ens.read_multi)
+    result=diff_voting(common,binary_path)
+    result.report()
+    print(result.get_acc())

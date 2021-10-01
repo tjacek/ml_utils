@@ -23,7 +23,9 @@ class OptimizeWeights(object):
         self.maxiter=maxiter
         self.read=read  
 
-    def __call__(self,common,deep,clf="LR"):
+    def __call__(self,common,deep=None,clf="LR"):
+        if(deep is None):
+            common,deep=common
         datasets=self.read(common,deep) #ens.read_dataset(common,deep)
         weights=self.find_weights(datasets)
         results=learn.train_ens(datasets,clf="LR")
@@ -35,7 +37,6 @@ class OptimizeWeights(object):
         results=validation_votes(datasets)
         loss_fun=self.loss(ens.Votes(results))
         bound_w = [(0.0, 1.0)  for _ in datasets]
-#        raise Exception(len(results))
         result = differential_evolution(loss_fun, bound_w, maxiter=self.maxiter, tol=1e-7)
         weights=result['x']
         return weights
