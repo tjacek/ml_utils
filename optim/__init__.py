@@ -32,8 +32,8 @@ def gen(input_dict):
     paths=["../../deep_dtw/dtw",
             "../../best2/3_layers/feats"]
     common,binary=input_dict
-    for split_i in ["I","II"]:
-        for path_j in paths:
+    for path_j in paths:
+        for split_i in ["I","II"]:
             common_j=[common,path_j]
             binary_i="%s/%s/feats" % (binary,split_i)
             desc_i="%s,%s" % (split_i,path_j.split("/")[-2])
