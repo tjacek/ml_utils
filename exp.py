@@ -7,7 +7,9 @@ class MultiEnsembleExp(object):
     def __call__(self,input_dict,out_path=None):
         lines=[]
         for desc_i,ensemble_i in self.all_ensembles.items():
-            result_i=ensemble_i(input_dict,binary=True)[0]
+            result_i=ensemble_i(input_dict)
+            if(type(result_i)==tuple):
+                result_i=result_i[0]
             line_i="%s,%s" % (desc_i,get_metrics(result_i))
             lines.append(line_i)
         save_lines(lines,out_path)
@@ -22,13 +24,13 @@ class EnsembleExp(object):
         self.ensemble=ensemble
         self.gen=gen
         
-    def __call__(self,input_dict,binary=True,out_path=None):
+    def __call__(self,input_dict,out_path=None):
         lines=[]
         for desc_i,path_i in self.gen(input_dict):
-            if(type(path_i)==tuple):
-                path_i={"common":path_i[0],"binary":path_i[1]}
+#            if(type(path_i)==tuple):
+#                path_i={"common":path_i[0],"binary":path_i[1]}
             print(path_i)
-            result_i=self.ensemble(path_i,binary=binary)[0]
+            result_i=self.ensemble(path_i)[0]
             line_i="%s,%s" % (desc_i,get_metrics(result_i))
             lines.append(line_i)
         save_lines(lines,out_path)

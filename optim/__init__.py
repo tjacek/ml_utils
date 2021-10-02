@@ -17,10 +17,35 @@ def optim_exp(common_path,binary_path,out_path=None):
     input_dict=(common_path,binary_path)
     ens_exp(input_dict,out_path)
 
+def single_exp(input_dict):
+    exp=make_exp(None)
+    exp(input_dict,"unified.csv")
+    exp=make_exp(ens.read_multi)
+    exp(input_dict,"distinct.csv")
+
+def make_exp(read=None):
+    raw= ens.Ensemble(read)
+    helper=ens.EnsembleHelper(raw,binary=True)
+    return exp.EnsembleExp(helper,gen)
+
+def gen(input_dict):
+    paths=["../../deep_dtw/dtw",
+            "../../best2/3_layers/feats"]
+    common,binary=input_dict
+    for split_i in ["I","II"]:
+        for path_j in paths:
+            common_j=[common,path_j]
+            binary_i="%s/%s/feats" % (binary,split_i)
+            desc_i="%s,%s" % (split_i,path_j.split("/")[-2])
+            yield desc_i,(common_j,binary_i)
+
 dir_path="../../3DHOI/"
 binary_path="%s/ens/I/feats" % dir_path
 base_path="%s/1D_CNN/feats" % dir_path
 dtw_path="../../deep_dtw/dtw"
 ae_path="../../best2/3_layers/feats"
 common=[base_path,ae_path]
-optim_exp(common,binary_path,out_path="II_ae.txt")
+
+input_dict=(base_path,"%s/ens" % dir_path)
+single_exp(input_dict)
+#optim_exp(common,binary_path,out_path="II_ae.txt")

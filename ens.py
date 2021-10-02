@@ -2,10 +2,10 @@ import numpy as np
 import learn,feats,script
 
 class Ensemble(object):
-    def __init__(self,read=None,transform=None):
+    def __init__(self,read=None):#,transform=None):
         if(read is None):
             read=read_dataset
-        self.transform=transform
+#        self.transform=transform
         self.read=read
 
     def __call__(self,paths,binary=False,clf="LR",s_clf=None):
@@ -23,8 +23,8 @@ class Ensemble(object):
         else:
             common,binary=paths    
         datasets=self.read(common,binary)
-        if(self.transform):
-            datasets=[self.transform(data_i)  for data_i in datasets]
+#        if(self.transform):
+#            datasets=[self.transform(data_i)  for data_i in datasets]
         return datasets
 
 class Votes(object):
@@ -52,6 +52,17 @@ class Votes(object):
 
     def get_acc(self):
         return [ result_i.get_acc() for result_i in self.results]
+
+class EnsembleHelper(object):
+    def __init__(self,ensemble,binary=False,clf="LR",s_clf=None):
+        self.ensemble=ensemble
+        self.binary=binary
+        self.clf=clf
+        self.s_clf=s_clf
+
+    def __call__(self,paths):
+        return self.ensemble(paths,binary=self.binary,
+                    clf=self.clf,s_clf=self.s_clf)
 
 def read_dataset(common_path,deep_path):
     if(not common_path):
@@ -96,14 +107,14 @@ def read_multi(common_path,deep_path):
     return datasets
 
 if __name__ == "__main__":
-    dir_path="../3DHOI/1D_CNN"
-    binary_path="../3DHOI/ens_splitI/feats"
+    dir_path="../3DHOI/1D_CNN/feats"
+    binary_path="../3DHOI/ens/I/feats"
 #    paths=script.prepare_paths(dir_path)
     ensemble=Ensemble(read_multi)
-    in_path1="../deep_dtw/dtw"
-    in_path2="../best2/3_layers/feats"
-    paths={'common':dir_path,'binary':binary_path}
-    result,votes=ensemble(paths,clf="LR")
+    dtw_path="../deep_dtw/dtw"
+    ae_path="../best2/3_layers/feats"
+    paths={'common':[dir_path,ae_path],'binary':binary_path}
+    result,votes=ensemble(paths,clf="LR",binary=True)
     result.report()
     print(result.get_cf())
     errors=result.get_errors()
