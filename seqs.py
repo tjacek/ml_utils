@@ -25,7 +25,8 @@ class Seqs(dict):
 def read_seqs(in_path):
     seqs=Seqs()
     for path_i in files.top_files(in_path):
-        data_i=np.loadtxt(path_i, delimiter=',')
+#        data_i=np.loadtxt(path_i, delimiter=',')
+        data_i=read_data(path_i)
         name_i=path_i.split('/')[-1]
         name_i=files.Name(name_i).clean()
         seqs[name_i]=data_i
@@ -39,3 +40,12 @@ def inter(ts_i,new_size):
     cs=CubicSpline(old_x,ts_i)
     new_x=np.arange(new_size)
     return cs(new_x)
+
+def read_data(path_i):
+    if(is_npy(path_i)):
+        return np.load(path_i)
+    else:
+        return np.loadtxt(path_i, delimiter=',')
+
+def is_npy(path_i):
+    return path_i.split(".")[-1]=="npy"
