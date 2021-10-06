@@ -22,10 +22,20 @@ class Seqs(dict):
         for name_i in self.keys():
             self[name_i]=inter(self[name_i],new_size)
 
+    def transform(self,fun):
+        for name_i in self.keys():
+            self[name_i]=fun(self[name_i])
+
+    def save(self,out_path):
+        files.make_dir(out_path)
+        for name_i,seq_i in self.items():
+            print(seq_i.shape)
+            out_i="%s/%s" % (out_path,name_i)
+            np.save(out_i,seq_i)
+
 def read_seqs(in_path):
     seqs=Seqs()
     for path_i in files.top_files(in_path):
-#        data_i=np.loadtxt(path_i, delimiter=',')
         data_i=read_data(path_i)
         name_i=path_i.split('/')[-1]
         name_i=files.Name(name_i).clean()
