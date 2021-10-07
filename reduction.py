@@ -3,14 +3,17 @@ from sklearn.svm import SVC
 from sklearn.feature_selection import RFE
 import seqs
 
-def reduce_dim(in_path,out_path):
+def reduce_dim(in_path,out_path,n_feats=32):
     ts=seqs.read_seqs(in_path)
-    X,y=as_frames(ts)
+    train,test= ts.split()
+    X,y=as_frames(train)
     svc = SVC(kernel="linear", C=1)
-    rfe = RFE(estimator=svc, n_features_to_select=120, step=1)
+    rfe = RFE(estimator=svc, n_features_to_select=n_feats, step=1)
     rfe.fit(X, y)
     def helper(x_i):
-        return rfe.predict(x_i)
+        x=rfe.transform(x_i)
+        print(x.shape)
+        return x
     ts.transform(helper)
     ts.save(out_path)
 
@@ -25,4 +28,4 @@ def as_frames(ts):
 
 
 in_path="../deep_dtw/seqs" 
-reduce_dim(in_path,"shape/120")
+reduce_dim(in_path,"shape/32")
