@@ -26,7 +26,7 @@ class OptimizeWeights(object):
     def __call__(self,common,deep=None,clf="LR"):
         if(deep is None):
             common,deep=common
-        datasets=self.read(common,deep) #ens.read_dataset(common,deep)
+        datasets=self.read(common,deep)
         weights=self.find_weights(datasets)
         results=learn.train_ens(datasets,clf="LR")
         votes=ens.Votes(results)

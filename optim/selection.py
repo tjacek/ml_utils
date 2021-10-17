@@ -4,7 +4,7 @@ import diff_evol,gasen,ens,exp
 
 def optim_exp(common,binary):
     algs={}
-    algs["diff"]=diff_evol.OptimizeWeights(read=None)#ens.read_multi)
+    algs["diff"]=diff_evol.OptimizeWeights()#read=ens.read_multi)
     algs["gasen"]=diff_evol.OptimizeWeights(gasen.Comb,maxiter=10,read=None)
     result={ name_i:select_weights(common,binary,alg_i)
                 for name_i,alg_i in algs.items()}
@@ -19,6 +19,7 @@ def select_weights(common,binary,optim_alg, threshold=0.05):
 dir_path="../../3DHOI/"
 binary_path="%s/ens/I/feats" % dir_path
 base_path="%s/1D_CNN/feats" % dir_path
+dtw_path="../../deep_dtw/dtw"
 common=[base_path,"../shape/32_feats"]
 
 input_dict=(base_path,"%s/ens" % dir_path)

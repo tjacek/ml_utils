@@ -1,18 +1,18 @@
 import sys
 sys.path.append("..")
 import numpy  as np
-import ens
+import ens,diff_evol
 
 class Comb(object):
     def __init__(self,all_votes):
         self.corl=Corl(all_votes)
-        self.mse=MSE(all_votes)
+        self.mse=diff_evol.LossFunction(all_votes)#MSE(all_votes)
         self.iter=0
 
     def __call__(self,weights):
         self.iter+=1
         print(self.iter)
-        return self.corl(weights)+self.mse(weights)     
+        return self.corl(weights)#+self.mse(weights)     
 
 class MSE(object):
     def __init__(self,all_votes):
