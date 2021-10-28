@@ -3,7 +3,9 @@ import files,seqs,feats
 
 def compute_shaplets(in_path,out_path,n_feats=40):
     ts=seqs.read_seqs(in_path)
-    ts.resize(64)
+    ts.subsample(36)
+#    raise Exception(ts.shape())
+#    ts.resize(64)
     train,test=ts.split()
     model = LearningShapelets(n_shapelets_per_size={3: n_feats})
     train_X,train_y,train_names=train.as_dataset()
@@ -24,6 +26,7 @@ def feat_exp(in_path,out_path,n=20,step=10):
         out_i="%s/%d" % (out_path,n_feats)	
         compute_shaplets(in_path,out_i,n_feats= n_feats)	
 
-in_path="../MHAD/corl/seqs"
-out_path="../MHAD/corl/n_feats"
+
+in_path="../conv_frames/seqs"
+out_path="../conv_frames/feats"
 feat_exp(in_path,out_path)

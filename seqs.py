@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np,random
 from scipy.interpolate import CubicSpline
 import files
 
@@ -25,6 +25,18 @@ class Seqs(dict):
     def transform(self,fun):
         for name_i in self.keys():
             self[name_i]=fun(self[name_i])
+
+    def shape(self):
+        return [value_i.shape for value_i in self.values()]
+
+    def subsample(self,n):
+        def helper(frames):
+            indexes=list(range(len(frames)))
+            random.shuffle(indexes)
+            indexes=indexes[:n]
+            indexes.sort()
+            return frames[indexes]
+        self.transform(helper)
 
     def save(self,out_path):
         files.make_dir(out_path)
