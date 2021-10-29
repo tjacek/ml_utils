@@ -1,6 +1,6 @@
 import numpy as np,random
 from scipy.interpolate import CubicSpline
-import files
+import files,feats
 
 class Seqs(dict):
     def __init__(self, arg=[]):
@@ -54,6 +54,16 @@ def read_seqs(in_path):
         seqs[name_i]=data_i
     return seqs
 
+def from_paths(paths):
+    seqs=Seqs()
+    for path_i in paths:
+        data_i=read_data(path_i)
+        print(data_i.shape)
+        name_i=path_i.split('/')[-1]
+        name_i=files.Name(name_i).clean()
+        seqs[name_i]=data_i
+    return seqs
+
 def inter(ts_i,new_size):
     old_size=ts_i.shape[0]
     step= new_size/old_size
@@ -71,3 +81,13 @@ def read_data(path_i):
 
 def is_npy(path_i):
     return path_i.split(".")[-1]=="npy"
+
+def transform_lazy(in_path,fun,out_path=None):
+    new_feats=feats.Feats()
+    for path_i in files.top_files(in_path):
+        data_i=read_data(path_i)
+        name_i=files.get_name(path_i)
+        new_feats[name_i]=fun(data_i)
+    if(out_path):
+        new_feats.save(out_path)
+    return new_feats

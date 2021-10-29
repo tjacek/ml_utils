@@ -20,6 +20,9 @@ class Name(str):
         subname_k="_".join(self.split("_")[:k])
         return Name(subname_k)
 
+def get_name(in_path):
+    return Name(in_path.split("/")[-1]).clean()
+
 class SetSelector(object):
     def __init__(self,names):
         self.train=set(names)
