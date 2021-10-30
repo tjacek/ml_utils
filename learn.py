@@ -137,7 +137,7 @@ def order_error(errors):
                 for cat_i in by_cat.values()]
 
 if __name__ == "__main__":
-    in_path="../3DHOI2/try6/clf2/feats"
+    in_path="feats.txt"
     result=train_model(in_path)
     result.report()
     print(result.get_cf())

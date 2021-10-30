@@ -7,6 +7,7 @@ def make_feats(in_path):
     model=train_model(in_path)
     def helper(name_i,data_i):
         print(name_i)
+        print(data_i.shape)
         frames=seqs.subsample(data_i,36)
         frames= np.squeeze(frames)
         frames=np.expand_dims(frames,axis=0)
@@ -16,7 +17,7 @@ def make_feats(in_path):
 
 def train_model(in_path):
     paths=select_paths(in_path)
-    paths=paths[:3] + paths[-3:]
+#    paths=paths[:3] + paths[-3:]
     ts=seqs.from_paths(paths)
     ts.subsample(36)
     model = LearningShapelets(n_shapelets_per_size=None,max_iter=2) #{3: 40})
