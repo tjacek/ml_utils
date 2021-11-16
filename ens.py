@@ -71,7 +71,9 @@ def read_dataset(common_path,deep_path):
         return feats.read(common_path)
     common_data=feats.read(common_path)[0]
     deep_data=read_deep(deep_path)
-    datasets=[common_data+ data_i 
+#    datasets=[common_data+ data_i 
+#                for data_i in deep_data]
+    datasets=[ feats.agum_concat(common_data,data_i) 
                 for data_i in deep_data]
     return datasets
 
@@ -107,14 +109,10 @@ def read_multi(common_path,deep_path):
     return datasets
 
 if __name__ == "__main__":
-    dir_path="../3DHOI/1D_CNN/feats"
-    binary_path="../3DHOI/ens/I/feats"
-#    paths=script.prepare_paths(dir_path)
-    ensemble=Ensemble(read_multi)
-    dtw_path="../deep_dtw/dtw"
-    ae_path="../best2/3_layers/feats"
-    paths={'common':[dir_path,ae_path],'binary':binary_path}
-    result,votes=ensemble(paths,clf="LR",binary=True)
+    ensemble=Ensemble()#read_multi)
+    common_path="../common/feats.txt"
+    paths={'common':None,'binary':"../ens/_feats"}
+    result,votes=ensemble(paths,clf="LR",binary=False)
     result.report()
     print(result.get_cf())
     errors=result.get_errors()

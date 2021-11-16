@@ -103,3 +103,16 @@ def read_unified(paths):
 
 def common_names(names1,names2):
     return list(set(names1).intersection(set(names2)))
+
+def agum_concat(data_a,data_b):
+    if(len(data_a)<len(data_b)):
+        base_data,agum_data=data_a,data_b
+    else:
+        base_data,agum_data=data_b,data_a
+    unified_data=Feats()
+    for name_i,data_i in agum_data.items():
+        id_i=name_i.subname(-1)
+        feat_i=np.concatenate( [data_i,base_data[id_i]] )
+        unified_data[name_i]=feat_i
+#        raise Exception(feat_i.shape)
+    return unified_data
