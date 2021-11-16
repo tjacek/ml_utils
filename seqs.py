@@ -87,7 +87,7 @@ def transform_lazy(in_path,fun,out_path=None):
     for path_i in files.top_files(in_path):
         data_i=read_data(path_i)
         name_i=files.get_name(path_i)
-        new_feats[name_i]=fun(data_i)
+        new_feats[name_i]=fun(name_i,data_i)
     if(out_path):
         new_feats.save(out_path)
     return new_feats
