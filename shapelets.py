@@ -63,8 +63,8 @@ def feat_exp(in_path,out_path,n=20,step=10):
         out_i="%s/%d" % (out_path,n_feats)	
         compute_shaplets(in_path,out_i,n_feats= n_feats)	
 
-in_path="shape_32"#"../conv_frames/seqs"
-out_path="feats"
+in_path="../common/shape_32"#"../conv_frames/seqs"
+out_path="../common/feats"
 #feat_exp(in_path,out_path)
 start = timeit.timeit()
 make_feats(in_path)
