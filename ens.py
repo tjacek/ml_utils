@@ -110,8 +110,8 @@ def read_multi(common_path,deep_path):
 
 if __name__ == "__main__":
     ensemble=Ensemble()#read_multi)
-    common_path="../common/feats.txt"
-    paths={'common':None,'binary':"../ens/_feats"}
+    common_path="../agum4/feats"
+    paths={'common':"../ens_agum/common",'binary':"../ens_agum/feats"}
     result,votes=ensemble(paths,clf="LR",binary=False)
     result.report()
     print(result.get_cf())

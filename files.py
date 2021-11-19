@@ -5,6 +5,9 @@ class Name(str):
     def __new__(cls, p_string):
         return str.__new__(cls, p_string)
 
+    def __len__(self):
+        return len(self.split('_'))
+
     def clean(self):
         digits=[ str(int(digit_i)) 
                 for digit_i in re.findall(r'\d+',self)]
