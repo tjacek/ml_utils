@@ -3,7 +3,7 @@ import numpy as np
 import files,seqs,feats
 import timeit
 
-def make_feats(in_path):
+def make_feats(in_path,out_path):
     model=train_model(in_path)
     def helper(name_i,data_i):
         print(name_i)
@@ -13,7 +13,7 @@ def make_feats(in_path):
         frames=np.expand_dims(frames,axis=0)
         distances = model.transform(frames)
         return distances
-    seqs.transform_lazy(in_path,helper,out_path="feats.txt")
+    seqs.transform_lazy(in_path,helper,out_path=out_path)
 
 def train_model(in_path):
     paths=select_paths(in_path)
@@ -64,9 +64,9 @@ def feat_exp(in_path,out_path,n=20,step=10):
         compute_shaplets(in_path,out_i,n_feats= n_feats)	
 
 in_path="../common/shape_32"#"../conv_frames/seqs"
-out_path="../common/feats"
+out_path="../common/feats_"
 #feat_exp(in_path,out_path)
 start = timeit.timeit()
-make_feats(in_path)
+make_feats(in_path,out_path)
 end = timeit.timeit()
 print(end - start)
