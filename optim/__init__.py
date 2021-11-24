@@ -24,11 +24,6 @@ def all_voting_methods(all_ens ,read_type=None ,desc=""):
 #    exp=make_exp(ens.read_multi)
 #    exp(input_dict,"distinct.csv")
 
-#def make_exp(read=None):
-#    raw= ens.Ensemble(read)
-#    helper=ens.EnsembleHelper(raw,binary=True)
-#    return exp.EnsembleExp(helper,gen)
-
 #def gen(input_dict):
 #    paths=["../../deep_dtw/dtw",
 #            "../../best2/3_layers/feats"]
@@ -40,6 +35,6 @@ def all_voting_methods(all_ens ,read_type=None ,desc=""):
 #            desc_i="%s,%s" % (split_i,path_j.split("/")[-2])
 #            yield desc_i,(common_j,binary_i)
 
-common=None#"../../common/feats"
+common="../../common/feats"
 binary="../../cc2/ens/feats"
-optim_exp(common,binary,out_path="test.txt")
+optim_exp(common,binary,out_path="florence2.txt")

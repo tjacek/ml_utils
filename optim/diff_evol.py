@@ -31,7 +31,7 @@ class OptimizeWeights(object):
         results=learn.train_ens(datasets,clf="LR")
         votes=ens.Votes(results)
         result=votes.weighted(weights)
-        return result
+        return result,weights
 
     def find_weights(self,datasets):
         results=validation_votes(datasets)

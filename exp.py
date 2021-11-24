@@ -1,16 +1,19 @@
 import files,ens
 
 class MultiEnsembleExp(object):
-    def __init__(self,all_ensembles):
+    def __init__(self,all_ensembles,threshold=0.05):
         self.all_ensembles=all_ensembles
+        self.threshold=threshold
 
     def __call__(self,input_dict,out_path=None):
         lines=[]
         for desc_i,ensemble_i in self.all_ensembles.items():
-            result_i=ensemble_i(input_dict)
-            if(type(result_i)==tuple):
-                result_i=result_i[0]
-            line_i="%s,%s" % (desc_i,get_metrics(result_i))
+            result_i,votes_i=ensemble_i(input_dict)
+            if(type(votes_i)==ens.Votes):
+                n_clf=len(votes_i)
+            else:
+                n_clf=votes_i[votes_i>self.threshold].shape[0] 
+            line_i="%s,%d,%s" % (desc_i,n_clf,get_metrics(result_i))
             lines.append(line_i)
         save_lines(lines,out_path)
         return lines
@@ -27,8 +30,6 @@ class EnsembleExp(object):
     def __call__(self,input_dict,out_path=None):
         lines=[]
         for desc_i,path_i in self.gen(input_dict):
-#            if(type(path_i)==tuple):
-#                path_i={"common":path_i[0],"binary":path_i[1]}
             print(path_i)
             result_i=self.ensemble(path_i)[0]
             line_i="%s,%s" % (desc_i,get_metrics(result_i))
