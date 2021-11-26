@@ -2,9 +2,9 @@ import sys
 sys.path.append("..")
 import diff_evol,gasen,ens,exp
  
-def optim_exp(common_path,binary_path,out_path=None):
+def optim_exp(common_path,binary_path,out_path=None,read_type=None):
     all_ens={}
-    all_voting_methods(all_ens ,read_type=None ,desc="")
+    all_voting_methods(all_ens ,read_type=read_type ,desc="")
     ens_exp=exp.MultiEnsembleExp(all_ens)
     input_dict=(common_path,binary_path)
     ens_exp(input_dict,out_path)
@@ -24,17 +24,6 @@ def all_voting_methods(all_ens ,read_type=None ,desc=""):
 #    exp=make_exp(ens.read_multi)
 #    exp(input_dict,"distinct.csv")
 
-#def gen(input_dict):
-#    paths=["../../deep_dtw/dtw",
-#            "../../best2/3_layers/feats"]
-#    common,binary=input_dict
-#    for path_j in paths:
-#        for split_i in ["I","II"]:
-#            common_j=[common,path_j]
-#            binary_i="%s/%s/feats" % (binary,split_i)
-#            desc_i="%s,%s" % (split_i,path_j.split("/")[-2])
-#            yield desc_i,(common_j,binary_i)
-
-common="../../common/feats"
+common=[None,"../../cc2/segm2/feats"]
 binary="../../cc2/ens/feats"
-optim_exp(common,binary,out_path="florence2.txt")
+optim_exp(common,binary,out_path=None,read_type=ens.read_multi)
