@@ -12,7 +12,6 @@ def find_discrm(in_path,out_path):
         discrm_frames+=result_p.get_correct()
     print(len(discrm_frames))
     return discrm_frames
-#    save_discrm(discrm_frames,out_path)
 
 def save_discrm(in_path,discrm_frames,out_path,n_cats=9):
     files.make_dir(out_path)
