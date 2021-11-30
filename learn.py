@@ -74,6 +74,11 @@ class Result(object):
             if(y_i!=y_pred[i]):
                 errors.append( (y_i,y_pred[i],self.names[i]))
         return errors
+
+    def get_correct(self):
+        return [ name_j 
+                for j,name_j in enumerate(self.names)
+                   if(self.y_pred[j]==self.y_true[j])]
     
     def save(self,out_path):
         with open(out_path, 'wb') as out_file:
@@ -137,7 +142,7 @@ def order_error(errors):
                 for cat_i in by_cat.values()]
 
 if __name__ == "__main__":
-    in_path="feats.txt"
+    in_path="../cc2/segm2/dtw"
     result=train_model(in_path)
     result.report()
     print(result.get_cf())
