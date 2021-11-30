@@ -23,8 +23,20 @@ class Name(str):
         subname_k="_".join(self.split("_")[:k])
         return Name(subname_k)
 
-def get_name(in_path):
-    return Name(in_path.split("/")[-1]).clean()
+class PathDict(dict):
+    def __init__(self, arg=[]):
+        super(PathDict, self).__init__(arg)
+
+    def split(self,selector=None):
+        train,test=split(self,selector)
+        return PathDict(train),PathDict(test)    
+
+def get_path_dict(in_path):
+    paths={}
+    for path_i in top_files(in_path):
+        name_i=get_name(path_i)
+        paths[name_i]=top_files(path_i)
+    return PathDict(paths)
 
 class SetSelector(object):
     def __init__(self,names):
@@ -32,6 +44,9 @@ class SetSelector(object):
 
     def __call__(self,name_i):
         return name_i in self.train
+
+def get_name(in_path):
+    return Name(in_path.split("/")[-1]).clean()
 
 def natural_sort(l):
     return sorted(l,key=natural_keys)
