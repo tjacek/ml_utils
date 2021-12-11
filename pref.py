@@ -53,7 +53,7 @@ class PrefEnsemble(ens.Ensemble):
         names=test.keys()
         y_true=[name_i.get_cat() for name_i in names]
         y_pred=[self.system(name_i,pref_dict ) for name_i in names]
-        return learn.Result(y_true,y_pred,names)
+        return learn.Result(y_true,y_pred,names),votes
 
 def to_pref(results):
     raw_pref=[ dict(zip(result_i.names,result_i.y_pred))

@@ -11,6 +11,8 @@ class MultiEnsembleExp(object):
             result_i,votes_i=ensemble_i(input_dict)
             if(type(votes_i)==ens.Votes):
                 n_clf=len(votes_i)
+            elif(type(votes_i)==int):
+                n_clf=votes_i
             else:
                 n_clf=votes_i[votes_i>self.threshold].shape[0] 
             line_i="%s,%d,%s" % (desc_i,n_clf,get_metrics(result_i))
