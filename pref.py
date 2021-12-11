@@ -46,9 +46,16 @@ class PrefEnsemble(object):#ens.Ensemble):
         pref_dict=to_pref(votes.results)
         test=pref_dict.split()[1]
         names=test.keys()
-        y_true=[name_i.get_cat() for name_i in names]
-        y_pred=[self.system(name_i,pref_dict ) for name_i in names]
-        return learn.Result(y_true,y_pred,names),votes
+        result=election(names,self.system,pref_dict)
+        return result,votes
+#        y_true=[name_i.get_cat() for name_i in names]
+#        y_pred=[self.system(name_i,pref_dict ) for name_i in names]
+#        return learn.Result(y_true,y_pred,names),votes
+
+def election(names,system,pref_dict):
+    y_true=[name_i.get_cat() for name_i in names]
+    y_pred=[system(name_i,pref_dict ) for name_i in names]
+    return learn.Result(y_true,y_pred,names)
 
 def to_pref(results):
     raw_pref=[ dict(zip(result_i.names,result_i.y_pred))
@@ -72,11 +79,22 @@ def majority(name_i,pref_dict):
 
 def borda_count(name_i,pref_dict):
     n_cand=pref_dict.n_cand()
+    score=[n_cand-j for j in range(n_cand)]
+    return score_rule(name_i,pref_dict, n_cand,score)
+
+#    count=np.zeros((n_cand,))
+#    for j in range(n_cand):
+#        score_j=n_cand-j
+#        for vote_k in pref_dict.get_rank(name_i,j):
+#            count[vote_k]+=score_j
+#    return np.argmax(count)
+
+def score_rule(name_i,pref_dict, n_cand,score):
     count=np.zeros((n_cand,))
     for j in range(n_cand):
-        score_j=n_cand-j
+#        score_j=n_cand-j
         for vote_k in pref_dict.get_rank(name_i,j):
-            count[vote_k]+=score_j
+            count[vote_k]+=score[j]
     return np.argmax(count)
 
 def bucklin(name_i,pref_dict):
