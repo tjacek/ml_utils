@@ -37,7 +37,8 @@ class PrefDict(dict):
         return np.argsort(counter)[-non_zero:]
 
 class PrefEnsemble(ens.Ensemble):
-    def __init__(self,ensemble=None ,system=None,clf="LR"):
+    def __init__(self,ensemble=None ,system=None,
+            clf="LR",s_clf=None):
         if(ensemble is None):
             ensemble=ens.Ensemble()
         if(system is None):
@@ -45,9 +46,11 @@ class PrefEnsemble(ens.Ensemble):
         self.ensemble=ensemble
         self.system=system
         self.clf=clf
+        self.s_clf=s_clf
 
     def __call__(self,paths):
-        result,votes=self.ensemble(paths,binary=False,clf=self.clf)
+        result,votes=self.ensemble(paths,binary=False,
+            clf=self.clf,s_clf=self.s_clf)
         pref_dict=to_pref(votes.results)
         test=pref_dict.split()[1]
         names=test.keys()

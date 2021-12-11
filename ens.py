@@ -1,5 +1,5 @@
 import numpy as np
-import learn,feats,script
+import learn,feats
 
 class Ensemble(object):
     def __init__(self,read=None):
@@ -101,13 +101,6 @@ def read_multi(common_path,deep_path):
     for common_i in common_path:
         datasets+=read_dataset(common_i,deep_path)
     return datasets
-#    deep_data=read_deep(deep_path)
-#    datasets=[]
-#    for path_i in common_path:
-#        common_i=feats.read(path_i)[0]
-#        for deep_j in deep_data:
-#            datasets.append(common_i+deep_j)
-#    return datasets
 
 if __name__ == "__main__":
     ensemble=Ensemble(read_multi)

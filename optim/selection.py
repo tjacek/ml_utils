@@ -1,26 +1,28 @@
 import sys
 sys.path.append("..")
-import diff_evol,gasen,ens,exp
+import diff_evol,gasen,ens,pref,optim
 
-def optim_exp(common,binary):
-    algs={}
-    algs["diff"]=diff_evol.OptimizeWeights()#read=ens.read_multi)
-    algs["gasen"]=diff_evol.OptimizeWeights(gasen.Comb,maxiter=10,read=None)
-    result={ name_i:select_weights(common,binary,alg_i)
-                for name_i,alg_i in algs.items()}
-    print(result)
+def select_clfs(common_path,binary_path,read_type=None):
+    optim_alg=diff_evol.OptimizeWeights(gasen.Corl,maxiter=10,read=read_type)
+    n_clf,clfs,weights=select_weights(common,binary,optim_alg, threshold=0.05)
+    print(n_clf)
+    print(clfs)
+    print(weights)
+    return clfs
 
 def select_weights(common,binary,optim_alg, threshold=0.05):
     datasets=optim_alg.read(common,binary)
     weights=optim_alg.find_weights(datasets)
-    n_clf=weights[weights>threshold].shape[0]
-    return n_clf,weights
+    clfs=[i  for i,weights_i in enumerate(weights)
+            if(weights_i>threshold)]
+    n_clf=len(clfs)
+    return n_clf,clfs,weights
 
-dir_path="../../3DHOI/"
-binary_path="%s/ens/I/feats" % dir_path
-base_path="%s/1D_CNN/feats" % dir_path
-dtw_path="../../deep_dtw/dtw"
-common=[base_path,"../shape/32_feats"]
 
-input_dict=(base_path,"%s/ens" % dir_path)
-optim_exp(common,binary_path)
+if __name__ == "__main__":
+    path="../../VCIP/3DHOI/%s/feats"
+    common=[path % "1D_CNN",path % "shapelets"]
+    binary=path % "ens/splitI/"
+    s_clf=select_clfs(common,binary,read_type=None)
+    optim.optim_exp(common,binary,out_path=None,
+                 read_type=None,s_clf=s_clf)
