@@ -51,7 +51,9 @@ class Votes(object):
         return [ result_i.get_acc() for result_i in self.results]
 
 class EnsembleHelper(object):
-    def __init__(self,ensemble,binary=False,clf="LR",s_clf=None):
+    def __init__(self,ensemble=None,binary=False,clf="LR",s_clf=None):
+        if(ensemble is None):
+            ensemble=Ensemble()
         self.ensemble=ensemble
         self.binary=binary
         self.clf=clf
@@ -60,6 +62,13 @@ class EnsembleHelper(object):
     def __call__(self,paths):
         return self.ensemble(paths,binary=self.binary,
                     clf=self.clf,s_clf=self.s_clf)
+
+def get_ensemble_helper(ensemble=None):
+    if(ensemble is None):
+            ensemble=EnsembleHelper(clf="LR")
+    if(type(ensemble) == list):
+            ensemble=EnsembleHelper(clf="LR",s_clf=ensemble)
+    return ensemble
 
 def read_dataset(common_path,deep_path):
     if(not common_path):

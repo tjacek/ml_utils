@@ -11,9 +11,6 @@ class PrefDict(dict):
     def n_cand(self):
         return list(self.values())[0].shape[1]
 
-#    def major_threshold(self):
-#        return np.floor(self.n_votes()/2)
-
     def split(self):
         train,test=files.split(self)
         return PrefDict(train),PrefDict(test)
@@ -36,21 +33,16 @@ class PrefDict(dict):
         non_zero=counter[counter!=0].shape[0]
         return np.argsort(counter)[-non_zero:]
 
-class PrefEnsemble(ens.Ensemble):
-    def __init__(self,ensemble=None ,system=None,
-            clf="LR",s_clf=None):
-        if(ensemble is None):
-            ensemble=ens.Ensemble()
+class PrefEnsemble(object):#ens.Ensemble):
+    def __init__(self,ensemble=None ,system=None):
+        ensemble=ens.get_ensemble_helper(ensemble)
         if(system is None):
             system=coombs
         self.ensemble=ensemble
         self.system=system
-        self.clf=clf
-        self.s_clf=s_clf
 
     def __call__(self,paths):
-        result,votes=self.ensemble(paths,binary=False,
-            clf=self.clf,s_clf=self.s_clf)
+        result,votes=self.ensemble(paths)
         pref_dict=to_pref(votes.results)
         test=pref_dict.split()[1]
         names=test.keys()
