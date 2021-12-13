@@ -48,9 +48,6 @@ class PrefEnsemble(object):#ens.Ensemble):
         names=test.keys()
         result=election(names,self.system,pref_dict)
         return result,votes
-#        y_true=[name_i.get_cat() for name_i in names]
-#        y_pred=[self.system(name_i,pref_dict ) for name_i in names]
-#        return learn.Result(y_true,y_pred,names),votes
 
 def election(names,system,pref_dict):
     y_true=[name_i.get_cat() for name_i in names]
@@ -82,17 +79,9 @@ def borda_count(name_i,pref_dict):
     score=[n_cand-j for j in range(n_cand)]
     return score_rule(name_i,pref_dict, n_cand,score)
 
-#    count=np.zeros((n_cand,))
-#    for j in range(n_cand):
-#        score_j=n_cand-j
-#        for vote_k in pref_dict.get_rank(name_i,j):
-#            count[vote_k]+=score_j
-#    return np.argmax(count)
-
 def score_rule(name_i,pref_dict, n_cand,score):
     count=np.zeros((n_cand,))
     for j in range(n_cand):
-#        score_j=n_cand-j
         for vote_k in pref_dict.get_rank(name_i,j):
             count[vote_k]+=score[j]
     return np.argmax(count)
@@ -124,11 +113,27 @@ def coombs(name_i,pref_dict):
         print(len(counters))
     raise Exception(counters)
 
+def major_stats(paths,ensemble=None):
+    ensemble=ens.get_ensemble_helper(ensemble)
+    result,votes=ensemble(paths)
+    pref_dict=to_pref(votes.results)
+    threshold=np.ceil(pref_dict.n_votes()/2)
+    nonmajor_error=[]
+    for name_i in pref_dict.keys():
+        pred_i=majority(name_i,pref_dict)
+        if(name_i.get_cat()!=pred_i):
+            first=pref_dict.get_rank(name_i,0)
+            unique, counts = np.unique(first, return_counts=True)
+            if(np.amax(counts)<threshold):
+                nonmajor_error.append(name_i)
+    print(nonmajor_error)
+
 if __name__ == "__main__":
     path="../VCIP/3DHOI/%s/feats"
-    common=[path % "1D_CNN",path % "shapelets"]
+    common=[path % "1D_CNN","../deep_dtw/dtw"]#path % "shapelets"]
     binary=path % "ens/splitI/"
-    ensemble=PrefEnsemble()
-    result=ensemble((common,binary))
-    result.report()
-    print(result.get_cf())
+#    ensemble=PrefEnsemble()
+#    result=ensemble((common,binary))
+#    result.report()
+#    print(result.get_cf())
+    major_stats((common,binary))

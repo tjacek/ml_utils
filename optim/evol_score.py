@@ -45,5 +45,6 @@ def init_score(pop_size,n_cand):
 if __name__ == "__main__":
     path="../../VCIP/3DHOI/%s/feats"
     common=[path % "1D_CNN",path % "shapelets"]
-    binary=path % "ens/splitII/"
-    find_score((common,binary),None)
+    binary=path % "ens/splitI/"
+    find_score((common,binary),[0, 1, 2, 8, 9])
+)
