@@ -42,9 +42,18 @@ def init_score(pop_size,n_cand):
         population.append(score_j)     
     return population
 
+def eval_select(paths):
+    import selection
+    s_clf,acc=selection.select_clfs(paths[0],paths[1],read_type=None)
+    find_score(paths,s_clf)
+    print(s_clf)
+    print(len(s_clf))
+    print(acc)
+
 if __name__ == "__main__":
     path="../../VCIP/3DHOI/%s/feats"
-    common=[path % "1D_CNN",path % "shapelets"]
-    binary=path % "ens/splitI/"
-    find_score((common,binary),[0, 1, 2, 8, 9])
-)
+    common=[path % "1D_CNN","../../deep_dtw/dtw"]#path % "shapelets"]
+    binary=path % "ens/splitII/"
+    paths=(common,binary)
+#    find_score((common,binary),[0, 2, 3, 5, 6, 8, 9, 11])#[0, 1, 2, 3, 8, 9, 10])
+    eval_select(paths)
