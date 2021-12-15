@@ -2,15 +2,17 @@ import sys
 sys.path.append("..")
 import diff_evol,gasen,ens,pref,optim
 
-def select_clfs(common,binary,read_type=None):
+def select_clfs(paths,read_type=None):
+    common,binary=paths
     optim_alg=diff_evol.OptimizeWeights(gasen.Corl,maxiter=10,read=read_type)
     n_clf,s_clf,weights=select_weights(common,binary,optim_alg, threshold=0.05)
     result=optim_alg.eval_weights(weights,(common,binary))
-    print(n_clf)
-    print(s_clf)
-    print(weights)
-    acc=result.get_acc()
-    return s_clf,acc
+    return result,s_clf
+#    print(n_clf)
+#    print(s_clf)
+#    print(weights)
+#    acc=result.get_acc()
+#    return s_clf,acc
 
 def select_weights(common,binary,optim_alg, threshold=0.05):
     datasets=optim_alg.read(common,binary)
