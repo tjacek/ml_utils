@@ -2,6 +2,7 @@ import sys
 sys.path.append("..")
 import numpy as np
 from scipy.optimize import differential_evolution
+import psopy
 import selection,pref,ens
 
 class GenAlg(object):
@@ -18,7 +19,20 @@ class GenAlg(object):
             maxiter=self.maxiter, tol=1e-7)
         return result['x']
 
+class SwarmAlg(object):
+    def __init__(self,maxiter=10,init_type="random",pop_size=100):
+        self.maxiter=maxiter
+        self.init_type=init_type
+        self.pop_size=pop_size
+
+    def __call__(self,loss_fun,n_cand):
+        init=init_population(self.init_type,n_cand,self.pop_size)
+        res = psopy.minimize(loss_fun, init, options={'stable_iter':self.maxiter})
+        return res.x        
+
 def init_population(init_type,n_cand,pop_size=15):
+    if(init_type=="random"):
+        return np.random.uniform(0,n_cand,(pop_size,n_cand))
     if(init_type=="borda"):
         return [[n_cand-j
                     for j in range(n_cand)]
@@ -73,5 +87,5 @@ if __name__ == "__main__":
                 path % "shapelets"]
     binary=path % "ens/splitI/"
     paths=(common,binary)
-    optim=GenAlg(init_type="borda")
+    optim=SwarmAlg()#init_type="borda")
     exp(paths,10,optim)
