@@ -1,5 +1,7 @@
+import sys
+sys.path.append("..")
 import numpy as np
-import ens,files,learn
+import ens,files,learn,systems
 
 class PrefDict(dict):
     def __init__(self, arg=[]):
@@ -11,6 +13,9 @@ class PrefDict(dict):
     def n_cand(self):
         return list(self.values())[0].shape[1]
 
+    def threshold(self):
+        return np.ceil(self.n_votes()/2)
+
     def split(self):
         train,test=files.split(self)
         return PrefDict(train),PrefDict(test)
@@ -18,6 +23,11 @@ class PrefDict(dict):
     def get_rank(self,name_i,k):
         pref_ij=self[name_i]
         return pref_ij[:,k]       
+
+    def pair_winner(self,name_i,a,b):
+        result=[int(np.where(p==a)[0]>np.where(p==b))
+                    for p in self[name_i]]
+        return np.array(result)
 
     def as_counters(self,name_i):
         return [self.count_rank(name_i,k,True) 
@@ -68,51 +78,6 @@ def to_pref(results):
         pref_dict[name_i]=np.array(pref_i)
     return pref_dict
 
-def majority(name_i,pref_dict):
-    first=pref_dict.get_rank(name_i,0)
-    unique, counts = np.unique(first, return_counts=True)
-    winner= unique[np.argmax(counts)]
-    return winner
-
-def borda_count(name_i,pref_dict):
-    n_cand=pref_dict.n_cand()
-    score=[n_cand-j for j in range(n_cand)]
-    return score_rule(name_i,pref_dict, n_cand,score)
-
-def score_rule(name_i,pref_dict, n_cand,score):
-    count=np.zeros((n_cand,))
-    for j in range(n_cand):
-        for vote_k in pref_dict.get_rank(name_i,j):
-            count[vote_k]+=score[j]
-    return np.argmax(count)
-
-def bucklin(name_i,pref_dict):
-    n_cand=pref_dict.n_cand()
-    count=np.zeros((n_cand,))
-    threshold= np.floor(pref_dict.n_votes()/2)
-    for j in range(n_cand):
-        for vote_k in pref_dict.get_rank(name_i,j):
-            count[vote_k]+=1
-        if(np.amax(count)>threshold):
-            return np.argmax(count)
-    raise Exception("error")
-
-def coombs(name_i,pref_dict):
-    counters=pref_dict.as_counters(name_i)
-    while(counters):
-        threshold=np.floor(np.sum(counters[0])/2)
-        if(threshold<np.amax(counters[0])):
-            return np.argmax(counters[0])
-        if(np.amax(counters[-1])==0):
-            counters.pop()
-        worst=np.argmax(counters[-1])
-        for counter_j in counters:
-            counter_j[worst]=0
-        if(np.amax(counters[0])==0):
-            del counters[0]
-        print(len(counters))
-    raise Exception(counters)
-
 def major_stats(paths,ensemble=None):
     ensemble=ens.get_ensemble_helper(ensemble)
     result,votes=ensemble(paths)
@@ -121,19 +86,23 @@ def major_stats(paths,ensemble=None):
     nonmajor_error=[]
     for name_i in pref_dict.keys():
         pred_i=majority(name_i,pref_dict)
-        if(name_i.get_cat()!=pred_i):
-            first=pref_dict.get_rank(name_i,0)
-            unique, counts = np.unique(first, return_counts=True)
-            if(np.amax(counts)<threshold):
-                nonmajor_error.append(name_i)
+#        if(name_i.get_cat()!=pred_i):
+        first=pref_dict.get_rank(name_i,0)
+        unique, counts = np.unique(first, return_counts=True)
+        if(np.amax(counts)<threshold):
+            nonmajor_error.append(name_i)
     print(nonmajor_error)
+    print(len(nonmajor_error))
+    print(len(nonmajor_error)/len(pref_dict))
+
 
 if __name__ == "__main__":
-    path="../VCIP/3DHOI/%s/feats"
-    common=[path % "1D_CNN","../deep_dtw/dtw"]#path % "shapelets"]
-    binary=path % "ens/splitI/"
-#    ensemble=PrefEnsemble()
-#    result=ensemble((common,binary))
-#    result.report()
-#    print(result.get_cf())
-    major_stats((common,binary))
+    path="../../VCIP/3DHOI/%s/feats"
+    common=[path % "1D_CNN",#"../deep_dtw/dtw"]
+         path % "shapelets"]
+    binary=path % "ens/splitII/"
+    ensemble=PrefEnsemble(system=systems.copeland_method)
+    result=ensemble((common,binary))[0]
+    result.report()
+    print(result.get_cf())
+#    major_stats((common,binary))

@@ -51,6 +51,7 @@ def init_population(init_type,n_cand,pop_size=15):
 def exp(paths,n_iters,optim):
     old_results,new_results=[],[]
     for i in range(n_iters):
+        print("Epoch %d" % i)
         old_i,s_clf=selection.select_clfs(paths,read_type=None)
         new_i,score_i=find_score(paths,s_clf,optim)
         old_results.append(old_i)
