@@ -5,18 +5,23 @@ from scipy.optimize import differential_evolution
 import selection,pref,ens
 
 class GenAlg(object):
-    def __init__(self,maxiter=10):
+    def __init__(self,maxiter=10,init='latinhypercube'):
         self.maxiter=maxiter
-
+        self.init=init
+ 
     def __call__(self,loss_fun,n_cand,maxiter=50):
+        if(self.init=="borda"):
+            self.init=[[n_cand-j
+                          for j in range(n_cand)]
+                              for _ in range(15)]	
         bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
         result = differential_evolution(loss_fun, bound_w, 
-#        init=init_score(15,n_cand),
-                 maxiter=self.maxiter, tol=1e-7)
+            init=self.init,
+            maxiter=self.maxiter, tol=1e-7)
         return result['x']
 
 def exp(paths,n_iters):
-    optim=GenAlg()
+    optim=GenAlg(init="borda")
     old_results,new_results=[],[]
     for i in range(n_iters):
         old_i,s_clf=selection.select_clfs(paths,read_type=None)
