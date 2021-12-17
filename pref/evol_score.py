@@ -7,23 +7,43 @@ import pref,ens,exp
 import optim_algs,systems,get_data
 
 class PrefExp(object):
-    def __init__(self,alg_optim,get_data=None):
+    def __init__(self,alg_optim,get_data=None,selected=False):
         if(get_data is None):
-            get_data=get_pref_dict
+            get_data=get_data.person_dict
         self.alg_optim=alg_optim
         self.get_data=get_data
+        self.selected=selected
 
     def __call__(self,paths,n_iters):
+        if(self.selected):
+            return self.selected_exp(paths,n_iters)
+        else:
+            return self.full_exp(paths,n_iters)
+
+    def selected_exp(self,paths,n_iters):
+        old_results,new_results,s_clfs=[],[],[]
+        for i in range(n_iters):
+            p+rint("Epoch %d" % i)
+            old_i,s_clf_i=select_clfs(paths,read_type=None)
+            new_i,score_i=self.find_score(paths,s_clf_i)
+            old_results.append(old_i)
+            new_results.append(new_i)
+            s_clfs.append( s_clf_i)
+        k=diff_acc(new_results,old_results)
+        print("diff acc %.5f" % diff_acc[k])
+        return old_results[k],new_results[k],s_clfs[k]
+
+    def full_exp(self,paths,n_iters):
         old_results,new_results=[],[]
         for i in range(n_iters):
             print("Epoch %d" % i)
-            old_i,s_clf=select_clfs(paths,read_type=None)
-            new_i,score_i=self.find_score(paths,s_clf)
+            old_i=ens.get_ensemble_helper(None)(paths)[0]
+            new_i,score_i=self.find_score(paths,None)
             old_results.append(old_i)
             new_results.append(new_i)
-        acc=[result_i.get_acc() for result_i in new_results]
-        k=np.argmax(acc)
-        return old_results[k],new_results[k]
+        diff_acc,k=get_diff_acc(new_results,old_results)
+        print("diff acc %.5f" % diff_acc)
+        return old_results[k],new_results[k],len(score_i)
 
     def find_score(self,paths,ensemble):
         ensemble=ens.get_ensemble_helper(ensemble)
@@ -39,14 +59,20 @@ class PrefExp(object):
         result=eval_score(score,n_cand,test_dict)
         return result,score
 
+def get_diff_acc(new_results,old_results):
+    diff_acc=[ (new_i.get_acc()-old_i.get_acc()) 
+                    for new_i,old_i in zip(new_results,old_results)]
+    k=np.argmax(diff_acc)
+    return diff_acc[k],k
+
 def paths_exp(all_paths,out_path,pref_exp,n_iters=5):
     lines=[]
     def helper(desc_i,result_i):
         line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
         lines.append(line_i)
     for paths_i in all_paths:
-        old,new=pref_exp(paths_i,n_iters)
-        desc_i=exp.paths_desc(paths_i)
+        old,new,s_clf=pref_exp(paths_i,n_iters)
+        desc_i="%s,%s" % (exp.paths_desc(paths_i),str(s_clf))
         helper("old,%s"%desc_i,old)
         helper("new,%s"%desc_i,new)
         print(lines)
@@ -69,4 +95,4 @@ if __name__ == "__main__":
     paths=get_paths()
 #    print(exp.paths_desc(paths[0]))
     pref_exp=PrefExp(optim,get_data.person_dict)
-    paths_exp(paths,"test2",pref_exp,10)
+    paths_exp(paths,"test4",pref_exp,2)

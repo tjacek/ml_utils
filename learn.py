@@ -166,10 +166,6 @@ def person_votes(datasets,clf="LR",n_split=5):
             result_p =Result(validate_test.get_labels(),y_pred,validate_test.names())
             partial_results.append(result_p)
         result_i=unify_results(partial_results)
-        print(len(y_pred))
-        print(len(validate))
-        print(len(validate_test))
-#        raise Exception(validate.keys())
         results.append(result_i)
     return results
 
@@ -180,7 +176,6 @@ def unify_results(partial):
         y_true+=result_p.y_true
         y_pred.append( result_p.y_pred)
     y_pred=np.concatenate(y_pred,axis=0)
-#    raise Exception(y_pred.shape)
     return Result(y_true,y_pred,names)
 
 
