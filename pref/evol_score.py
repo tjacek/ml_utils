@@ -27,16 +27,16 @@ class PrefExp(object):
 
     def find_score(self,paths,ensemble):
         ensemble=ens.get_ensemble_helper(ensemble)
-        pref_dict=self.get_data(paths,ensemble) 
-        n_cand=pref_dict.n_cand()
+        train_dict,test_dict=self.get_data(paths,ensemble) 
+        n_cand=train_dict.n_cand()
         def loss_fun(score):
-            result=eval_score(score,n_cand,pref_dict)
+            result=eval_score(score,n_cand,train_dict)
             acc=result.get_acc()
             print(acc)
             return (1.0-acc)
         score=self.alg_optim(loss_fun,n_cand)
         print(score)
-        result=eval_score(score,n_cand,pref_dict)
+        result=eval_score(score,n_cand,test_dict)
         return result,score
 
 def paths_exp(all_paths,out_path,pref_exp,n_iters=5):
@@ -54,7 +54,7 @@ def paths_exp(all_paths,out_path,pref_exp,n_iters=5):
 
 def eval_score(score,n_cand,pref_dict):
     def system_i(name_i,pref_dict):
-        return systems.score_rule(name_i,pref_dict, n_cand,score)
+        return systems.score_rule(name_i,pref_dict,n_cand,score)
     names=pref_dict.keys()
     return pref.election(names,system_i,pref_dict)
 

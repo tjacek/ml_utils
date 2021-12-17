@@ -141,6 +141,17 @@ def order_error(errors):
     return [ sorted(cat_i ,key=lambda x: x[1]) 
                 for cat_i in by_cat.values()]
 
+def validation_votes(datasets,clf="LR"):
+    results=[]
+    for data_i in datasets:
+        data_i.norm()
+        train=data_i.split()[0]
+        clf_i=make_model(train,clf)
+        y_pred=clf_i.predict_proba(train.get_X())
+        result_i =Result(train.get_labels(),y_pred,train.names())
+        results.append(result_i)
+    return results
+
 if __name__ == "__main__":
     in_path="../cc2/segm2/dtw"
     result=train_model(in_path)

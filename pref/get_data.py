@@ -1,10 +1,15 @@
-import ens
+import ens,learn,pref
 
 def validate(paths,ensemble):
     datasets=ensemble.get_datasets(paths)
-    raise Exception(len(datasets))
+    results= learn.validation_votes(datasets,clf="LR")
+    train_dict=pref.to_pref(results)
+    result,votes=ensemble(paths)
+    test_dict=pref.to_pref(votes.results)
+    return train_dict,test_dict
+#    raise Exception(len(pref_dict))
 
-def get_pref_dict(paths,ensemble):
+def pref_dict(paths,ensemble):
     result,votes=ensemble(paths)
     pref_dict=pref.to_pref(votes.results)
-    return pref_dict
+    return pref_dict,pref_dict
