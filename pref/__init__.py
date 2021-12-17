@@ -95,7 +95,6 @@ def major_stats(paths,ensemble=None):
     print(len(nonmajor_error))
     print(len(nonmajor_error)/len(pref_dict))
 
-
 if __name__ == "__main__":
     path="../../VCIP/3DHOI/%s/feats"
     common=[path % "1D_CNN",#"../deep_dtw/dtw"]
