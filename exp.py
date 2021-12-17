@@ -39,12 +39,20 @@ class EnsembleExp(object):
         save_lines(lines,out_path)
         return lines
 
-def simple_gen(input_dict):
-    print(input_dict)
-    common,binary=input_dict
-    for common_i in common:
-        desc_i=common_i.split("/")[-1]
-        yield desc_i,(common_i,binary)
+#def simple_gen(input_dict):
+#    print(input_dict)
+#    common,binary=input_dict
+#    for common_i in common:
+#        desc_i=common_i.split("/")[-1]
+#        yield desc_i,(common_i,binary)
+
+def paths_desc(paths):
+    common,binary=paths
+    common_desc=[common_i.split("/")[-2] 
+                    for common_i in common]
+    binary_desc=binary.split("/")[-2]
+    common_desc= "/".join(common_desc)
+    return "%s,%s" % (common_desc,binary_desc)
 
 def save_lines(lines,out_path):
     print(lines)
@@ -59,9 +67,9 @@ def get_metrics(result_i):
 	metrics="%.4f,%.4f,%.4f" % result_i.metrics()[:3]
 	return "%.4f,%s" % (acc_i,metrics)
 
-def get_out_path(in_path,name):
-    dir_path="_".join(in_path.split("/")[:-1])
-    return "%s/%s" % (in_path,name)
+#def get_out_path(in_path,name):
+#    dir_path="_".join(in_path.split("/")[:-1])
+#    return "%s/%s" % (in_path,name)
 
 def fill_template(template,elements):
     tuples=[]  

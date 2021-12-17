@@ -13,9 +13,10 @@ def paths_exp(all_paths,out_path,optim,n_iters=5):
         lines.append(line_i)
     for paths_i in all_paths:
         old,new=score_exp(paths_i,n_iters,optim)
-        desc_i=paths_i[1].split("/")[-1]
+        desc_i=exp.paths_desc(paths_i) #paths_i[1].split("/")[-1]
         helper("old,%s"%desc_i,old)
         helper("new,%s"%desc_i,new)
+        print(lines)
     exp.save_lines(lines,out_path)
 
 def score_exp(paths,n_iters,optim):
@@ -57,10 +58,10 @@ def get_paths():
     path="../../VCIP/3DHOI/%s/feats"
     common=[path % "1D_CNN","../../deep_dtw/dtw"]
 #                path % "shapelets"]
-#    binary=path % "ens/splitI/"
-    return [(common,path % "ens/splitI/"),(common,path % "ens/splitII/")]    
+    return [(common,path % "ens/splitI"),(common,path % "ens/splitII/")]    
 
 if __name__ == "__main__":    
     optim=optim_algs.GenAlg()#init_type="borda")
     paths=get_paths()
-    paths_exp(paths,"test",optim,5)
+    print(exp.paths_desc(paths[0]))
+#    paths_exp(paths,"test2",optim,2)
