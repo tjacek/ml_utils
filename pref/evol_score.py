@@ -68,5 +68,5 @@ if __name__ == "__main__":
     optim=optim_algs.GenAlg()#init_type="borda")
     paths=get_paths()
 #    print(exp.paths_desc(paths[0]))
-    pref_exp=PrefExp(optim,get_data.validate)
-    paths_exp(paths,"test2",pref_exp,2)
+    pref_exp=PrefExp(optim,get_data.person_dict)
+    paths_exp(paths,"test2",pref_exp,10)

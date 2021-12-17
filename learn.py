@@ -152,6 +152,38 @@ def validation_votes(datasets,clf="LR"):
         results.append(result_i)
     return results
 
+def person_votes(datasets,clf="LR",n_split=5):
+    results=[]
+    for data_i in datasets:
+        data_i.norm()
+        train=data_i.split()[0]
+        partial_results=[]
+        for p in range(n_split):
+            selector_p=lambda name: (name.get_person()%n_split)!=p
+            validate,validate_test=train.split(selector_p)
+            clf_p=make_model(validate,clf)
+            y_pred=clf_p.predict_proba(validate_test.get_X())
+            result_p =Result(validate_test.get_labels(),y_pred,validate_test.names())
+            partial_results.append(result_p)
+        result_i=unify_results(partial_results)
+        print(len(y_pred))
+        print(len(validate))
+        print(len(validate_test))
+#        raise Exception(validate.keys())
+        results.append(result_i)
+    return results
+
+def unify_results(partial):
+    names,y_true,y_pred=[],[],[]
+    for result_p in partial:
+        names+=result_p.names
+        y_true+=result_p.y_true
+        y_pred.append( result_p.y_pred)
+    y_pred=np.concatenate(y_pred,axis=0)
+#    raise Exception(y_pred.shape)
+    return Result(y_true,y_pred,names)
+
+
 if __name__ == "__main__":
     in_path="../cc2/segm2/dtw"
     result=train_model(in_path)
