@@ -63,6 +63,10 @@ class EnsembleHelper(object):
         return self.ensemble(paths,binary=self.binary,
                     clf=self.clf,s_clf=self.s_clf)
 
+    def get_datasets(self,paths):
+        datasets=self.ensemble.get_datasets(paths)
+        return [datasets[i] for i in self.s_clf]
+
 def get_ensemble_helper(ensemble=None):
     if(ensemble is None):
             ensemble=EnsembleHelper(clf="LR")
