@@ -23,14 +23,14 @@ class PrefExp(object):
     def selected_exp(self,paths,n_iters):
         old_results,new_results,s_clfs=[],[],[]
         for i in range(n_iters):
-            p+rint("Epoch %d" % i)
+            print("Epoch %d" % i)
             old_i,s_clf_i=select_clfs(paths,read_type=None)
             new_i,score_i=self.find_score(paths,s_clf_i)
             old_results.append(old_i)
             new_results.append(new_i)
             s_clfs.append( s_clf_i)
-        k=diff_acc(new_results,old_results)
-        print("diff acc %.5f" % diff_acc[k])
+        diff_acc,k=get_diff_acc(new_results,old_results)
+        print("diff acc %.5f" % diff_acc)
         return old_results[k],new_results[k],s_clfs[k]
 
     def full_exp(self,paths,n_iters):
@@ -59,23 +59,31 @@ class PrefExp(object):
         result=eval_score(score,n_cand,test_dict)
         return result,score
 
+    def __str__(self):
+        alg=self.alg_optim.__class__.__name__
+        init=self.alg_optim.init_type
+        return "%s,%s" % (alg,init)
+
 def get_diff_acc(new_results,old_results):
     diff_acc=[ (new_i.get_acc()-old_i.get_acc()) 
                     for new_i,old_i in zip(new_results,old_results)]
     k=np.argmax(diff_acc)
     return diff_acc[k],k
 
-def paths_exp(all_paths,out_path,pref_exp,n_iters=5):
+def paths_exp(all_paths,out_path,all_exps,n_iters=5):
+    if(type(all_exps)!=list):
+        all_exps=[all_exps]
     lines=[]
     def helper(desc_i,result_i):
         line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
         lines.append(line_i)
-    for paths_i in all_paths:
-        old,new,s_clf=pref_exp(paths_i,n_iters)
-        desc_i="%s,%s" % (exp.paths_desc(paths_i),str(s_clf))
-        helper("old,%s"%desc_i,old)
-        helper("new,%s"%desc_i,new)
-        print(lines)
+    for pref_exp_j in all_exps:
+        for paths_i in all_paths:
+            old,new,s_clf=pref_exp_j(paths_i,n_iters)
+            desc_i="%s,%s,%s" % (str(pref_exp_j),exp.paths_desc(paths_i),str(s_clf))
+            helper("old,%s"%desc_i,old)
+            helper("new,%s"%desc_i,new)
+            print(lines)
     exp.save_lines(lines,out_path)
 
 def eval_score(score,n_cand,pref_dict):
@@ -83,6 +91,18 @@ def eval_score(score,n_cand,pref_dict):
         return systems.score_rule(name_i,pref_dict,n_cand,score)
     names=pref_dict.keys()
     return pref.election(names,system_i,pref_dict)
+
+def all_algs_exp(paths,out_path,n_iters):
+    algs=[optim_algs.GenAlg(init_type=init_i)  
+             for init_i in ['latinhypercube','borda',"borda_mixed"]]
+#    algs=[]
+    algs+=[optim_algs.SwarmAlg(init_type=init_i)  
+             for init_i in ['random','borda',"borda_mixed"]]
+    all_exp=[]
+    for alg_i in algs:
+        all_exp+=[PrefExp(alg_i,get_data.person_dict,True),
+                 PrefExp(alg_i,get_data.person_dict,False)]
+    paths_exp(paths,out_path,all_exp,n_iters)
 
 def get_paths():
     path="../../VCIP/3DHOI/%s/feats"
@@ -94,5 +114,5 @@ if __name__ == "__main__":
     optim=optim_algs.GenAlg()#init_type="borda")
     paths=get_paths()
 #    print(exp.paths_desc(paths[0]))
-    pref_exp=PrefExp(optim,get_data.person_dict)
-    paths_exp(paths,"test4",pref_exp,2)
+    all_algs_exp(paths,"final",20)
+    
