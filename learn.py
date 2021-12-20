@@ -146,10 +146,7 @@ def validation_votes(datasets,clf="LR"):
     for data_i in datasets:
         data_i.norm()
         train=data_i.split()[0]
-        clf_i=make_model(train,clf)
-        y_pred=clf_i.predict_proba(train.get_X())
-        result_i =Result(train.get_labels(),y_pred,train.names())
-        results.append(result_i)
+        results.append(make_result(train,train,clf))
     return results
 
 def person_votes(datasets,clf="LR",n_split=5):
@@ -161,13 +158,15 @@ def person_votes(datasets,clf="LR",n_split=5):
         for p in range(n_split):
             selector_p=lambda name: (name.get_person()%n_split)!=p
             validate,validate_test=train.split(selector_p)
-            clf_p=make_model(validate,clf)
-            y_pred=clf_p.predict_proba(validate_test.get_X())
-            result_p =Result(validate_test.get_labels(),y_pred,validate_test.names())
-            partial_results.append(result_p)
+            partial_results.append(make_result(validate,validate_test,clf))
         result_i=unify_results(partial_results)
         results.append(result_i)
     return results
+
+def make_result(train,test,clf="LR"):
+    clf_p=make_model(train,clf)
+    y_pred=clf_p.predict_proba(test.get_X())
+    return Result(test.get_labels(),y_pred,test.names())    
 
 def unify_results(partial):
     names,y_true,y_pred=[],[],[]
@@ -177,7 +176,6 @@ def unify_results(partial):
         y_pred.append( result_p.y_pred)
     y_pred=np.concatenate(y_pred,axis=0)
     return Result(y_true,y_pred,names)
-
 
 if __name__ == "__main__":
     in_path="../cc2/segm2/dtw"

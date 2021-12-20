@@ -92,17 +92,6 @@ def eval_score(score,n_cand,pref_dict):
     names=pref_dict.keys()
     return pref.election(names,system_i,pref_dict)
 
-#def all_algs_exp(paths,out_path,n_iters):
-#    algs=[optim_algs.GenAlg(init_type=init_i)  
-#             for init_i in ['latinhypercube','borda',"borda_mixed"]]
-#    algs+=[optim_algs.SwarmAlg(init_type=init_i)  
-#             for init_i in ['random','borda',"borda_mixed"]]
-#    all_exp=[]
-#    for alg_i in algs:
-#        all_exp+=[PrefExp(alg_i,get_data.person_dict,True),
-#                 PrefExp(alg_i,get_data.person_dict,False)]
-#    paths_exp(paths,out_path,all_exp,n_iters)
-
 def all_algs_exp(paths,s_clf,out_path):
     lines=[]
     for alg_i in all_algs():
