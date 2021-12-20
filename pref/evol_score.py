@@ -70,21 +70,21 @@ def get_diff_acc(new_results,old_results):
     k=np.argmax(diff_acc)
     return diff_acc[k],k
 
-def paths_exp(all_paths,out_path,all_exps,n_iters=5):
-    if(type(all_exps)!=list):
-        all_exps=[all_exps]
-    lines=[]
-    def helper(desc_i,result_i):
-        line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
-        lines.append(line_i)
-    for pref_exp_j in all_exps:
-        for paths_i in all_paths:
-            old,new,s_clf=pref_exp_j(paths_i,n_iters)
-            desc_i="%s,%s,%s" % (str(pref_exp_j),exp.paths_desc(paths_i),str(s_clf))
-            helper("old,%s"%desc_i,old)
-            helper("new,%s"%desc_i,new)
-            print(lines)
-    exp.save_lines(lines,out_path)
+#def paths_exp(all_paths,out_path,all_exps,n_iters=5):
+#    if(type(all_exps)!=list):
+#        all_exps=[all_exps]
+#    lines=[]
+#    def helper(desc_i,result_i):
+#        line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
+#        lines.append(line_i)
+#    for pref_exp_j in all_exps:
+#        for paths_i in all_paths:
+#            old,new,s_clf=pref_exp_j(paths_i,n_iters)
+#            desc_i="%s,%s,%s" % (str(pref_exp_j),exp.paths_desc(paths_i),str(s_clf))
+#            helper("old,%s"%desc_i,old)
+#            helper("new,%s"%desc_i,new)
+#            print(lines)
+#    exp.save_lines(lines,out_path)
 
 def eval_score(score,n_cand,pref_dict):
     def system_i(name_i,pref_dict):
@@ -92,27 +92,44 @@ def eval_score(score,n_cand,pref_dict):
     names=pref_dict.keys()
     return pref.election(names,system_i,pref_dict)
 
-def all_algs_exp(paths,out_path,n_iters):
+#def all_algs_exp(paths,out_path,n_iters):
+#    algs=[optim_algs.GenAlg(init_type=init_i)  
+#             for init_i in ['latinhypercube','borda',"borda_mixed"]]
+#    algs+=[optim_algs.SwarmAlg(init_type=init_i)  
+#             for init_i in ['random','borda',"borda_mixed"]]
+#    all_exp=[]
+#    for alg_i in algs:
+#        all_exp+=[PrefExp(alg_i,get_data.person_dict,True),
+#                 PrefExp(alg_i,get_data.person_dict,False)]
+#    paths_exp(paths,out_path,all_exp,n_iters)
+
+def all_algs_exp(paths,s_clf,out_path):
+    lines=[]
+    for alg_i in all_algs():
+        pref_i=PrefExp(alg_i,get_data.person_dict,False)
+        result_i,score_i=pref_i.find_score(paths,s_clf)
+        desc_i="%s,%s,%s" % (str(pref_i),exp.paths_desc(paths),str(score_i))
+        line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
+        lines.append(line_i)
+        print(lines)
+    exp.save_lines(lines,out_path)
+
+def all_algs():
     algs=[optim_algs.GenAlg(init_type=init_i)  
              for init_i in ['latinhypercube','borda',"borda_mixed"]]
-#    algs=[]
     algs+=[optim_algs.SwarmAlg(init_type=init_i)  
-             for init_i in ['random','borda',"borda_mixed"]]
-    all_exp=[]
-    for alg_i in algs:
-        all_exp+=[PrefExp(alg_i,get_data.person_dict,True),
-                 PrefExp(alg_i,get_data.person_dict,False)]
-    paths_exp(paths,out_path,all_exp,n_iters)
+             for init_i in ['random','borda',"borda_mixed"]]    
+    return algs
 
 def get_paths():
     path="../../VCIP/3DHOI/%s/feats"
     common=[path % "1D_CNN","../../deep_dtw/dtw"]
 #                path % "shapelets"]
-    return [(common,path % "ens/splitI"),(common,path % "ens/splitII")]    
+    return [(common,path % "ens/splitII")]#,(common,path % "ens/splitII")]    
 
 if __name__ == "__main__":    
     optim=optim_algs.GenAlg()#init_type="borda")
     paths=get_paths()
 #    print(exp.paths_desc(paths[0]))
-    all_algs_exp(paths,"final",20)
+    all_algs_exp(paths[0],[3, 9, 11],"bestII")
     
