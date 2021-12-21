@@ -2,9 +2,34 @@ import sys
 sys.path.append("..")
 sys.path.append("../optim")
 import numpy as np
+from sklearn.metrics import roc_auc_score
 from optim.selection import select_clfs
 import pref,ens,exp
-import optim_algs,systems,get_data
+import optim_algs,systems,get_data,learn
+
+class AcuracyLoss(object):
+    def __init__(self,train_dict):
+        self.train_dict=train_dict
+
+    def __call__(self,score):
+        result=pref.eval_score(score,self.train_dict)
+        acc=result.get_acc()
+        print(acc)
+        return (1.0-acc)
+
+class AucLoss(object):
+    def __init__(self,train_dict):
+        self.train_dict=train_dict
+
+    def __call__(self,score):
+        result=pref.eval_score(score,self.train_dict)
+        y_true,y_pred= result.as_labels()
+        n_cats=result.n_cats()
+        y_pred=learn.to_one_hot(y_pred,n_cats)
+        y_true=learn.to_one_hot(y_true,n_cats)
+        auc_ovo = roc_auc_score(y_true,y_pred,multi_class="ovo")
+        print(auc_ovo)
+        return -1.0*auc_ovo
 
 class PrefExp(object):
     def __init__(self,alg_optim,get_data=None,selected=False):
@@ -13,6 +38,7 @@ class PrefExp(object):
         self.alg_optim=alg_optim
         self.get_data=get_data
         self.selected=selected
+        self.loss=AucLoss
 
     def __call__(self,paths,n_iters):
         if(self.selected):
@@ -47,16 +73,12 @@ class PrefExp(object):
 
     def find_score(self,paths,ensemble):
         ensemble=ens.get_ensemble_helper(ensemble)
-        train_dict,test_dict=self.get_data(paths,ensemble) 
+        train_dict,test_dict=self.get_data(paths,ensemble)
+        loss_fun=self.loss(train_dict) 
         n_cand=train_dict.n_cand()
-        def loss_fun(score):
-            result=eval_score(score,n_cand,train_dict)
-            acc=result.get_acc()
-            print(acc)
-            return (1.0-acc)
         score=self.alg_optim(loss_fun,n_cand)
         print(score)
-        result=eval_score(score,n_cand,test_dict)
+        result=pref.eval_score(score,test_dict)
         return result,score
 
     def __str__(self):
@@ -86,18 +108,12 @@ def get_diff_acc(new_results,old_results):
 #            print(lines)
 #    exp.save_lines(lines,out_path)
 
-def eval_score(score,n_cand,pref_dict):
-    def system_i(name_i,pref_dict):
-        return systems.score_rule(name_i,pref_dict,n_cand,score)
-    names=pref_dict.keys()
-    return pref.election(names,system_i,pref_dict)
-
 def all_algs_exp(paths,s_clf,out_path):
     lines=[]
     for alg_i in all_algs():
         pref_i=PrefExp(alg_i,get_data.person_dict,False)
         result_i,score_i=pref_i.find_score(paths,s_clf)
-        desc_i="%s,%s,%s" % (str(pref_i),exp.paths_desc(paths),str(score_i))
+        desc_i="%s,%s" % (str(pref_i),exp.paths_desc(paths))#,str(score_i))
         line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
         lines.append(line_i)
         print(lines)
@@ -114,11 +130,12 @@ def get_paths():
     path="../../VCIP/3DHOI/%s/feats"
     common=[path % "1D_CNN","../../deep_dtw/dtw"]
 #                path % "shapelets"]
-    return [(common,path % "ens/splitII")]#,(common,path % "ens/splitII")]    
+    return [(common,path % "ens/splitI")]#,(common,path % "ens/splitII")]    
 
 if __name__ == "__main__":    
     optim=optim_algs.GenAlg()#init_type="borda")
     paths=get_paths()
-#    print(exp.paths_desc(paths[0]))
-    all_algs_exp(paths[0],[3, 9, 11],"bestII")
+    s_clf=[0, 1, 2, 8, 9, 10, 11]
+#    s_clf=[3,9,11]
+    all_algs_exp(paths[0],s_clf,"bestI")
     

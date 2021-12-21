@@ -64,6 +64,13 @@ def election(names,system,pref_dict):
     y_pred=[system(name_i,pref_dict ) for name_i in names]
     return learn.Result(y_true,y_pred,names)
 
+def eval_score(score,pref_dict):
+    n_cand=pref_dict.n_cand()
+    def system_i(name_i,pref_dict):
+        return systems.score_rule(name_i,pref_dict,n_cand,score)
+    names=pref_dict.keys()
+    return election(names,system_i,pref_dict)
+
 def to_pref(results):
     raw_pref=[ dict(zip(result_i.names,result_i.y_pred))
                 for result_i in results]
@@ -78,22 +85,9 @@ def to_pref(results):
         pref_dict[name_i]=np.array(pref_i)
     return pref_dict
 
-def major_stats(paths,ensemble=None):
-    ensemble=ens.get_ensemble_helper(ensemble)
-    result,votes=ensemble(paths)
-    pref_dict=to_pref(votes.results)
-    threshold=np.ceil(pref_dict.n_votes()/2)
-    nonmajor_error=[]
-    for name_i in pref_dict.keys():
-        pred_i=majority(name_i,pref_dict)
-#        if(name_i.get_cat()!=pred_i):
-        first=pref_dict.get_rank(name_i,0)
-        unique, counts = np.unique(first, return_counts=True)
-        if(np.amax(counts)<threshold):
-            nonmajor_error.append(name_i)
-    print(nonmajor_error)
-    print(len(nonmajor_error))
-    print(len(nonmajor_error)/len(pref_dict))
+def borda_weights(n_cand):
+    return np.array([n_cand-j 
+                for j in range(n_cand)])
 
 if __name__ == "__main__":
     path="../../VCIP/3DHOI/%s/feats"
@@ -104,4 +98,3 @@ if __name__ == "__main__":
     result=ensemble((common,binary))[0]
     result.report()
     print(result.get_cf())
-#    major_stats((common,binary))
