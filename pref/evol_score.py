@@ -108,6 +108,13 @@ def get_diff_acc(new_results,old_results):
 #            print(lines)
 #    exp.save_lines(lines,out_path)
 
+def all_paths(paths,s_clf,out_path):
+    lines1=all_algs_exp(paths,s_clf,None)
+    lines1=[ "Yes,%s" % line_i for line_i in lines1]
+    lines2=all_algs_exp(paths,None,None)
+    lines2=[ "No,%s" % line_i for line_i in lines2]
+    exp.save_lines(lines1+lines2,out_path)
+
 def all_algs_exp(paths,s_clf,out_path):
     lines=[]
     for alg_i in all_algs():
@@ -117,7 +124,9 @@ def all_algs_exp(paths,s_clf,out_path):
         line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
         lines.append(line_i)
         print(lines)
-    exp.save_lines(lines,out_path)
+    if(out_path):
+        exp.save_lines(lines,out_path)
+    return lines
 
 def all_algs():
     algs=[optim_algs.GenAlg(init_type=init_i)  
@@ -130,12 +139,12 @@ def get_paths():
     path="../../VCIP/3DHOI/%s/feats"
     common=[path % "1D_CNN","../../deep_dtw/dtw"]
 #                path % "shapelets"]
-    return [(common,path % "ens/splitI")]#,(common,path % "ens/splitII")]    
+    return [(common,path % "ens/splitII")]#,(common,path % "ens/splitII")]    
 
 if __name__ == "__main__":    
     optim=optim_algs.GenAlg()#init_type="borda")
     paths=get_paths()
-    s_clf=[0, 1, 2, 8, 9, 10, 11]
-#    s_clf=[3,9,11]
-    all_algs_exp(paths[0],s_clf,"bestI")
+#    s_clf=[0, 1, 2, 8, 9, 10, 11]
+    s_clf=[3,9,11]
+    all_paths(paths[0],s_clf,"bestII.csv")
     
