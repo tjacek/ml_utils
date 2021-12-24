@@ -10,16 +10,19 @@ import optim_algs,systems,get_data,learn
 class AcuracyLoss(object):
     def __init__(self,train_dict):
         self.train_dict=train_dict
+        self.n_calls=0
 
     def __call__(self,score):
         result=pref.eval_score(score,self.train_dict)
         acc=result.get_acc()
         print(acc)
+        self.n_calls+=1
         return (1.0-acc)
 
 class AucLoss(object):
     def __init__(self,train_dict):
         self.train_dict=train_dict
+        self.n_calls=0
 
     def __call__(self,score):
         result=pref.eval_score(score,self.train_dict)
@@ -29,15 +32,19 @@ class AucLoss(object):
         y_true=learn.to_one_hot(y_true,n_cats)
         auc_ovo = roc_auc_score(y_true,y_pred,multi_class="ovo")
         print(auc_ovo)
+        self.n_calls+=1
         return -1.0*auc_ovo
 
 class PrefExp(object):
-    def __init__(self,alg_optim,get_data=None,selected=False):
-        if(get_data is None):
-            get_data=get_data.person_dict
+    def __init__(self,alg_optim,read=None):
+        if(read is None):
+            read=get_data.person_dict
+        if(alg_optim=="genetic"):
+            alg_optim=optim_algs.GenAlg()
+        if(alg_optim=="swarm"):
+            alg_optim=optim_algs.SwarmAlg()
         self.alg_optim=alg_optim
-        self.get_data=get_data
-        self.selected=selected
+        self.read=read
         self.loss=AucLoss
 
     def __call__(self,paths,n_iters,ensemble=None):
@@ -53,40 +60,15 @@ class PrefExp(object):
         best=np.argmax(diff_acc)
         return new_results[best]
 
-#    def selected_exp(self,paths,n_iters):
-#        old_results,new_results,s_clfs=[],[],[]
-#        for i in range(n_iters):
-#            print("Epoch %d" % i)
-#            old_i,s_clf_i=select_clfs(paths,read_type=None)
-#            new_i,score_i=self.find_score(paths,s_clf_i)
-#            old_results.append(old_i)
-#            new_results.append(new_i)
-#            s_clfs.append( s_clf_i)
-#        diff_acc,k=get_diff_acc(new_results,old_results)
-#        print("diff acc %.5f" % diff_acc)
-#        return old_results[k],new_results[k],s_clfs[k]
-
-#    def full_exp(self,paths,n_iters):
-#        old_results,new_results=[],[]
-#        for i in range(n_iters):
-#            print("Epoch %d" % i)
-#            old_i=ens.get_ensemble_helper(None)(paths)[0]
-#            new_i,score_i=self.find_score(paths,None)
-#            old_results.append(old_i)
-#            new_results.append(new_i)
-#        diff_acc,k=get_diff_acc(new_results,old_results)
-#        print("diff acc %.5f" % diff_acc)
-#        return old_results[k],new_results[k],len(score_i)
-
     def find_score(self,paths,ensemble):
         ensemble=ens.get_ensemble_helper(ensemble)
-        train_dict,test_dict=self.get_data(paths,ensemble)
+        train_dict,test_dict=self.read(paths,ensemble)
         loss_fun=self.loss(train_dict) 
         n_cand=train_dict.n_cand()
         score=self.alg_optim(loss_fun,n_cand)
         print(score)
         result=pref.eval_score(score,test_dict)
-        return result,score
+        return result,score,loss_fun.n_calls
 
     def __str__(self):
         alg=self.alg_optim.__class__.__name__
@@ -105,28 +87,12 @@ def all_paths_exp(all_paths,all_clf,out_path,n_iters=5):
         pref_j=PrefExp(alg_j,get_data.person_dict)
         for paths_i,clf_i in zip(all_paths,all_clf):
             desc_i="%s,%s,%s" % (str(pref_j),exp.paths_desc(paths_i),str(clf_i))
+            alg_j.n_calls=0
             result_i=pref_j(paths_i,n_iters,clf_i)
-            line_i="Yes,%s,%s" % (desc_i,exp.get_metrics(result_i))
+            line_i="Yes,%s,%d,%s" % (desc_i,alg_j.n_calls,exp.get_metrics(result_i))
             lines.append(line_i)
             print(lines)
     exp.save_lines(lines,out_path)
-
-#def paths_exp(all_paths,out_path,all_exps,n_iters=5):
-#    if(type(all_exps)!=list):
-#        all_exps=[all_exps]
-#    lines=[]
-#    def helper(desc_i,result_i):
-#        line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
-#        lines.append(line_i)
-#    for pref_exp_j in all_exps:
-#        for paths_i in all_paths:
-#            old,new,s_clf=pref_exp_j(paths_i,n_iters)
-#            desc_i="%s,%s,%s" % (str(pref_exp_j),exp.paths_desc(paths_i),str(s_clf))
-#            helper("old,%s"%desc_i,old)
-#            helper("new,%s"%desc_i,new)
-#            print(lines)
-#    exp.save_lines(lines,out_path)
-
 
 def clf_exp(paths,s_clf,out_path):
     lines1=all_algs_exp(paths,s_clf,None)
@@ -161,12 +127,18 @@ def get_paths():
 #                path % "shapelets"]
     return [(common,path % "ens/splitI"),(common,path % "ens/splitII")]    
 
+def check_calls(paths):
+    lines=[]
+    for pref_i in [PrefExp ("genetic"),PrefExp('swarm')]:
+        result,score,n_calls,=pref_i.find_score(paths,None)
+        lines.append("%.4f,%d" % (result.get_acc(),n_calls))
+    print(lines)
+
 if __name__ == "__main__":    
-    optim=optim_algs.GenAlg()#init_type="borda")
     paths=get_paths()
 #    s_clf=[0, 1, 2, 8, 9, 10, 11]
 #    s_clf=[3,9,11]
     all_clf=[[0, 1, 2, 8, 9, 10, 11],[3,9,11]]
-#    all_paths(paths[0],s_clf,"bestII.csv")
-    all_paths_exp(paths,all_clf,"auc",n_iters=5)
-    all_paths_exp(paths,[None,None],"auc2",n_iters=5)   
+#    all_paths_exp(paths,all_clf,"auc",n_iters=5)
+#    all_paths_exp(paths,[None,None],"auc2",n_iters=5)
+    check_calls(paths[0])
