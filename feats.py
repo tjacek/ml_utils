@@ -61,9 +61,8 @@ class Feats(dict):
             lines.append(line_i)
         feat_txt='\n'.join(lines)
         feat_txt=feat_txt.replace('[','').replace(']','')
-        file_str = open(out_path,'w')
-        file_str.write(feat_txt)
-        file_str.close()
+        with open(out_path,'w') as file_str:
+            file_str.write(feat_txt)
 
     def append(self,dict_i):
         for name_i,data_i in dict_i.items():

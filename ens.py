@@ -1,4 +1,5 @@
 import numpy as np
+from collections import defaultdict
 import learn,feats
 
 class Ensemble(object):
@@ -50,6 +51,13 @@ class Votes(object):
     def get_acc(self):
         return [ result_i.get_acc() for result_i in self.results]
 
+    def as_dict(self):
+        vote_dict=defaultdict(lambda:[])
+        for result_i in self.results:
+           for name_i,pred_i in zip(result_i.names,result_i.y_pred):
+               vote_dict[name_i].append(pred_i)
+        return vote_dict
+
 class EnsembleHelper(object):
     def __init__(self,ensemble=None,binary=False,clf="LR",s_clf=None):
         if(ensemble is None):
@@ -65,6 +73,8 @@ class EnsembleHelper(object):
 
     def get_datasets(self,paths):
         datasets=self.ensemble.get_datasets(paths)
+        if(self.s_clf is None):
+            return datasets
         return [datasets[i] for i in self.s_clf]
 
 def get_ensemble_helper(ensemble=None):
@@ -117,9 +127,11 @@ def read_multi(common_path,deep_path):
 
 if __name__ == "__main__":
     ensemble=Ensemble(read_multi)
-    common_path=["../cc2/segm2/dtw","../cc2/segm2/feats"]
-    ens_path="../cc2/ens/feats"
-    paths={'common':common_path,'binary':ens_path}
+    path="../VCIP/3DHOI/%s/feats"
+    common=[path % "1D_CNN",#"../deep_dtw/dtw"]
+         path % "shapelets"]
+    binary=path % "ens/splitI/"
+    paths=(common,binary)
     result,votes=ensemble(paths,clf="LR",binary=False)
     result.report()
     print(result.get_cf())
