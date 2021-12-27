@@ -7,42 +7,34 @@ import numpy as np
 #from sklearn import svm, linear_model
 import ens#,learn
 
+class VotesDict(object):
+    def __init__(self,votes_dict):
+        self.votes_dict=votes_dict
+        self.names=list(self.votes_dict.keys())
+
+    def get_values(self,clf_i,cat_j):
+        values=[ self.votes_dict[name_k][clf_i][cat_j] 
+                   for name_k in self.names]
+        return np.array(values)
+
+    def get_order(self,clf_i,cat_j):
+        values=self.get_values(clf_i,cat_j)
+        return np.flip(np.argsort(values))
+
+    def get_dict(self,clf_i,cat_j):
+        return {self.names[y]:x 
+            for x,y in enumerate(self.get_order(clf_i,cat_j))}
+
 def get_ranks(paths):
     ensemble=ens.get_ensemble_helper(ensemble=None)
     result,votes=ensemble(paths)
-    votes_dict= votes.as_dict()
+    votes_dict= VotesDict(votes.as_dict())
     n_cats=result.n_cats()
-#    check(votes_dict,n_cats)
-    def helper(cat_i,clf_j):
-        names=list(votes_dict.keys())
-        values=[ votes_dict[name_k][clf_j][cat_i] 
-                   for name_k in names]
-        return dict([(names[t],t) 
-            for t in np.flip(np.argsort(values))])
-    best_dicts=[helper(0,clf_i) for clf_i in range(n_cats)]
+    best_dicts=[votes_dict.get_dict(clf_i,0) for clf_i in range(n_cats)]
     pref_dict={ name_i:[dict_j[name_i] 
                         for dict_j in best_dicts]  
-                            for name_i in best_dicts[0]}
+                            for name_i in votes_dict.names}
     print(pref_dict)
-
-def check(votes_dict,n_cats):
-    test_name=list(votes_dict.keys())[0]
-    comp_rank=[votes_dict[test_name][clf_j][0]
-                for clf_j in range(n_cats)]
-    raise Exception(comp_rank)
-
-
-#def pairs_transform(rank_dict,dataset):
-#    X,y=[],[]
-#    for name_i in rank_dict.keys():
-#    	X.append(dataset[name_i])
-#    	y.append(rank_dict[name_i])
-#    comb = itertools.combinations(range(len(y)),2)
-#    Xp,yp=[],[]
-#    for a_i,b_i in comb:
-#    	print(len(X))
-#    	raise Exception(X[a_i].shape)
-#    print(list(comb))
 
 if __name__ == "__main__":
     path="../../VCIP/3DHOI/%s/feats"
