@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from optim.selection import select_clfs
 import pref,ens,exp
-import optim_algs,systems,get_data,learn
+import optim_algs,systems,get_data,learn,files
 
 class AcuracyLoss(object):
     def __init__(self,train_dict):
@@ -31,7 +31,7 @@ class AucLoss(object):
         y_pred=learn.to_one_hot(y_pred,n_cats)
         y_true=learn.to_one_hot(y_true,n_cats)
         auc_ovo = roc_auc_score(y_true,y_pred,multi_class="ovo")
-        print(auc_ovo)
+#        print(auc_ovo)
         self.n_calls+=1
         return -1.0*auc_ovo
 
@@ -51,14 +51,15 @@ class PrefExp(object):
         ensemble=ens.get_ensemble_helper(ensemble)
         old_result=ensemble(paths)[0]
         old_acc=old_result.get_acc()
-        diff_acc,new_results=[],[]
+        diff_acc,new_results,calls=[],[],[]
         for i in range(n_iters):
             print("Epoch %d" % i)
-            new_i,score_i=self.find_score(paths,ensemble)
+            new_i,score_i,n_calls_i=self.find_score(paths,ensemble)
             new_results.append(new_i)
+            calls.append(n_calls_i)
             diff_acc.append(new_i.get_acc()-old_acc)
         best=np.argmax(diff_acc)
-        return new_results[best]
+        return new_results[best],calls[best]
 
     def find_score(self,paths,ensemble):
         ensemble=ens.get_ensemble_helper(ensemble)
@@ -88,8 +89,8 @@ def all_paths_exp(all_paths,all_clf,out_path,n_iters=5):
         for paths_i,clf_i in zip(all_paths,all_clf):
             desc_i="%s,%s,%s" % (str(pref_j),exp.paths_desc(paths_i),str(clf_i))
             alg_j.n_calls=0
-            result_i=pref_j(paths_i,n_iters,clf_i)
-            line_i="Yes,%s,%d,%s" % (desc_i,alg_j.n_calls,exp.get_metrics(result_i))
+            result_i,calls_i=pref_j(paths_i,n_iters,clf_i)
+            line_i="Yes,%s,%d,%s" % (desc_i,calls_i,exp.get_metrics(result_i))
             lines.append(line_i)
             print(lines)
     exp.save_lines(lines,out_path)
@@ -114,12 +115,17 @@ def all_algs_exp(paths,s_clf,out_path):
         exp.save_lines(lines,out_path)
     return lines
 
-def all_algs():
-    algs=[optim_algs.GenAlg(init_type=init_i)  
-             for init_i in ['latinhypercube','borda',"borda_mixed"]]
-    algs+=[optim_algs.SwarmAlg(init_type=init_i)  
-             for init_i in ['random','borda',"borda_mixed"]]    
-    return algs
+def all_algs(maxiter=10,pop_size=100):
+    alg_desc=[(optim_algs.GenAlg,['latinhypercube','borda',"borda_mixed"]),
+          (optim_algs.SwarmAlg,['random','borda',"borda_mixed"])]
+    for alg_i,inits_i in alg_desc:
+        for init_j in inits_i:
+            yield alg_i(maxiter=maxiter,pop_size=pop_size,init_type=init_j)
+#    algs=[optim_algs.GenAlg(max_iter=max_iter,init_type=init_i)  
+#             for init_i in ['latinhypercube','borda',"borda_mixed"]]
+#    algs+=[optim_algs.SwarmAlg(init_type=init_i)  
+#             for init_i in ['random','borda',"borda_mixed"]]    
+#    return algs
 
 def get_paths():
     path="../../VCIP/3DHOI/%s/feats"
@@ -134,11 +140,12 @@ def check_calls(paths):
         lines.append("%.4f,%d" % (result.get_acc(),n_calls))
     print(lines)
 
+def score_exp(out_dict,paths,clfs,n_iters=10):
+    files.make_dir(out_dict)
+    all_paths_exp(paths,clfs,f'{out_dict}/selected',n_iters)
+    all_paths_exp(paths,[None,None],f"{out_dict}/full",n_iters)
+
 if __name__ == "__main__":    
     paths=get_paths()
-#    s_clf=[0, 1, 2, 8, 9, 10, 11]
-#    s_clf=[3,9,11]
     all_clf=[[0, 1, 2, 8, 9, 10, 11],[3,9,11]]
-#    all_paths_exp(paths,all_clf,"auc",n_iters=5)
-#    all_paths_exp(paths,[None,None],"auc2",n_iters=5)
-    check_calls(paths[0])
+    score_exp("10_100",paths,all_clf,n_iters=10)
