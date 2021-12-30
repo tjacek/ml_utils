@@ -39,6 +39,16 @@ class EnsembleExp(object):
         save_lines(lines,out_path)
         return lines
 
+def order_lines(lines,cols_index=4,pattern='splitII'):
+    pos,neg=[],[]
+    for line_i in lines:
+        col_i=line_i.split(",")[cols_index]
+        if(col_i.find(pattern)<0):
+            pos.append(line_i)
+        else:
+            neg.append(line_i)
+    return pos+neg
+
 def paths_desc(paths):
     common,binary=paths
     common_desc=[common_i.split("/")[-2] 
@@ -60,19 +70,19 @@ def get_metrics(result_i):
 	metrics="%.4f,%.4f,%.4f" % result_i.metrics()[:3]
 	return "%.4f,%s" % (acc_i,metrics)
 
-def fill_template(template,elements):
-    tuples=[]  
-    for element_i in elements:
-        if(tuples):
-            if(type(element_i)==str):
-                for tuple_i in tuples:
-                    tuple_i.append(element_i)
-            else:
-                tuples=[ tuple_i+[element_j] 
-                            for tuple_i in tuples
-                                for element_j in element_i]
-        else:
-            if(type(element_i)==str):
-                element_i=[element_i]
-            tuples.append(element_i)
-    return [ template % tuple(tuple_i) for tuple_i in tuples]
+#def fill_template(template,elements):
+#    tuples=[]  
+#    for element_i in elements:
+#        if(tuples):
+#            if(type(element_i)==str):
+#                for tuple_i in tuples:
+#                    tuple_i.append(element_i)
+#            else:
+#                tuples=[ tuple_i+[element_j] 
+#                            for tuple_i in tuples
+#                                for element_j in element_i]
+#        else:
+#            if(type(element_i)==str):
+#                element_i=[element_i]
+#            tuples.append(element_i)
+#    return [ template % tuple(tuple_i) for tuple_i in tuples]
