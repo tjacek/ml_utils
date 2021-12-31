@@ -23,6 +23,32 @@ class Name(str):
         subname_k="_".join(self.split("_")[:k])
         return Name(subname_k)
 
+class NameList(list):
+    def __new__(cls, name_list):
+        return list.__new__(cls,name_list)
+
+    def n_cats(self):
+        return len(self.unique_cats())
+
+    def unique_cats(self):
+        return set(self.get_cats())
+
+    def get_cats(self):
+        return [name_i.get_cat() for name_i in self]     
+
+    def by_cat(self):
+        cat_dict={cat_j:NameList() 
+                for cat_j in self.unique_cats()}
+        for name_i in self:
+            cat_dict[name_i.get_cat()].append(name_i)
+        return cat_dict
+
+    def cats_stats(self):
+        stats_dict={ cat_i:0 for cat_i in self.unique_cats()}
+        for cat_i in self.get_cats():
+            stats_dict[cat_i]+=1
+        return stats_dict
+
 class PathDict(dict):
     def __init__(self, arg=[]):
         super(PathDict, self).__init__(arg)
