@@ -21,8 +21,11 @@ def forest_dataset( fraction=0.6):
     cat_size=int(fraction* cats_stats[min_cat])
     by_cat =name_list.by_cat()
     train=balanced_dataset(by_cat,cat_size)
-    print( len(train) )
-
+    def helper(name_i):
+        cat_i,_,i=name_i.split('_')
+        return f'{cat_i}_{int(name_i in train)}_{i}'
+    rename_dict={name_i:helper(name_i) for name_i in forest_feats.keys()}
+    return forest_feats.rename(rename_dict)
 
 def balanced_dataset(by_cat,size):
     import random
@@ -31,5 +34,9 @@ def balanced_dataset(by_cat,size):
         random.shuffle(cat_j)
         train+=cat_j[:size]
     return set(train)
-#print(dir(d))
-forest_dataset()
+
+if __name__ == "__main__":
+    forest=forest_dataset()
+    import learn
+    result=learn.train_model( forest)
+    result.report()
