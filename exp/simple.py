@@ -54,5 +54,24 @@ def make_dataset(dataset,out_path,n_epochs=50):
     dataset.save(f'{out_path}/common')
     simple_ensemble(dataset,f"{out_path}/binary",n_epochs=n_epochs)
 
-forest=convert.forest_dataset()
-make_dataset(forest,"forest",n_epochs=100)
+def eff_voting(paths):
+    import gc,ens
+    common_path,binary_path=paths
+    common=feats.read(common_path)[0]
+    all_results=[]
+    for deep_path_i in files.top_files(binary_path):
+        gc.collect()
+        deep_i=feats.read(deep_path_i)[0]
+        data_i=common+deep_i
+#        raise Exception(type(data_i))
+        all_results.append(learn.train_model(data_i))
+        print(deep_path_i)
+    final_votes=ens.Votes(all_results)
+    result=final_votes.voting()
+    result.report()
+    print(result.get_acc())
+
+#forest=convert.forest_dataset()
+#make_dataset(forest,"forest",n_epochs=100)
+paths=('forest/common','forest/binary')
+eff_voting(paths)
