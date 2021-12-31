@@ -24,7 +24,9 @@ class Name(str):
         return Name(subname_k)
 
 class NameList(list):
-    def __new__(cls, name_list):
+    def __new__(cls, name_list=None):
+        if(name_list is None):
+            name_list=[]
         return list.__new__(cls,name_list)
 
     def n_cats(self):
@@ -119,9 +121,9 @@ def save_txt(text,out_path):
     file1.write(text) 
     file1.close()
 
-def cat_dict(dict_i=None):
-    by_cat= defaultdict(lambda:[])
-    if(dict_i):
-        for name_i,data_i in data_i.items():
-            by_cat[name_i.get_cat()].append(data_i)
-    return by_cat
+#def cat_dict(dict_i=None):
+#    by_cat= defaultdict(lambda:[])
+#    if(dict_i):
+#        for name_i,data_i in data_i.items():
+#            by_cat[name_i.get_cat()].append(data_i)
+#    return by_cat

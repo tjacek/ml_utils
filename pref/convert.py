@@ -12,9 +12,24 @@ def to_feats(d):
         data_dict[name_i]=x_i
     return data_dict
 
+def forest_dataset( fraction=0.6):
+    d=fetch_covtype()
+    forest_feats=to_feats(d)
+    name_list=forest_feats.names()
+    cats_stats= name_list.cats_stats()
+    min_cat=min(cats_stats, key=cats_stats.get)
+    cat_size=int(fraction* cats_stats[min_cat])
+    by_cat =name_list.by_cat()
+    train=balanced_dataset(by_cat,cat_size)
+    print( len(train) )
 
 
-d=fetch_covtype()
+def balanced_dataset(by_cat,size):
+    import random
+    train=[]
+    for cat_j in by_cat.values():
+        random.shuffle(cat_j)
+        train+=cat_j[:size]
+    return set(train)
 #print(dir(d))
-name_list=to_feats(d).names()
-print(name_list.cats_stats())
+forest_dataset()
