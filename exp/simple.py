@@ -6,7 +6,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense,BatchNormalization
 from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
-import convert,learn
+from tensorflow.keras import Input, Model
+import convert,learn,feats,files
 
 class SimpleNN(object):
     def __init__(self,n_hidden=10):
@@ -23,13 +24,35 @@ class SimpleNN(object):
         model.summary()
         return model
 
-def simple_ensemble(dataset,batch_size=128,n_epochs=50):
+def simple_ensemble(dataset,out_path,batch_size=128,n_epochs=5):
     print(len(dataset))
-    model=SimpleNN()({'dims':54,'n_cats':7})
     train,test=dataset.split()
     X,y,names= train.as_dataset()
-    y=learn.to_one_hot(y,7)
-    model.fit(X,y,epochs=n_epochs,batch_size=batch_size)
+    n_cats=names.n_cats()
+    params={'dims':train.dim()[0],'n_cats':2}
+    models=[]
+    for cat_i in range(n_cats):
+        model_i=SimpleNN()(params)
+        y_i=names.binarize(cat_i)
+        y_i=learn.to_one_hot(y_i,2)
+        model_i.fit(X,y_i,epochs=n_epochs,batch_size=batch_size)
+        models.append(model_i)
+    files.make_dir(out_path)
+    for i,model_i in enumerate(models):
+        extractor_i=Model(inputs=model_i.input,
+                outputs=model_i.get_layer('hidden').output)
+        X,y,names=dataset.as_dataset()
+        new_X=extractor_i.predict(X)
+        feats_i=feats.Feats({name_j:new_X[j] 
+                for j,name_j in enumerate( names)})
+        out_i=f"{out_path}/{i}"
+        print(out_i)
+        feats_i.save(out_i)
+
+def make_dataset(dataset,out_path,n_epochs=50):
+    files.make_dir(out_path)
+    dataset.save(f'{out_path}/common')
+    simple_ensemble(dataset,f"{out_path}/binary",n_epochs=n_epochs)
 
 forest=convert.forest_dataset()
-simple_ensemble(forest)
+make_dataset(forest,"forest",n_epochs=100)

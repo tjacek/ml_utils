@@ -36,7 +36,12 @@ class NameList(list):
         return set(self.get_cats())
 
     def get_cats(self):
+#        for name_i in self:
+#            yield name_i.get_cat()
         return [name_i.get_cat() for name_i in self]     
+
+    def binarize(self,j):
+        return [ int(cat_i==0) for cat_i in self.get_cats()]
 
     def by_cat(self):
         cat_dict={cat_j:NameList() 
