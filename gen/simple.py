@@ -63,15 +63,13 @@ def eff_voting(paths):
         gc.collect()
         deep_i=feats.read(deep_path_i)[0]
         data_i=common+deep_i
-#        raise Exception(type(data_i))
         all_results.append(learn.train_model(data_i))
         print(deep_path_i)
-    final_votes=ens.Votes(all_results)
+    return ens.Votes(all_results)
+
+if __name__ == "__main__":    
+    paths=('forest/common','forest/binary')
+    eff_voting(paths)
     result=final_votes.voting()
     result.report()
     print(result.get_acc())
-
-#forest=convert.forest_dataset()
-#make_dataset(forest,"forest",n_epochs=100)
-paths=('forest/common','forest/binary')
-eff_voting(paths)

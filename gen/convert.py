@@ -28,6 +28,7 @@ def forest_dataset( fraction=0.6):
     return forest_feats.rename(rename_dict)
 
 def balanced_dataset(by_cat,size):
+    raise Exception(size)
     import random
     train=[]
     for cat_j in by_cat.values():

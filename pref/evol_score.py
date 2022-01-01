@@ -76,11 +76,6 @@ class PrefExp(object):
         init=self.alg_optim.init_type
         return "%s,%s" % (alg,init)
 
-def get_diff_acc(new_results,old_results):
-    diff_acc=[ (new_i.get_acc()-old_i.get_acc()) 
-                    for new_i,old_i in zip(new_results,old_results)]
-    k=np.argmax(diff_acc)
-    return diff_acc[k],k
 
 def all_paths_exp(all_paths,all_clf,out_path,n_iters=5):
     lines=[]
@@ -93,45 +88,43 @@ def all_paths_exp(all_paths,all_clf,out_path,n_iters=5):
             line_i="Yes,%s,%d,%s" % (desc_i,calls_i,exp.get_metrics(result_i))
             lines.append(line_i)
             print(lines)
+    lines=exp.order_lines(lines)
     exp.save_lines(lines,out_path)
 
-def clf_exp(paths,s_clf,out_path):
-    lines1=all_algs_exp(paths,s_clf,None)
-    lines1=[ "Yes,%s" % line_i for line_i in lines1]
-    lines2=all_algs_exp(paths,None,None)
-    lines2=[ "No,%s" % line_i for line_i in lines2]
-    exp.save_lines(lines1+lines2,out_path)
+#def clf_exp(paths,s_clf,out_path):
+#    lines1=all_algs_exp(paths,s_clf,None)
+#    lines1=[ "Yes,%s" % line_i for line_i in lines1]
+#    lines2=all_algs_exp(paths,None,None)
+#    lines2=[ "No,%s" % line_i for line_i in lines2]
+#    exp.save_lines(lines1+lines2,out_path)
 
-def all_algs_exp(paths,s_clf,out_path):
-    lines=[]
-    for alg_i in all_algs():
-        pref_i=PrefExp(alg_i,get_data.person_dict,False)
-        result_i,score_i=pref_i.find_score(paths,s_clf)
-        desc_i="%s,%s" % (str(pref_i),exp.paths_desc(paths))#,str(score_i))
-        line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
-        lines.append(line_i)
-        print(lines)
-    if(out_path):
-        exp.save_lines(lines,out_path)
-    return lines
+#def all_algs_exp(paths,s_clf,out_path):
+#    lines=[]
+#    for alg_i in all_algs():
+#        pref_i=PrefExp(alg_i,get_data.person_dict,False)
+#        result_i,score_i=pref_i.find_score(paths,s_clf)
+#        desc_i="%s,%s" % (str(pref_i),exp.paths_desc(paths))#,str(score_i))
+#        line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
+#        lines.append(line_i)
+#        print(lines)
+#    if(out_path):
+#        exp.save_lines(lines,out_path)
+#    return lines
 
-def all_algs(maxiter=10,pop_size=100):
+def all_algs(maxiter=1,pop_size=100):
     alg_desc=[(optim_algs.GenAlg,['latinhypercube','borda',"borda_mixed"]),
           (optim_algs.SwarmAlg,['random','borda',"borda_mixed"])]
     for alg_i,inits_i in alg_desc:
         for init_j in inits_i:
             yield alg_i(maxiter=maxiter,pop_size=pop_size,init_type=init_j)
-#    algs=[optim_algs.GenAlg(max_iter=max_iter,init_type=init_i)  
-#             for init_i in ['latinhypercube','borda',"borda_mixed"]]
-#    algs+=[optim_algs.SwarmAlg(init_type=init_i)  
-#             for init_i in ['random','borda',"borda_mixed"]]    
-#    return algs
 
 def get_paths():
     path="../../VCIP/3DHOI/%s/feats"
     common=[path % "1D_CNN","../../deep_dtw/dtw"]
 #                path % "shapelets"]
-    return [(common,path % "ens/splitI"),(common,path % "ens/splitII")]    
+    for binary_i in ["ens/splitI","ens/splitII"]:
+        yield (common,path % binary_i)
+#    return [(common,path % "ens/splitI"),(common,path % "ens/splitII")]    
 
 def check_calls(paths):
     lines=[]
@@ -148,4 +141,4 @@ def score_exp(out_dict,paths,clfs,n_iters=10):
 if __name__ == "__main__":    
     paths=get_paths()
     all_clf=[[0, 1, 2, 8, 9, 10, 11],[3,9,11]]
-    score_exp("10_100",paths,all_clf,n_iters=10)
+    score_exp("test",paths,all_clf,n_iters=1)
