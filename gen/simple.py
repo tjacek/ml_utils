@@ -69,7 +69,8 @@ def eff_voting(paths):
 
 if __name__ == "__main__":    
     paths=('forest/common','forest/binary')
-    eff_voting(paths)
+    final_votes=eff_voting(paths)
     result=final_votes.voting()
     result.report()
     print(result.get_acc())
+    files.save("forest_votes",final_votes)

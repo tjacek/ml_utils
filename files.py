@@ -119,16 +119,15 @@ def get_paths(in_path,name="dtw"):
     return ["%s/%s" % (path_i,name) 
                 for path_i in top_files(in_path)]
 
-def save_txt(text,out_path):
+def save_txt(out_path,text):
     if(type(text)==list):
         text="\n".join(text)
-    file1 = open(out_path,"w")   
-    file1.write(text) 
-    file1.close()
+    with open(out_path,"w") as out_file:   
+        out_file.write(text) 
+        out_file.close()
 
-#def cat_dict(dict_i=None):
-#    by_cat= defaultdict(lambda:[])
-#    if(dict_i):
-#        for name_i,data_i in data_i.items():
-#            by_cat[name_i.get_cat()].append(data_i)
-#    return by_cat
+def save(out_path,obj):
+    import pickle 
+    with open(out_path,"wb") as out_file:   
+        pickle.dump(obj,out_file) 
+        out_file.close()
