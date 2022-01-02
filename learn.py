@@ -149,19 +149,23 @@ def validation_votes(datasets,clf="LR"):
         results.append(make_result(train,train,clf))
     return results
 
-def person_votes(datasets,clf="LR",n_split=5):
+def person_votes(datasets,clf="LR",get_partial=None,n_split=5):
+    if(get_partial is None):
+       get_partial=person_partial
     results=[]
     for data_i in datasets:
         data_i.norm()
         train=data_i.split()[0]
-        partial_results=[]
-        for p in range(n_split):
-            selector_p=lambda name: (name.get_person()%n_split)!=p
-            validate,validate_test=train.split(selector_p)
-            partial_results.append(make_result(validate,validate_test,clf))
+        partial_results=get_partial(train,n_split,clf)
         result_i=unify_results(partial_results)
         results.append(result_i)
     return results
+
+def person_partial(train,n_split,clf):
+    for p in range(n_split):
+        selector_p=lambda name: (name.get_person()%n_split)!=p
+        validate,validate_test=train.split(selector_p)
+        yield make_result(validate,validate_test,clf)
 
 def make_result(train,test,clf="LR"):
     clf_p=make_model(train,clf)
