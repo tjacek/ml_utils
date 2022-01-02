@@ -1,15 +1,26 @@
 import numpy as np
 
+class BordaCount(object):
+    def __init__(self):
+        self.score=None
+        self.n_cand=None
+
+    def __call__(self,name_i,pref_dict):
+        if(self.score is None):
+            self.n_cand=pref_dict.n_cand()
+            self.score=[self.n_cand-j for j in range(self.n_cand)]
+        return score_rule(name_i,pref_dict,self.n_cand,self.score)            
+
 def majority(name_i,pref_dict):
     first=pref_dict.get_rank(name_i,0)
     unique, counts = np.unique(first, return_counts=True)
     winner= unique[np.argmax(counts)]
     return winner
 
-def borda_count(name_i,pref_dict):
-    n_cand=pref_dict.n_cand()
-    score=[n_cand-j for j in range(n_cand)]
-    return score_rule(name_i,pref_dict, n_cand,score)
+#def borda_count(name_i,pref_dict):
+#    n_cand=pref_dict.n_cand()
+#    score=[n_cand-j for j in range(n_cand)]
+#    return score_rule(name_i,pref_dict, n_cand,score)
 
 def score_rule(name_i,pref_dict, n_cand,score):
     count=np.zeros((n_cand,))

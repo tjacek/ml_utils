@@ -57,20 +57,25 @@ def make_dataset(dataset,out_path,n_epochs=50):
 def eff_voting(paths):
     import gc,ens
     common_path,binary_path=paths
-    common=feats.read(common_path)[0]
+    if(common_path):
+        common=feats.read(common_path)[0]
     all_results=[]
     for deep_path_i in files.top_files(binary_path):
         gc.collect()
         deep_i=feats.read(deep_path_i)[0]
-        data_i=common+deep_i
+        if(common_path):
+            data_i=common+deep_i
+        else:
+            data_i=deep_i
         all_results.append(learn.train_model(data_i))
         print(deep_path_i)
     return ens.Votes(all_results)
 
 if __name__ == "__main__":    
     paths=('forest/common','forest/binary')
+    paths=(None,'forest/binary')
     final_votes=eff_voting(paths)
     result=final_votes.voting()
     result.report()
     print(result.get_acc())
-    files.save("forest_votes",final_votes)
+#    files.save("forest_votes",final_votes)

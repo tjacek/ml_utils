@@ -60,6 +60,8 @@ class PrefEnsemble(object):#ens.Ensemble):
         return result,votes
 
 def election(names,system,pref_dict):
+    if(system is None):
+        system=systems.BordaCount()
     y_true=[name_i.get_cat() for name_i in names]
     y_pred=[system(name_i,pref_dict ) for name_i in names]
     return learn.Result(y_true,y_pred,names)
