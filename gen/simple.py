@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Dense,BatchNormalization
 from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
 from tensorflow.keras import Input, Model
-import convert,learn,feats,files
+import convert,learn,feats,files,ens
 
 class SimpleNN(object):
     def __init__(self,n_hidden=10):
@@ -55,25 +55,33 @@ def make_dataset(dataset,out_path,n_epochs=50):
     simple_ensemble(dataset,f"{out_path}/binary",n_epochs=n_epochs)
 
 def eff_voting(paths):
-    import gc,ens
+    all_results=[]
+    for i,data_i in enumerate(read_multi(paths)):
+        all_results.append(learn.train_model(data_i))
+        print(i)
+    return ens.Votes(all_results)
+
+def read_dataset(paths):
+    import gc
     common_path,binary_path=paths
     if(common_path):
         common=feats.read(common_path)[0]
-    all_results=[]
     for deep_path_i in files.top_files(binary_path):
         gc.collect()
-        deep_i=feats.read(deep_path_i)[0]
+        data_i=feats.read(deep_path_i)[0]
         if(common_path):
-            data_i=common+deep_i
-        else:
-            data_i=deep_i
-        all_results.append(learn.train_model(data_i))
-        print(deep_path_i)
-    return ens.Votes(all_results)
+            data_i=common+data_i
+        yield data_i
+
+def read_multi(paths):
+    common_paths,binary_path=paths
+    for common_i in common_paths:
+        for data_j in read_dataset((common_i,binary_path)):
+            yield data_j
 
 if __name__ == "__main__":    
-    paths=('forest/common','forest/binary')
-    paths=(None,'forest/binary')
+    paths=([None,'forest/common'],'forest/binary')
+#    paths=(None,'forest/binary')
     final_votes=eff_voting(paths)
     result=final_votes.voting()
     result.report()
