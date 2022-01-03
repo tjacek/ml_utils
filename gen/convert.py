@@ -1,5 +1,6 @@
 import sys
 sys.path.append("..")
+import numpy as np
 from sklearn.datasets import fetch_covtype
 import feats,files
 
@@ -28,7 +29,6 @@ def forest_dataset( fraction=0.6):
     return forest_feats.rename(rename_dict)
 
 def balanced_dataset(by_cat,size):
-    raise Exception(size)
     import random
     train=[]
     for cat_j in by_cat.values():
@@ -36,8 +36,21 @@ def balanced_dataset(by_cat,size):
         train+=cat_j[:size]
     return set(train)
 
+def arff_dataset(in_path):
+    from scipy.io import arff
+    dataset = arff.loadarff(in_path)
+    feat_dict=feats.Feats()
+    for i,data_i in enumerate(dataset[0]):
+        data_i=list(data_i)
+        x_i=np.array(data_i[:-1])
+        name_i=f"{int(data_i[-1])}_{i%2}_{i}"
+        feat_dict[name_i]=data_i
+    return feat_dict
+
 if __name__ == "__main__":
-    forest=forest_dataset()
-    import learn
-    result=learn.train_model( forest)
-    result.report()
+#    data_i=forest_dataset()
+     data=arff_dataset("wave/raw.arff")
+     print(len(data))
+#    import learn
+#    result=learn.train_model(data)
+#    result.report()

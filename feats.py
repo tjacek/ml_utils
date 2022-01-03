@@ -7,6 +7,11 @@ class Feats(dict):
     def __init__(self, arg=[]):
         super(Feats, self).__init__(arg)
 
+    def __setitem__(self, key, value):
+        if(type(key)==str):
+            key=files.Name(key)
+        super(Feats, self).__setitem__(key, value)
+
     def dim(self):
         return list(self.values())[0].shape
 
@@ -19,7 +24,8 @@ class Feats(dict):
         return self.get_X(names),self.get_labels(names),names
 
     def names(self):
-        return sorted(self.keys(),key=files.natural_keys) 
+        return files.NameList(self.keys())
+#        return sorted(self.keys(),key=files.natural_keys) 
     
     def get_X(self,names=None):
         if(names is None):
@@ -104,8 +110,6 @@ def common_names(names1,names2):
     return list(set(names1).intersection(set(names2)))
 
 def agum_concat(data_a,data_b,selector=None):
-#    print(data_a.keys())
-#    raise Exception(data_b.keys())
     if(selector is None):
         selector=files.person_selector
     if(len(data_a)<len(data_b)):
