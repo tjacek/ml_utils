@@ -43,8 +43,9 @@ def arff_dataset(in_path):
     for i,data_i in enumerate(dataset[0]):
         data_i=list(data_i)
         x_i=np.array(data_i[:-1])
-        name_i=f"{int(data_i[-1])}_{i%2}_{i}"
-        feat_dict[name_i]=data_i
+        cat_i=int(data_i[-1])+1
+        name_i=f"{cat_i}_{i%2}_{i}"
+        feat_dict[name_i]=x_i
     return feat_dict
 
 if __name__ == "__main__":
