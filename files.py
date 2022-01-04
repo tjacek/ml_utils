@@ -56,6 +56,9 @@ class NameList(list):
             stats_dict[cat_i]+=1
         return stats_dict
 
+    def subset(self,indexes):
+        return NameList([self[i] for i in indexes])
+
 class PathDict(dict):
     def __init__(self, arg=[]):
         super(PathDict, self).__init__(arg)

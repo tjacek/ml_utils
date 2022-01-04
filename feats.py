@@ -70,9 +70,20 @@ class Feats(dict):
         with open(out_path,'w') as file_str:
             file_str.write(feat_txt)
 
-    def append(self,dict_i):
-        for name_i,data_i in dict_i.items():
-            self[name_i]=data_i 
+    def subset(self,names,new_names=False):
+        sub_dict=Feats()
+        for i,name_i in enumerate( names):
+            value_i=self[name_i]
+            if(name_i):
+                name_i=f'{name_i}_{i}'
+            sub_dict[name_i]=value_i
+        return sub_dict 
+
+    def transform(self,fun,copy=False):
+        new_dict= Feats() if(copy) else self
+        for name_i,data_i in self.items():
+            new_dict[name_i]=fun(data_i)
+        return new_dict
 
     def __str__(self):
         return "%d,%d"  % (len(self),self.dim()[0])
