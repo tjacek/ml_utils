@@ -1,10 +1,7 @@
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
 from sklearn.metrics import classification_report,accuracy_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVC
-import feats,files
+import feats,files,clf
 
 class Result(object):
     def __init__(self,y_true,y_pred,names):
@@ -107,24 +104,10 @@ def train_model(data,binary=False,clf_type="LR",selector=None,
     return Result(y_true,y_pred,test.names())
 
 def make_model(train,clf_type):
-    model= get_cls(clf_type)
+    model= clf.get_cls(clf_type)
     X_train,y_train= train.get_X(),train.get_labels()
     model.fit(X_train,y_train)
     return model
-
-def get_cls(clf_type):
-    if(clf_type=="SVC"):
-        print("SVC")
-        return make_SVC()
-    else:
-        print("LR")
-        return LogisticRegression(solver='liblinear')
-
-def make_SVC():
-    params=[{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],'C': [1, 10, 50,110, 1000]},
-            {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]    
-    clf = GridSearchCV(SVC(C=1,probability=True),params, cv=5,scoring='accuracy')
-    return clf
 
 def to_one_hot(y,n_cats):
     one_hot=[]

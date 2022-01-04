@@ -3,14 +3,17 @@ sys.path.append("..")
 import numpy as np,random
 import convert,learn,ens
 
-def bagging_ensemble(dataset,n_clf=5):
+def bagging_ensemble(dataset,n_clf=5,clf_type="SVC_simple"):
     results=[]#learn.train_model(dataset)]
+    acc=[]
     for i in range(n_clf):
 #        data_i=resample_dataset(dataset)
-        data_i=subspace(dataset,alpha=0.90)
-        result_i=learn.train_model(data_i,clf_type="LR")
+        data_i=subspace(dataset,alpha=0.75)
+        result_i=learn.train_model(data_i,clf_type=clf_type)
+        acc.append(result_i.get_acc())
         results.append(result_i)
     bag_votes=ens.Votes(results)
+    print(acc)
     final_result=bag_votes.voting()
     final_result.report()
 
@@ -37,5 +40,7 @@ def subspace(dataset,alpha=0.75):
  
 if __name__ == "__main__":
     dataset=convert.arff_dataset("wave/raw.arff")
+#    result=learn.train_model(dataset,clf_type="SVC_simple")
+#    result.report()
     bagging_ensemble(dataset,n_clf=10)
-#    subspace(dataset)
+    subspace(dataset)
