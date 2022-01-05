@@ -1,6 +1,6 @@
 import numpy as np
 from collections import defaultdict
-import learn,feats
+import learn,feats,files
 
 class Ensemble(object):
     def __init__(self,read=None):
@@ -58,6 +58,9 @@ class Votes(object):
                vote_dict[name_i].append(pred_i)
         return vote_dict
 
+    def save(self,out_path):
+        files.save(out_path,self)
+
 class EnsembleHelper(object):
     def __init__(self,ensemble=None,binary=False,clf="LR",s_clf=None):
         if(ensemble is None):
@@ -91,10 +94,10 @@ def read_dataset(common_path,deep_path):
         return feats.read(common_path)
     common_data=feats.read(common_path)[0]
     deep_data=read_deep(deep_path)
-#    datasets=[common_data+ data_i 
-#                for data_i in deep_data]
-    datasets=[ feats.agum_concat(common_data,data_i) 
+    datasets=[common_data+ data_i 
                 for data_i in deep_data]
+#    datasets=[ feats.agum_concat(common_data,data_i) 
+#                for data_i in deep_data]
     return datasets
 
 def read_deep(deep_path):
@@ -126,14 +129,13 @@ def read_multi(common_path,deep_path):
     return datasets
 
 if __name__ == "__main__":
-    ensemble=Ensemble(read_multi)
-    path="../VCIP/3DHOI/%s/feats"
-    common=[path % "1D_CNN",#"../deep_dtw/dtw"]
-         path % "shapelets"]
-    binary=path % "ens/splitI/"
-    paths=(common,binary)
+    ensemble=Ensemble()#read_multi)
+#    path="../VCIP/3DHOI/%s/feats"
+#    common=[path % "1D_CNN",#"../deep_dtw/dtw"]
+#         path % "shapelets"]
+#    binary=path % "ens/splitI/"
+#    paths=(common,binary)
+    paths=('gen/wave/common',None)#'gen/wave/binary')
     result,votes=ensemble(paths,clf="LR",binary=False)
     result.report()
-    print(result.get_cf())
-    errors=result.get_errors()
-    print(learn.order_error(errors))
+    print(result.get_acc())

@@ -48,10 +48,22 @@ def arff_dataset(in_path):
         feat_dict[name_i]=x_i
     return feat_dict
 
+def txt_dataset(in_path):
+    with open(in_path , "r") as f:
+        dataset=feats.Feats()
+        for i,line_i in enumerate(f.readlines()):
+            line_i=line_i.split(',')
+            if(len(line_i)>1):
+                line_i=[(-1 if(cord_j=='?') else float(cord_j))
+                      for cord_j in line_i]
+                print(len(line_i))
+                name_i=f'{int(line_i[0])}_{i%2}_{i}'
+                dataset[name_i]=np.array(line_i[1:])
+        return dataset
 if __name__ == "__main__":
 #    data_i=forest_dataset()
-     data=arff_dataset("wave/raw.arff")
-     print(len(data))
-#    import learn
-#    result=learn.train_model(data)
-#    result.report()
+    data=txt_dataset("penglung/raw.data")
+    print(len(data))
+    import learn
+    result=learn.train_model(data)
+    result.report()
