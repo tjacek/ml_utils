@@ -4,7 +4,7 @@ import numpy as np,random
 import convert,learn,ens
 
 def bagging_ensemble(dataset,gen ,clf_type="SVC_simple"):
-    results=[]#learn.train_model(dataset)]
+    results=[learn.train_model(dataset)]
     acc=[]
     for data_i in gen:
         result_i=learn.train_model(data_i,clf_type=clf_type)
@@ -23,11 +23,11 @@ def resample_dataset(dataset,n_clf=5):
         indexes=np.random.randint(0, high=size, size=size)
         names=train.names()
         names=names.subset(indexes)
-        names+=test.names()
+        names=names+ test.names()
         sampled_dataset=dataset.subset(names,new_names=False)#+test
         yield sampled_dataset
 
-def subspace(dataset,alpha=0.75):
+def subspace(dataset,alpha=0.75,n_clf=5):
     old_dims= dataset.dim()[0]
     new_dims=int(alpha*old_dims)   
     indexes=list(range(old_dims))

@@ -56,10 +56,10 @@ def txt_dataset(in_path):
             if(len(line_i)>1):
                 line_i=[(-1 if(cord_j=='?') else float(cord_j))
                       for cord_j in line_i]
-                print(len(line_i))
                 name_i=f'{int(line_i[0])}_{i%2}_{i}'
                 dataset[name_i]=np.array(line_i[1:])
         return dataset
+
 if __name__ == "__main__":
 #    data_i=forest_dataset()
     data=txt_dataset("penglung/raw.data")
