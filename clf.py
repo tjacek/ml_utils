@@ -2,6 +2,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+
 def get_cls(clf_type):
     if(clf_type=="SVC"):
         print("SVC")
@@ -11,6 +13,9 @@ def get_cls(clf_type):
     elif(clf_type=="RF"):
         print("RF")
         return RandomForestClassifier(max_depth=None, random_state=0)
+    elif(clf_type=="Tree"):
+        print(clf_type)
+        return DecisionTreeClassifier(criterion='entropy',random_state=0)
     else:
         print("LR")
         return LogisticRegression(solver='liblinear')

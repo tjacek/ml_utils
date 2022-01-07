@@ -2,38 +2,10 @@ import sys
 sys.path.append("..")
 sys.path.append("../optim")
 import numpy as np
-from sklearn.metrics import roc_auc_score
 from optim.selection import select_clfs
 import pref,ens,exp
 import optim_algs,systems,get_data,learn,files
-
-class AcuracyLoss(object):
-    def __init__(self,train_dict):
-        self.train_dict=train_dict
-        self.n_calls=0
-
-    def __call__(self,score):
-        result=pref.eval_score(score,self.train_dict)
-        acc=result.get_acc()
-        print(acc)
-        self.n_calls+=1
-        return (1.0-acc)
-
-class AucLoss(object):
-    def __init__(self,train_dict):
-        self.train_dict=train_dict
-        self.n_calls=0
-
-    def __call__(self,score):
-        result=pref.eval_score(score,self.train_dict)
-        y_true,y_pred= result.as_labels()
-        n_cats=result.n_cats()
-        y_pred=learn.to_one_hot(y_pred,n_cats)
-        y_true=learn.to_one_hot(y_true,n_cats)
-        auc_ovo = roc_auc_score(y_true,y_pred,multi_class="ovo")
-#        print(auc_ovo)
-        self.n_calls+=1
-        return -1.0*auc_ovo
+import loss
 
 class PrefExp(object):
     def __init__(self,alg_optim,read=None):
@@ -45,7 +17,7 @@ class PrefExp(object):
             alg_optim=optim_algs.SwarmAlg()
         self.alg_optim=alg_optim
         self.read=read
-        self.loss=AucLoss
+        self.loss=loss.AucLoss
 
     def __call__(self,paths,n_iters,ensemble=None):
         ensemble=ens.get_ensemble_helper(ensemble)
@@ -90,26 +62,6 @@ def all_paths_exp(all_paths,all_clf,out_path,n_iters=5):
             print(lines)
     lines=exp.order_lines(lines)
     exp.save_lines(lines,out_path)
-
-#def clf_exp(paths,s_clf,out_path):
-#    lines1=all_algs_exp(paths,s_clf,None)
-#    lines1=[ "Yes,%s" % line_i for line_i in lines1]
-#    lines2=all_algs_exp(paths,None,None)
-#    lines2=[ "No,%s" % line_i for line_i in lines2]
-#    exp.save_lines(lines1+lines2,out_path)
-
-#def all_algs_exp(paths,s_clf,out_path):
-#    lines=[]
-#    for alg_i in all_algs():
-#        pref_i=PrefExp(alg_i,get_data.person_dict,False)
-#        result_i,score_i=pref_i.find_score(paths,s_clf)
-#        desc_i="%s,%s" % (str(pref_i),exp.paths_desc(paths))#,str(score_i))
-#        line_i="%s,%s" % (desc_i,exp.get_metrics(result_i))
-#        lines.append(line_i)
-#        print(lines)
-#    if(out_path):
-#        exp.save_lines(lines,out_path)
-#    return lines
 
 def all_algs(maxiter=1,pop_size=100):
     alg_desc=[(optim_algs.GenAlg,['latinhypercube','borda',"borda_mixed"]),
