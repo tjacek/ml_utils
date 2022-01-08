@@ -25,7 +25,7 @@ class SimpleNN(object):
         return model
 
 def simple_ensemble(dataset,out_path,
-    n_hidden=30,batch_size=128,n_epochs=5):
+    n_hidden=30,batch_size=1,n_epochs=5):
     print(len(dataset))
     train,test=dataset.split()
     X,y,names= train.as_dataset()
@@ -61,5 +61,5 @@ def make_dataset(dataset,out_path,n_epochs=50):
     print(acc)
 
 if __name__ == "__main__":
-    dataset=convert.arff_dataset("wave/raw.arff")
-    make_dataset(dataset,"wave",n_epochs=150)
+    dataset=convert.txt_dataset("penglung/raw.data")
+    make_dataset(dataset,"penglung3",n_epochs=150)
