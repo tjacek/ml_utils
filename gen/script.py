@@ -8,7 +8,7 @@ dir_path="penglung3"
 data=convert.txt_dataset(datset_path)
 #simple.make_dataset(data,dir_path,n_epochs=150)
 paths=([None,f"{dir_path}/common"],f"{dir_path}/binary")
-clf="LR"
+clf="Tree"
 
 opv_path=f"{dir_path}/{clf}"
 
@@ -28,8 +28,21 @@ def ovp_exp(paths,opv_path,clf):
     	             if(common_i)]
     result_single=dataset.eff_voting((common,None),clf=clf).voting()
 
-    return [result_single,result_multi,result_ovp]
+    return {f"single,{clf}":result_single,
+            f"mult,{clf}":result_multi,
+            f"ovp,{clf}":result_ovp}
 
-results=ovp_exp(paths,opv_path,clf)
-for result_i in results:
+def save_results(result_dict,out_path):
+    import exp
+    lines=[]
+    for name_i,result_i in result_dict.items():	
+        line_i=exp.get_metrics(result_i)
+        lines.append(f"{name_i},{line_i}")
+    exp.save_lines(lines,out_path)
+
+result_dict=ovp_exp(paths,opv_path,clf)
+for result_i in result_dict.values():
 	print(result_i.get_acc())
+
+#raise Exception(f"{opv_path}/{clf}.csv")
+save_results(result_dict,f"{opv_path}/{clf}.csv")
