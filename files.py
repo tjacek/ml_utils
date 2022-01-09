@@ -59,6 +59,10 @@ class NameList(list):
     def subset(self,indexes):
         return NameList([self[i] for i in indexes])
 
+    def filtr(self,cond):
+        return NameList([name_i for i,name_i in enumerate(self) 
+                           if cond(i,name_i)])
+
 class PathDict(dict):
     def __init__(self, arg=[]):
         super(PathDict, self).__init__(arg)
