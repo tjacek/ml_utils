@@ -16,16 +16,23 @@ def bagging_ensemble(dataset,gen ,clf_type="SVC_simple"):
     final_result.report()
     return bag_votes
 
-def resample_dataset(dataset,n_clf=5):
-    train,test=dataset.split()
+#def resample_dataset(dataset,n_clf=5):
+#    train,test=dataset.split()
+#    for i in range(n_clf):
+#        sampled_dataset=bagging(train,test)
+#        yield sampled_dataset
+#def gen_data():
+
+
+def bagging(train,test=None):
     size=len(train)
-    for i in range(n_clf):
-        indexes=np.random.randint(0, high=size, size=size)
-        names=train.names()
-        names=names.subset(indexes)
+    indexes=np.random.randint(0, high=size, size=size)
+    names=train.names()
+    names=names.subset(indexes)
+    print(names)
+    if(test):
         names=names+ test.names()
-        sampled_dataset=dataset.subset(names,new_names=False)#+test
-        yield sampled_dataset
+    return dataset.subset(names,new_names=False)
 
 def one_out(dataset):
     import clf
@@ -37,14 +44,15 @@ def one_out(dataset):
             return (i!=j)
         one_out_i=names.filtr(helper)
         data_i=train.subset(one_out_i,new_names=False)
-        model_i=clf.get_cls("bag")
+        data_i=bagging(data_i)
+        model_i=clf.get_cls("LR")
         data_i.norm()
-        X,y,names= data_i.as_dataset()
-#        raise Exception(y)
+        X,y,_= data_i.as_dataset()
         model_i.fit(X,y)
         y_i=model_i.predict_proba(train[name_i].reshape(1,-1))
         y_true.append(name_i.get_cat())
         y_pred.append(y_i)
+
     y_pred=np.squeeze(np.array(y_pred))
     return learn.Result(y_true,y_pred,names)
 #    for date_i in resample_dataset(dataset,n_clf=5)
