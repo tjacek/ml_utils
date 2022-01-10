@@ -106,10 +106,20 @@ def top_files(path):
     return paths
 
 def dir_function(fun):
-    @wraps(fun)
-    def dir_decorator(in_path):
-        return [fun(path_i) 
-            for path_i in top_files(in_path)]
+    import inspect
+    arity=len(inspect.getargspec(fun)[0])
+    if(arity==1):
+        @wraps(fun)
+        def dir_decorator(in_path):
+            return [fun(path_i) 
+                for path_i in top_files(in_path)]
+    else:
+        @wraps(fun)
+        def dir_decorator(in_path,out_path):
+            make_dir(out_path)
+            for in_i in top_files(in_path):
+                out_i=f"{out_path}/{in_i.split('/')[-1]}"
+                fun(in_i,out_i)                        
     return dir_decorator 
 
 def split(dict,selector=None,pairs=True):

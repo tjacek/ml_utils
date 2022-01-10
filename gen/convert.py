@@ -64,7 +64,7 @@ def txt_dataset(in_path,test_size=0.25):
         return dataset
 
 @files.dir_function
-def mat_dataset(in_path):
+def mat_dataset(in_path,out_path):
     print(in_path)
     dict_i= scipy.io.loadmat(in_path)
     X,y=dict_i["X"],dict_i["Y"]
@@ -72,11 +72,12 @@ def mat_dataset(in_path):
     for i,(x_i,y_i) in enumerate(zip(X,y)):
         name_i=f"{y_i[0]}_{i%2}_{i}"
         dataset[name_i]=x_i
-    return dict_i
+    print(len(dataset))
+    dataset.save(out_path)
+    return dataset
 
 if __name__ == "__main__":
-    dataset=mat_dataset("../../data/raw")
-    print(len(dataset))
+    mat_dataset("../../data/raw","../../data/common")
 #    data=txt_dataset("penglung/raw.data")
 #    print(len(data))
 #    import learn
