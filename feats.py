@@ -74,7 +74,7 @@ class Feats(dict):
         sub_dict=Feats()
         for i,name_i in enumerate( names):
             value_i=self[name_i]
-            if(name_i):
+            if(new_names):
                 name_i=f'{name_i}_{i}'
             sub_dict[name_i]=value_i
         return sub_dict 

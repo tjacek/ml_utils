@@ -27,6 +27,28 @@ def resample_dataset(dataset,n_clf=5):
         sampled_dataset=dataset.subset(names,new_names=False)#+test
         yield sampled_dataset
 
+def one_out(dataset):
+    import clf
+    train,test=dataset.split()
+    names=train.names()
+    y_true,y_pred=[],[]
+    for i,name_i in enumerate(names):
+        def helper(j,name_j):
+            return (i!=j)
+        one_out_i=names.filtr(helper)
+        data_i=train.subset(one_out_i,new_names=False)
+        model_i=clf.get_cls("bag")
+        data_i.norm()
+        X,y,names= data_i.as_dataset()
+#        raise Exception(y)
+        model_i.fit(X,y)
+        y_i=model_i.predict_proba(train[name_i].reshape(1,-1))
+        y_true.append(name_i.get_cat())
+        y_pred.append(y_i)
+    y_pred=np.squeeze(np.array(y_pred))
+    return learn.Result(y_true,y_pred,names)
+#    for date_i in resample_dataset(dataset,n_clf=5)
+
 def subspace(dataset,alpha=0.75,n_clf=5):
     old_dims= dataset.dim()[0]
     new_dims=int(alpha*old_dims)   
@@ -43,6 +65,8 @@ if __name__ == "__main__":
     dataset=convert.txt_dataset("penglung/raw.data")
 #    result=learn.train_model(dataset,clf_type="SVC_simple")
 #    result.report()
-    gen= resample_dataset(dataset)
-    bag_votes=bagging_ensemble(dataset,gen,clf_type="LR")
+    result_i=one_out(dataset)
+    result_i
+    result_i.report() 
+#    bag_votes=bagging_ensemble(dataset,gen,clf_type="LR")
 #    bag_votes.save("penglung/bag_votes")
