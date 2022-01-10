@@ -1,4 +1,5 @@
 import os,re#,itertools
+from functools import wraps
 from collections import defaultdict
 
 class Name(str):
@@ -36,8 +37,6 @@ class NameList(list):
         return set(self.get_cats())
 
     def get_cats(self):
-#        for name_i in self:
-#            yield name_i.get_cat()
         return [name_i.get_cat() for name_i in self]     
 
     def binarize(self,j):
@@ -105,6 +104,13 @@ def top_files(path):
     paths=[ path+'/'+file_i for file_i in os.listdir(path)]
     paths=sorted(paths,key=natural_keys)
     return paths
+
+def dir_function(fun):
+    @wraps(fun)
+    def dir_decorator(in_path):
+        return [fun(path_i) 
+            for path_i in top_files(in_path)]
+    return dir_decorator 
 
 def split(dict,selector=None,pairs=True):
     if(not selector):

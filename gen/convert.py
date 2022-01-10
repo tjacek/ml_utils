@@ -1,6 +1,7 @@
 import sys
 sys.path.append("..")
 import numpy as np
+import scipy.io
 from sklearn.datasets import fetch_covtype
 import feats,files
 
@@ -62,10 +63,22 @@ def txt_dataset(in_path,test_size=0.25):
                 dataset[name_i]=np.array(line_i[1:])
         return dataset
 
+@files.dir_function
+def mat_dataset(in_path):
+    print(in_path)
+    dict_i= scipy.io.loadmat(in_path)
+    X,y=dict_i["X"],dict_i["Y"]
+    dataset=feats.Feats()
+    for i,(x_i,y_i) in enumerate(zip(X,y)):
+        name_i=f"{y_i[0]}_{i%2}_{i}"
+        dataset[name_i]=x_i
+    return dict_i
+
 if __name__ == "__main__":
-    data_i=forest_dataset()
-    data=txt_dataset("penglung/raw.data")
-    print(len(data))
-    import learn
-    result=learn.train_model(data)
-    result.report()
+    dataset=mat_dataset("../../data/raw")
+    print(len(dataset))
+#    data=txt_dataset("penglung/raw.data")
+#    print(len(data))
+#    import learn
+#    result=learn.train_model(data)
+#    result.report()
