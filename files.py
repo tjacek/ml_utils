@@ -109,18 +109,34 @@ def dir_function(fun):
     import inspect
     arity=len(inspect.getargspec(fun)[0])
     if(arity==1):
-        @wraps(fun)
-        def dir_decorator(in_path):
-            return [fun(path_i) 
-                for path_i in top_files(in_path)]
+        dir_decorator=one_arg(fun)
     else:
-        @wraps(fun)
-        def dir_decorator(in_path,out_path):
-            make_dir(out_path)
+        dir_decorator=two_args(fun)               
+    return dir_decorator 
+
+def one_arg(fun):
+    @wraps(fun)
+    def dir_decorator(in_path):
+        return [fun(path_i) 
+            for path_i in top_files(in_path)]
+    return dir_decorator
+
+def two_args(fun):
+    @wraps(fun)
+    def dir_decorator(in_path,out_path):
+        make_dir(out_path)
+        if(type(in_path)==tuple):
+            common,binary=in_path
+            paths=zip(top_files(common),top_files(binary))
+            for common_i,binary_i in paths:
+                out_i=f"{out_path}/{binary_i.split('/')[-1]}"
+                fun((common_i,binary_i),out_i)  
+        else:
             for in_i in top_files(in_path):
                 out_i=f"{out_path}/{in_i.split('/')[-1]}"
-                fun(in_i,out_i)                        
-    return dir_decorator 
+                fun(in_i,out_i)  
+    return dir_decorator
+
 
 def split(dict,selector=None,pairs=True):
     if(not selector):
