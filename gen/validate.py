@@ -26,6 +26,11 @@ def make_validate(in_path,out_path):
     validate_votes=ens.Votes(results)
     validate_votes.save(out_path)
 
+@files.dir_function
+def make_test(in_path,out_path):
+    final_votes=dataset.eff_voting(in_path,clf="LR")
+    final_votes.save(out_path)
+
 #def bag_validate(dataset,out_path,clf="LR"):
 #    train,test=dataset.split()
 #    results=[]
@@ -40,7 +45,9 @@ def make_validate(in_path,out_path):
 if __name__ == "__main__":    
 #    paths=([None,'penglung/common'],'penglung/binary')
     in_path=("../../data/common","../../data/binary")
-    out_path="../../data/valid"
-    make_validate(in_path,out_path)
+    out_path="../../data/test"
+#    make_validate(in_path,out_path)
+    make_test(in_path,out_path)
+    
 #    dataset_gen=dataset.read_multi(paths)"../../data/common"
 #    make_validate(dataset_gen,'penglung/validate')
