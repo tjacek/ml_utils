@@ -3,7 +3,7 @@ sys.path.append("..")
 sys.path.append("../pref")
 import pickle
 import ens,pref,pref.optim_algs
-import pref,pref.loss#.evol_score
+import pref,pref.loss,files#.evol_score
 
 def simple_exp(votes_path:str):
     pref_dict=get_pref(votes_path)
@@ -24,11 +24,23 @@ def evol_exp(train_path:str,test_path:str):
     result.report()
     return result
 
-def get_pref(votes_path:str):
+def ens_evol(train,test):
+    base,opv=[],[]
+    paths=zip(files.top_files(train),files.top_files(test))
+    for path_i in paths:
+        print(len(path_i))
+        base.append(get_pref(path_i[0],True))
+        opv.append(evol_exp(*path_i))
+    for base_i,opv_i in zip(base,opv):
+        print(base_i.get_acc()-opv_i.get_acc())
+
+def get_pref(votes_path:str,raw_votes=False):
     with open(votes_path, 'rb') as votes_file:
         votes=pickle.load(votes_file)	
+        if(raw_votes):
+            return votes.voting()
         return pref.to_pref(votes.results)
 
 if __name__ == "__main__":    
-    simple_exp("penglung/votes")
-    #evol_exp("penglung/validate","penglung/votes")
+#    simple_exp("penglung/votes")
+    ens_evol("../../data/valid","../../data/test")
