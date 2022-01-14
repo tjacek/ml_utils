@@ -2,7 +2,7 @@ import sys
 sys.path.append("..")
 sys.path.append("../pref")
 import pickle
-import ens,pref,pref.optim_algs
+import ens,pref,pref.optim_algs,exp
 import pref,pref.loss,files#.evol_score
 
 def simple_exp(votes_path:str):
@@ -24,15 +24,24 @@ def evol_exp(train_path:str,test_path:str):
     result.report()
     return result
 
+@exp.save_results
 def ens_evol(train,test):
-    base,opv=[],[]
+    base,opv,names=[],[],[]
     paths=zip(files.top_files(train),files.top_files(test))
     for path_i in paths:
         print(len(path_i))
         base.append(get_pref(path_i[0],True))
         opv.append(evol_exp(*path_i))
-    for base_i,opv_i in zip(base,opv):
-        print(base_i.get_acc()-opv_i.get_acc())
+        names.append(path_i[0].split("/")[-1])
+    result_dict={}
+    for i,(base_i,opv_i) in enumerate(zip(base,opv)):
+        acc_diff=base_i.get_acc()-opv_i.get_acc()
+        print(acc_diff)
+        if(acc_diff<0):
+            result_dict[f'{names[i]},base']=base_i
+            result_dict[f'{names[i]},opv']=opv_i
+    print(result_dict)
+    return result_dict
 
 def get_pref(votes_path:str,raw_votes=False):
     with open(votes_path, 'rb') as votes_file:
@@ -43,4 +52,4 @@ def get_pref(votes_path:str,raw_votes=False):
 
 if __name__ == "__main__":    
 #    simple_exp("penglung/votes")
-    ens_evol("../../data/valid","../../data/test")
+    ens_evol("../../data/results","../../data/valid","../../data/test")

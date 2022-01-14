@@ -1,4 +1,5 @@
 import files,ens
+from functools import wraps
 
 class MultiEnsembleExp(object):
     def __init__(self,all_ensembles,threshold=0.05):
@@ -70,6 +71,16 @@ def get_metrics(result_i):
 	metrics="%.4f,%.4f,%.4f" % result_i.metrics()[:3]
 	return "%.4f,%s" % (acc_i,metrics)
 
+def save_results(fun):
+    @wraps(fun)
+    def helper(out_path,*args, **kwargs):
+        result_dict=fun(*args, **kwargs)
+        lines=[]
+        for name_i,result_i in result_dict.items():
+            line_i=f'{name_i},{get_metrics(result_i)}'
+            lines.append(line_i)
+        save_lines(lines,out_path)
+    return helper
 #def fill_template(template,elements):
 #    tuples=[]  
 #    for element_i in elements:
