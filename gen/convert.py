@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-import numpy as np
+import numpy as np,random
 import scipy.io
 from sklearn.datasets import fetch_covtype
 import feats,files
@@ -69,15 +69,26 @@ def mat_dataset(in_path,out_path):
     dict_i= scipy.io.loadmat(in_path)
     X,y=dict_i["X"],dict_i["Y"]
     dataset=feats.Feats()
-    for i,(x_i,y_i) in enumerate(zip(X,y)):
+    
+    indexes=list(range(len(y)))
+    random.shuffle(indexes)
+    for i in indexes:
+        x_i,y_i=X[i],y[i]
         name_i=f"{y_i[0]}_{i%2}_{i}"
         dataset[name_i]=x_i
     print(len(dataset))
     dataset.save(out_path)
     return dataset
 
+#    for i,(x_i,y_i) in enumerate(zip(X,y)):
+#        name_i=f"{y_i[0]}_{i%2}_{i}"
+#        dataset[name_i]=x_i
+#    print(len(dataset))
+#    dataset.save(out_path)
+#    return dataset
+
 if __name__ == "__main__":
-    mat_dataset("../../data/raw","../../data/common")
+    mat_dataset("../../data/raw","../../data/II/common")
 #    data=txt_dataset("penglung/raw.data")
 #    print(len(data))
 #    import learn
