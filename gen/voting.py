@@ -32,7 +32,9 @@ def ens_evol(train,test):
         print(len(path_i))
         base.append(get_pref(path_i[0],True))
         opv.append(evol_exp(*path_i))
-        names.append(path_i[0].split("/")[-1])
+        desc_i=path_i[0].split("/")[-1]
+
+        names.append(f'{desc_i},{base[-1].n_cats()}')
     result_dict={}
     for i,(base_i,opv_i) in enumerate(zip(base,opv)):
         acc_diff=base_i.get_acc()-opv_i.get_acc()
@@ -52,4 +54,4 @@ def get_pref(votes_path:str,raw_votes=False):
 
 if __name__ == "__main__":    
 #    simple_exp("penglung/votes")
-    ens_evol("../../data/results","../../data/valid","../../data/test")
+    ens_evol("../../data/II/results","../../data/II/valid","../../data/II/test")
