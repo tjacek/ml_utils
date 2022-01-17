@@ -105,38 +105,37 @@ def top_files(path):
     paths=sorted(paths,key=natural_keys)
     return paths
 
-def dir_function(fun):
-    import inspect
-    arity=len(inspect.getargspec(fun)[0])
-    if(arity==1):
-        dir_decorator=one_arg(fun)
+def dir_function(args=2,recreate=True):
+    if(args==2):
+        def decor_fun(fun):
+            @wraps(fun)
+            def dir_decorator(in_path,out_path):
+                make_dir(out_path)
+                in_iter,out_iter=gen_paths(in_path,out_path)
+                for in_i,out_i in zip(in_iter,out_iter):
+                    if(recreate or (not os.path.exists(out_i))):
+                        fun(in_i,out_i)
+            return dir_decorator          
     else:
-        dir_decorator=two_args(fun)               
-    return dir_decorator 
+        def decor_fun(fun):
+            @wraps(fun)
+            def dir_decorator(in_path):
+                return [fun(path_i) 
+                    for path_i in top_files(in_path)]
+            return dir_decorator            
+    return decor_fun
 
-def one_arg(fun):
-    @wraps(fun)
-    def dir_decorator(in_path):
-        return [fun(path_i) 
-            for path_i in top_files(in_path)]
-    return dir_decorator
-
-def two_args(fun):
-    @wraps(fun)
-    def dir_decorator(in_path,out_path):
-        make_dir(out_path)
-        if(type(in_path)==tuple):
-            common,binary=in_path
-            paths=zip(top_files(common),top_files(binary))
-            for common_i,binary_i in paths:
-                out_i=f"{out_path}/{binary_i.split('/')[-1]}"
-                fun((common_i,binary_i),out_i)  
-        else:
-            for in_i in top_files(in_path):
-                out_i=f"{out_path}/{in_i.split('/')[-1]}"
-                fun(in_i,out_i)  
-    return dir_decorator
-
+def gen_paths(in_path,out_path):
+    if(type(in_path)==tuple):
+        common,binary=in_path
+        in_iter=list(zip(top_files(common),top_files(binary)))
+        out_iter=[f"{out_path}/{binary_i.split('/')[-1]}"
+                for i,(common_i,binary_i) in enumerate(in_gen)]
+    else:
+        in_iter=top_files(in_path)
+        out_iter=[f"{out_path}/{in_i.split('/')[-1]}" 
+                   for in_i in in_iter]
+    return in_iter,out_iter
 
 def split(dict,selector=None,pairs=True):
     if(not selector):
@@ -154,9 +153,9 @@ def person_selector(name_i):
     person_i=int(name_i.split('_')[1])
     return person_i%2==1
 
-def get_paths(in_path,name="dtw"):
-    return ["%s/%s" % (path_i,name) 
-                for path_i in top_files(in_path)]
+#def get_paths(in_path,name="dtw"):
+#    return ["%s/%s" % (path_i,name) 
+#                for path_i in top_files(in_path)]
 
 def save_txt(out_path,text):
     if(type(text)==list):
