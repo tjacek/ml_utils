@@ -24,8 +24,8 @@ class Feats(dict):
         return self.get_X(names),self.get_labels(names),names
 
     def names(self):
-        return files.NameList(self.keys())
-#        return sorted(self.keys(),key=files.natural_keys) 
+        keys=sorted(self.keys(),key=files.natural_keys) 
+        return files.NameList(keys)
     
     def get_X(self,names=None):
         if(names is None):
@@ -45,6 +45,19 @@ class Feats(dict):
             x_i=np.concatenate([self[name_i],feat_i[name_i]],axis=0)
             new_feats[name_i]=x_i
         return new_feats
+
+    def rename_cat(self,cat_dict=None):
+        if(cat_dict is None):
+            names=self.names()
+            cat_dict={ j:(i+1) 
+                for i,j in enumerate(names.unique_cats())}
+        name_dict={}
+        for name_i in self.keys():
+            cat_i=name_i.get_cat()
+            new_name_i="_".join(name_i.split("_")[1:])
+            new_name_i=f"{cat_dict[cat_i]}_{new_name_i}"
+            name_dict[name_i]=new_name_i
+        return self.rename(name_dict)
 
     def rename(self,name_dict):
         new_feats=Feats()

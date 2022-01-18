@@ -63,34 +63,23 @@ def txt_dataset(in_path,test_size=0.25):
                 dataset[name_i]=np.array(line_i[1:])
         return dataset
 
-@files.dir_function
+@files.dir_function(recreate=True)
 def mat_dataset(in_path,out_path):
     print(in_path)
     dict_i= scipy.io.loadmat(in_path)
     X,y=dict_i["X"],dict_i["Y"]
     dataset=feats.Feats()
-    
     indexes=list(range(len(y)))
-    random.shuffle(indexes)
+#    random.shuffle(indexes)
     for i in indexes:
         x_i,y_i=X[i],y[i]
         name_i=f"{y_i[0]}_{i%2}_{i}"
         dataset[name_i]=x_i
-    print(len(dataset))
+    dataset=dataset.rename_cat()
+    names=dataset.names()
+    print(names.cats_stats())
     dataset.save(out_path)
     return dataset
 
-#    for i,(x_i,y_i) in enumerate(zip(X,y)):
-#        name_i=f"{y_i[0]}_{i%2}_{i}"
-#        dataset[name_i]=x_i
-#    print(len(dataset))
-#    dataset.save(out_path)
-#    return dataset
-
 if __name__ == "__main__":
-    mat_dataset("../../data/raw","../../data/II/common")
-#    data=txt_dataset("penglung/raw.data")
-#    print(len(data))
-#    import learn
-#    result=learn.train_model(data)
-#    result.report()
+    mat_dataset("../../data/raw","../../data/II/common2")

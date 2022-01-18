@@ -44,7 +44,7 @@ def simple_ensemble(dataset,out_path,
     files.make_dir(out_path)
     for i,model_i in enumerate(models):
         extractor_i=Model(inputs=model_i.input,
-                outputs=model_i.get_layer('hidden').output)
+                outputs=model_i.get_layer('hidden').output)        
         X,y,names=dataset.as_dataset()
         new_X=extractor_i.predict(X)
         feats_i=feats.Feats({name_j:new_X[j] 
@@ -54,12 +54,17 @@ def simple_ensemble(dataset,out_path,
         feats_i.save(out_i)
     return accuracy
 
-def make_dataset(dataset,out_path,n_epochs=50):
-    files.make_dir(out_path)
-    dataset.save(f'{out_path}/common')
-    acc=simple_ensemble(dataset,f"{out_path}/binary",n_epochs=n_epochs)
-    print(acc)
+@files.dir_function(recreate=False)
+def make_datasets(in_path,out_path,n_epochs=150):
+    print(in_path)
+    print(out_path)
+    dataset=feats.read(in_path)[0]
+    simple_ensemble(dataset,out_path,n_epochs=150)
+#    files.make_dir(out_path)
+#    dataset.save(f'{out_path}/common')
+#    acc=simple_ensemble(dataset,f"{out_path}/binary",n_epochs=n_epochs)
+#    print(acc)
 
 if __name__ == "__main__":
-    dataset=convert.txt_dataset("penglung/raw.data")
-    make_dataset(dataset,"penglung3",n_epochs=150)
+#    dataset=convert.txt_dataset("penglung/raw.data")
+    make_datasets("../../data/II/common","../../data/II/binary")
