@@ -75,6 +75,8 @@ def save_results(fun):
     @wraps(fun)
     def helper(out_path,*args, **kwargs):
         result_dict=fun(*args, **kwargs)
+        if(type(result_dict)!=dict):
+            result_dict=dict(result_dict)
         lines=[]
         for name_i,result_i in result_dict.items():
             line_i=f'{name_i},{get_metrics(result_i)}'
