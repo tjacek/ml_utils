@@ -130,28 +130,13 @@ def gen_paths(in_path,out_path):
         common,binary=in_path
         in_iter=list(zip(top_files(common),top_files(binary)))
         out_iter=[f"{out_path}/{binary_i.split('/')[-1]}"
-                for i,(common_i,binary_i) in enumerate(in_gen)]
+                for i,(common_i,binary_i) in enumerate(in_iter)]
     else:
         in_iter=top_files(in_path)
+        print(in_iter)
         out_iter=[f"{out_path}/{in_i.split('/')[-1]}" 
-                   for in_i in in_iter]
+                   for in_i in in_iter]    
     return in_iter,out_iter
-
-def split(dict,selector=None,pairs=True):
-    if(not selector):
-        selector=person_selector
-    train,test=[],[]
-    for name_i in dict.keys():
-        pair_i=(name_i,dict[name_i]) if(pairs) else name_i
-        if(selector(name_i)):
-            train.append(pair_i)
-        else:
-            test.append(pair_i)
-    return train,test
-
-def person_selector(name_i):
-    person_i=int(name_i.split('_')[1])
-    return person_i%2==1
 
 #def get_paths(in_path,name="dtw"):
 #    return ["%s/%s" % (path_i,name) 

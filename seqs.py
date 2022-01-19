@@ -1,11 +1,8 @@
 import numpy as np,random
 from scipy.interpolate import CubicSpline
-import files,feats
+import files,feats,data_dict
 
-class Seqs(dict):
-    def __init__(self, arg=[]):
-        super(Seqs, self).__init__(arg)
-
+class Seqs(data_dict.DataDict):#dict):
     def as_dataset(self):
         X,y=[],[]
         names=list(self.keys())
@@ -14,17 +11,9 @@ class Seqs(dict):
             y.append(name_i.get_cat())
         return np.array(X),y,names
 
-    def split(self):
-        train,test=files.split(self)
-        return Seqs(train),Seqs(test)
-
     def resize(self,new_size=64):
         for name_i in self.keys():
             self[name_i]=inter(self[name_i],new_size)
-
-    def transform(self,fun):
-        for name_i in self.keys():
-            self[name_i]=fun(self[name_i])
 
     def shape(self):
         return [value_i.shape for value_i in self.values()]
