@@ -112,9 +112,10 @@ def dir_function(args=2,recreate=True):
             def dir_decorator(in_path,out_path):
                 make_dir(out_path)
                 in_iter,out_iter=gen_paths(in_path,out_path)
+                output=[]
                 for in_i,out_i in zip(in_iter,out_iter):
                     if(recreate or (not os.path.exists(out_i))):
-                        fun(in_i,out_i)
+                        output.append(fun(in_i,out_i))
             return dir_decorator          
     else:
         def decor_fun(fun):
