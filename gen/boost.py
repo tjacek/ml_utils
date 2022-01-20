@@ -25,43 +25,52 @@ def make_datasets(in_path):
     result_i=learn.Result(y,y_pred,names)
     return (in_path.split('/')[-1],result_i)
 
-@files.dir_function(args=1,recreate=False)
-def make_models(in_path):#,out_path):
+@files.dir_function(args=2,recreate=True)
+def make_models(in_path,out_path):
     print(in_path)
+#    raise Exception(out_path)
     data_i=feats.read(in_path)[0]
     data_i.norm()
     train_i,test_i=data_i.split()
-    X_train,y_train,names=train_i.as_dataset() 
+    train_tuple=train_i.as_dataset() 
     n_cats=data_i.n_cats()
-    clf_i=train_boost(X_train,y_train)
-    X_test,y_test,names_test=test_i.as_dataset()
-    print(n_cats)
-    print(len(y_test))
+    clf_i=train_boost(train_tuple[0],train_tuple[1])
+    test_tuple=test_i.as_dataset()
+    
+    out_valid,out_test=out_path
+    votes_i=get_boost_votes(test_tuple,clf_i)
+    votes_i.save(out_valid)
+
+    votes_i=get_boost_votes(train_tuple,clf_i)
+    votes_i.save(out_test)
+
+    result=votes_i.voting()
+    result.report()
+    return result
+
+def get_boost_votes(result_tuple,clf_i):
+    X,y_true,names=result_tuple
     results=[]
     for est_j in clf_i.estimators_:
-        y_raw=np.array([tree.predict(X_test)
+        y_raw=np.array([tree.predict(X)
                           for tree in est_j])        
         if(y_raw.shape[0]>1):
             y_pred=np.argmax(y_raw,axis=0)
         else:
             y_pred= (y_raw<0).astype(int)
             y_pred= y_pred.ravel()
-        result_j=learn.Result(y_test,y_pred,names_test)
+        result_j=learn.Result(y_true,y_pred,names)
         results.append(result_j)
-    votes_i=ens.Votes(results)
-    result=votes_i.voting()
-    result.report()
-    return result
+    return ens.Votes(results)
 
 def train_boost(X_train,y_train):
-    alg = ensemble.GradientBoostingClassifier()
-    clf_i = GridSearchCV(alg,{'max_depth': [2,4,6],
-                    'n_estimators': [5,10,20]},
-                    verbose=1,
-                    scoring='neg_log_loss')
+    clf_i = ensemble.GradientBoostingClassifier(max_depth=3)
+#    clf_i = GridSearchCV(alg,{'max_depth': [2,4,6],
+#                    'n_estimators': [5,10,20]},
+#                    verbose=1,
+#                    scoring='neg_log_loss')
     clf_i.fit(X_train,y_train)    
-#    raise Exception(dir(clf_i))
-    return clf_i.best_estimator_
+    return clf_i#.best_estimator_
 
 def test_model(model,test):
     from sklearn.metrics import accuracy_score
@@ -72,7 +81,7 @@ def test_model(model,test):
 
 
 if __name__ == "__main__":
-    results=make_models("../../data/II/common")#,"models")
+    results=make_models("../../data/II/common",("valid","test"))#,"models")
 #    prepare_votes("models")
     for result_i in results:
         print(result_i.get_acc())
