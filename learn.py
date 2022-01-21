@@ -161,8 +161,19 @@ def unify_results(partial):
         names+=result_p.names
         y_true+=result_p.y_true
         y_pred.append( result_p.y_pred)
+    y_pred=fill_gap(y_pred)
     y_pred=np.concatenate(y_pred,axis=0)
     return Result(y_true,y_pred,names)
+
+def fill_gap(y_pred):
+    n_cats=max([y_i.shape[1] for y_i in y_pred])
+    new_y=[]
+    for y_i in y_pred:
+        if(y_i.shape[1]<n_cats):
+            empty_i= np.zeros((y_i.shape[0],1))
+            y_i=np.append(y_i,empty_i,axis=1)
+        new_y.append(y_i)
+    return np.array(new_y)
 
 if __name__ == "__main__":
     in_path="../cc2/segm2/dtw"
