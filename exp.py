@@ -1,5 +1,15 @@
 import files,ens
+from dataclasses import dataclass
 from functools import wraps
+
+@dataclass
+class Line:
+    desc:str
+    accuracy:float
+    precision:float   
+    recall:float 
+    f1_score:float
+    info=[] 
 
 class MultiEnsembleExp(object):
     def __init__(self,all_ensembles,threshold=0.05):
@@ -40,15 +50,15 @@ class EnsembleExp(object):
         save_lines(lines,out_path)
         return lines
 
-def order_lines(lines,cols_index=4,pattern='splitII'):
-    pos,neg=[],[]
-    for line_i in lines:
-        col_i=line_i.split(",")[cols_index]
-        if(col_i.find(pattern)<0):
-            pos.append(line_i)
-        else:
-            neg.append(line_i)
-    return pos+neg
+#def order_lines(lines,cols_index=4,pattern='splitII'):
+#    pos,neg=[],[]
+#    for line_i in lines:
+#        col_i=line_i.split(",")[cols_index]
+#        if(col_i.find(pattern)<0):
+#            pos.append(line_i)
+#        else:
+#            neg.append(line_i)
+#    return pos+neg
 
 def paths_desc(paths):
     common,binary=paths
@@ -83,19 +93,15 @@ def save_results(fun):
             lines.append(line_i)
         save_lines(lines,out_path)
     return helper
-#def fill_template(template,elements):
-#    tuples=[]  
-#    for element_i in elements:
-#        if(tuples):
-#            if(type(element_i)==str):
-#                for tuple_i in tuples:
-#                    tuple_i.append(element_i)
-#            else:
-#                tuples=[ tuple_i+[element_j] 
-#                            for tuple_i in tuples
-#                                for element_j in element_i]
-#        else:
-#            if(type(element_i)==str):
-#                element_i=[element_i]
-#            tuples.append(element_i)
-#    return [ template % tuple(tuple_i) for tuple_i in tuples]
+
+def read_lines(in_path,as_class=False):
+    lines=[]
+    with open(in_path,"r") as in_file:  
+        for line_i in in_file.readlines():
+            if(as_class):
+                line_i=line_i.split(",")
+                acc,prec,recall,f1_score=[float(m) for m in line_i[-4:]]
+                desc=",".join(line_i[:-4])
+                line_i=Line(desc,acc,prec,recall,f1_score)
+            lines.append(line_i)
+    return lines
