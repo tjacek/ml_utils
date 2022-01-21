@@ -17,15 +17,27 @@ class LineDict(dict):
     def get_pair(self,id_i):
         return self[f"{id_i},base"],self[f"{id_i},opv"]	
 
-def make_table(paths):
+def make_table(paths,out_path='exp_result'):
     all_exps=[read_exp(path_i) 
 	        for path_i in paths]
     all_ids=list(all_exps[0].get_ids())
-    
-    improv=[id_i for id_i in all_ids
-               if(all_exps[0].check_improv(id_i))]
-    print(improv)
-#	print(all_exps[0].get_pair(all_ids[0]))
+    improv={id_i:[int(exp_i.check_improv(id_i))  
+                    for exp_i in all_exps] 
+                for id_i in all_ids}
+    improv_types=[[],[],[],[]]
+    for id_i,improv in improv.items():
+        suc_i=sum(improv)
+        improv_types[suc_i].append(id_i)
+    print(improv_types)
+    files.make_dir(out_path)
+    for i,type_i in enumerate(improv_types):
+        lines_i=[]
+        for id_j in type_i:
+            for exp_k in all_exps:
+                base,opv=exp_k.get_pair(id_j)
+                lines_i.append(base.to_txt())
+                lines_i.append(opv.to_txt())
+        exp.save_lines(lines_i,f"{out_path}/{i}")
 
 def read_exp(in_path):
     name=in_path.split("/")[-2]

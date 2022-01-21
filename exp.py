@@ -1,5 +1,5 @@
 import files,ens
-from dataclasses import dataclass
+from dataclasses import dataclass,field
 from functools import wraps
 
 @dataclass
@@ -9,7 +9,15 @@ class Line:
     precision:float   
     recall:float 
     f1_score:float
-    info=[] 
+    info:list=field(default_factory=list)
+
+    def to_txt(self):
+        if(len(self.info)==1):
+            pref=self.info[0]
+        else:
+            pref=",".join(self.info)
+        metrics=f"{self.accuracy},{self.precision},{self.recall},{self.f1_score}"
+        return f"{self.desc},{pref},{metrics}" 
 
 class MultiEnsembleExp(object):
     def __init__(self,all_ensembles,threshold=0.05):
