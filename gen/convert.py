@@ -94,7 +94,10 @@ def prune_datasets(in_path,out_path):
             for x in line.split(",")]
               for line in x_file])
     with open(y_path, 'r') as y_file:
-        y=[int(line) for line in y_file]
+        y=np.array([int(line) for line in y_file])
+        min_cat=np.amin(y)
+        if(min_cat<=0):
+            y-=(min_cat-1)
     data_i=feats.from_array(X,y)
     data_i.save(out_path)
     
