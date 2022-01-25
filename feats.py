@@ -1,31 +1,15 @@
 import numpy as np
 import os.path
 from sklearn import preprocessing
-import files
+import files,data_dict
 
-class Feats(dict):
-    def __init__(self, arg=[]):
-        super(Feats, self).__init__(arg)
-
-    def __setitem__(self, key, value):
-        if(type(key)==str):
-            key=files.Name(key)
-        super(Feats, self).__setitem__(key, value)
-
+class Feats(data_dict.DataDict):#dict):
     def dim(self):
         return list(self.values())[0].shape
-
-    def split(self,selector=None):
-        train,test=files.split(self,selector)
-        return Feats(train),Feats(test)
 
     def as_dataset(self):
         names=self.names()
         return self.get_X(names),self.get_labels(names),names
-
-    def names(self):
-        keys=sorted(self.keys(),key=files.natural_keys) 
-        return files.NameList(keys)
     
     def get_X(self,names=None):
         if(names is None):
@@ -46,25 +30,6 @@ class Feats(dict):
             new_feats[name_i]=x_i
         return new_feats
 
-    def rename_cat(self,cat_dict=None):
-        if(cat_dict is None):
-            names=self.names()
-            cat_dict={ j:(i+1) 
-                for i,j in enumerate(names.unique_cats())}
-        name_dict={}
-        for name_i in self.keys():
-            cat_i=name_i.get_cat()
-            new_name_i="_".join(name_i.split("_")[1:])
-            new_name_i=f"{cat_dict[cat_i]}_{new_name_i}"
-            name_dict[name_i]=new_name_i
-        return self.rename(name_dict)
-
-    def rename(self,name_dict):
-        new_feats=Feats()
-        for name_i,name_j in name_dict.items():
-            new_feats[files.Name(name_j)]=self[name_i]
-        return new_feats
-
     def norm(self):
         names=self.names()
         X=np.array([self[name_i] for name_i in names])
@@ -73,6 +38,7 @@ class Feats(dict):
             self[name_i]=new_X[i]
 
     def save(self,out_path,decimals=10):
+ #   np.set_printoptions(threshold=3000)
         lines=[]
         for name_i,x_i in self.items():
             str_i=np.array2string(x_i,separator=",",precision=decimals)
@@ -83,23 +49,8 @@ class Feats(dict):
         with open(out_path,'w') as file_str:
             file_str.write(feat_txt)
 
-    def subset(self,names,new_names=False):
-        sub_dict=Feats()
-        for i,name_i in enumerate( names):
-            value_i=self[name_i]
-            if(new_names):
-                name_i=f'{name_i}_{i}'
-            sub_dict[name_i]=value_i
-        return sub_dict 
-
-    def transform(self,fun,copy=False):
-        new_dict= Feats() if(copy) else self
-        for name_i,data_i in self.items():
-            new_dict[name_i]=fun(data_i)
-        return new_dict
-
     def __str__(self):
-        return "%d,%d"  % (len(self),self.dim()[0])
+        return "feats:%d,%d"  % (len(self),self.dim()[0])
 
 def read(in_path):
     if(type(in_path)==list):
@@ -133,22 +84,28 @@ def read_unified(paths):
 def common_names(names1,names2):
     return list(set(names1).intersection(set(names2)))
 
-def agum_concat(data_a,data_b,selector=None):
-    if(selector is None):
-        selector=files.person_selector
-    if(len(data_a)<len(data_b)):
-        base_data,agum_data=data_a,data_b
-    else:
-        base_data,agum_data=data_b,data_a
-    unified_data=Feats()
-    for name_i,data_i in agum_data.items():
-        if(len(name_i)>4):
-            id_i=name_i.subname(-1)
-        else:
-            id_i=name_i
-        feat_i=np.concatenate( [data_i,base_data[id_i]] )
-        if(selector(name_i)):
-            unified_data[name_i]=feat_i
-        else:
-            unified_data[id_i]=feat_i
-    return unified_data
+def from_array(X,y):
+    dataset=Feats()
+    for i,(x_i,y_i) in enumerate(zip(X,y)):
+        name_i=f"{y_i}_{i%2}_{i}"
+        dataset[name_i]=x_i
+    return dataset
+#def agum_concat(data_a,data_b,selector=None):
+#    if(selector is None):
+#        selector=files.person_selector
+#    if(len(data_a)<len(data_b)):
+#        base_data,agum_data=data_a,data_b
+#    else:
+#        base_data,agum_data=data_b,data_a
+#    unified_data=Feats()
+#    for name_i,data_i in agum_data.items():
+#        if(len(name_i)>4):
+#            id_i=name_i.subname(-1)
+#        else:
+#            id_i=name_i
+#        feat_i=np.concatenate( [data_i,base_data[id_i]] )
+#        if(selector(name_i)):
+#            unified_data[name_i]=feat_i
+#        else:
+#            unified_data[id_i]=feat_i
+#    return unified_data

@@ -95,7 +95,8 @@ def prune_datasets(in_path,out_path):
               for line in x_file])
     with open(y_path, 'r') as y_file:
         y=[int(line) for line in y_file]
-    print(X.shape)
+    data_i=feats.from_array(X,y)
+    data_i.save(out_path)
     
 if __name__ == "__main__":
     prune_datasets("B/raw","B/common")

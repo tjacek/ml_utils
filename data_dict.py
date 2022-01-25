@@ -35,6 +35,25 @@ class DataDict(dict):
             sub_dict[name_i]=value_i
         return sub_dict 
 
+    def rename(self,name_dict):
+        new_feats= self.__class__()#Feats()
+        for name_i,name_j in name_dict.items():
+            new_feats[files.Name(name_j)]=self[name_i]
+        return new_feats
+
+    def rename_cat(self,cat_dict=None):
+        if(cat_dict is None):
+            names=self.names()
+            cat_dict={ j:(i+1) 
+                for i,j in enumerate(names.unique_cats())}
+        name_dict={}
+        for name_i in self.keys():
+            cat_i=name_i.get_cat()
+            new_name_i="_".join(name_i.split("_")[1:])
+            new_name_i=f"{cat_dict[cat_i]}_{new_name_i}"
+            name_dict[name_i]=new_name_i
+        return self.rename(name_dict)
+
 def split(data_dict,selector=None,pairs=True):
     if(not selector):
         selector=person_selector
