@@ -1,3 +1,4 @@
+import numpy as np
 import files,ens
 from dataclasses import dataclass,field
 from functools import wraps
@@ -113,3 +114,18 @@ def read_lines(in_path,as_class=False):
                 line_i=Line(desc,acc,prec,recall,f1_score)
             lines.append(line_i)
     return lines
+
+@files.dir_function(args=1)
+def acc_exp(in_path):
+    print(in_path)
+    results,ensemble=[],ens.EnsembleHelper()
+    for path_i in files.top_files(in_path):
+        paths=(f"{path_i}/common",f"{path_i}/binary")
+        results.append(ensemble(paths)[0])
+    acc=[result_i.get_acc() for result_i in results]
+    acc_mean,acc_std=np.mean(acc),np.std(acc)
+    return in_path.split("/")[-1],(acc_mean,acc_std)
+
+if __name__ == "__main__":
+   pairs=acc_exp("gen/B/ensembles")
+   print(pairs)
