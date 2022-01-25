@@ -77,9 +77,25 @@ def mat_dataset(in_path,out_path):
         dataset[name_i]=x_i
     dataset=dataset.rename_cat()
     names=dataset.names()
+    print(dataset)
     print(names.cats_stats())
     dataset.save(out_path)
     return dataset
 
+@files.dir_function(args=2)
+def prune_datasets(in_path,out_path):
+    print(in_path)
+    print(out_path)
+    name=in_path.split("/")[-1]
+    x_path=f"{in_path}/{name}_py.dat"
+    y_path=f"{in_path}/labels_py.dat"
+    with open(x_path, 'r') as x_file:
+        X=np.array([[ float(x) 
+            for x in line.split(",")]
+              for line in x_file])
+    with open(y_path, 'r') as y_file:
+        y=[int(line) for line in y_file]
+    print(X.shape)
+    
 if __name__ == "__main__":
-    mat_dataset("../../data/raw","../../data/II/common2")
+    prune_datasets("B/raw","B/common")
