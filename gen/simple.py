@@ -7,6 +7,7 @@ from tensorflow.keras.layers import Dense,BatchNormalization
 from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
 from tensorflow.keras import Input, Model
+import random
 import convert,files,feats,learn
 
 class SimpleNN(object):
@@ -58,13 +59,23 @@ def simple_ensemble(dataset,out_path,
 def make_datasets(in_path,out_path,n_epochs=150):
     print(in_path)
     print(out_path)
-    dataset=feats.read(in_path)[0]
     simple_ensemble(dataset,out_path,n_epochs=150)
-#    files.make_dir(out_path)
-#    dataset.save(f'{out_path}/common')
-#    acc=simple_ensemble(dataset,f"{out_path}/binary",n_epochs=n_epochs)
-#    print(acc)
+
+@files.dir_function(args=2)
+def random_ensemble(in_path,out_path,
+        n_epochs=5,n_iters=10):
+    print(in_path)
+    print(out_path)
+    files.make_dir(out_path)
+    for i in range(n_iters):
+        out_i=f"{out_path}/{i}"
+        files.make_dir(out_i)
+        data_i=feats.read(in_path)[0]
+        random_data= data_i.random()
+        random_data.save(f"{out_i}/common")
+        simple_ensemble(random_data,f"{out_i}/binary",
+            n_hidden=30,batch_size=1,n_epochs=n_epochs)
 
 if __name__ == "__main__":
 #    dataset=convert.txt_dataset("penglung/raw.data")
-    make_datasets("../../data/II/common","../../data/II/binary")
+    random_ensemble("B/common","B/ensembles")

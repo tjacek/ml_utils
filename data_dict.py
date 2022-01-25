@@ -54,6 +54,14 @@ class DataDict(dict):
             name_dict[name_i]=new_name_i
         return self.rename(name_dict)
 
+    def random(self):
+        names=self.names()
+        half=int(len(names)/2)
+        rename_dict={
+           name_i:f"{name_i.get_cat()+1}_{int(i<half)}_{i}"
+                for i,name_i in enumerate(names)}
+        return self.rename(rename_dict)
+
 def split(data_dict,selector=None,pairs=True):
     if(not selector):
         selector=person_selector

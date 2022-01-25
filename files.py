@@ -1,5 +1,6 @@
 import os,re#,itertools
 from functools import wraps
+import random
 from collections import defaultdict
 
 class Name(str):
@@ -62,6 +63,10 @@ class NameList(list):
         return NameList([name_i for i,name_i in enumerate(self) 
                            if cond(i,name_i)])
 
+    def shuffle(self):
+        random.shuffle(self)
+        return self
+
 class PathDict(dict):
     def __init__(self, arg=[]):
         super(PathDict, self).__init__(arg)
@@ -85,6 +90,8 @@ class SetSelector(object):
         return name_i in self.train
 
 def get_name(in_path):
+    if(type(in_path)==list):
+        return [path_i.split("/")[-1] for path_i in in_path]
     return Name(in_path.split("/")[-1]).clean()
 
 def natural_sort(l):
@@ -110,12 +117,17 @@ def dir_function(args=2,recreate=True):
         def decor_fun(fun):
             @wraps(fun)
             def dir_decorator(in_path,out_path):
-                make_dir(out_path)
+                if(type(out_path)==str):
+                    make_dir(out_path)
+                else:
+                    for out_i in out_path:
+                        make_dir(out_i)
                 in_iter,out_iter=gen_paths(in_path,out_path)
                 output=[]
                 for in_i,out_i in zip(in_iter,out_iter):
-                    if(recreate or (not os.path.exists(out_i))):
+                    if(recreate or (not path_exist(out_i))):
                         output.append(fun(in_i,out_i))
+                return output
             return dir_decorator          
     else:
         def decor_fun(fun):
@@ -128,17 +140,30 @@ def dir_function(args=2,recreate=True):
 
 def gen_paths(in_path,out_path):
     if(type(in_path)==tuple):
-        common,binary=in_path
-        in_iter=list(zip(top_files(common),top_files(binary)))
-        out_iter=[f"{out_path}/{binary_i.split('/')[-1]}"
-                for i,(common_i,binary_i) in enumerate(in_iter)]
+        common,binary=[top_files(path_i) for path_i in in_path]
+        in_iter=list(zip(common,binary))
+        dir_names=get_name(binary)
+        out_iter=[get_out_paths(out_path,name_i)
+                for name_i in dir_names]
     else:
         in_iter=top_files(in_path)
-        print(in_iter)
-        out_iter=[f"{out_path}/{in_i.split('/')[-1]}" 
-                   for in_i in in_iter]    
+        out_iter=[get_out_paths(out_path,name_i) 
+                   for name_i in get_name(in_iter)]    
     return in_iter,out_iter
 
+def path_exist(out_path):
+    if(isinstance(out_path,str)):
+        return os.path.exists(out_path)
+    else:
+        return any([os.path.exists(out_i) 
+                for out_i in out_path])
+
+def get_out_paths(out_path,name_i):
+    if(isinstance(out_path,str)):
+        return f"{out_path}/{name_i}"
+    else:
+        return [f"{out_i}/{name_i}" 
+                for out_i in out_path]
 #def get_paths(in_path,name="dtw"):
 #    return ["%s/%s" % (path_i,name) 
 #                for path_i in top_files(in_path)]
