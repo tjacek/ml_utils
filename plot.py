@@ -1,27 +1,20 @@
 import os,numpy as np
 import matplotlib.pyplot as plt
 from sklearn import manifold
-import exp,feats,files
+import exp,feats,files,seqs
 
-#def show_all(in_path,out_path):
-#    files.make_dir(out_path)
-#    common,binary=exp.find_path(in_path)
-#    paths=common+binary
-#    for in_i in paths:
-#        print(in_i)
-#        out_i="%s/%s" % (out_path,in_i.split('/')[-2])
-#        make_plot(in_i,out_i)
-
-#def make_plot(in_path,out_path):
-#    if(not os.path.isdir(in_path)):
-#        plot_i=tsne_plot(in_path,show=False)
-#        plot_i.savefig(out_path)
-#    else:
-#        files.make_dir(out_path)
-#        for in_i in files.top_files(in_path):
-#            out_i="%s/%s" % (out_path,in_i.split('/')[-1])
-#            plot_i=tsne_plot(in_i,show=False)
-#            plot_i.savefig(out_i)
+@files.dir_function()
+def make_plots(in_path,out_path):
+    d=seqs.read_data(in_path) #np.loadtxt(in_path,delimiter=',')
+    fig, ax = plt.subplots(figsize=(6, 6))
+    x=np.arange(d.shape[0])
+    for ts_i in d.T:
+        ts_i-=np.mean(ts_i)
+        ts_i/=np.std(ts_i)
+        ax.plot(x, ts_i)
+        print(d.shape[0])
+        print(ts_i.shape)   
+    plt.show()
 
 def tsne_plot(in_path,show=True,color_helper="cat",names=False,data="full"):
     feat_dataset= feats.read(in_path)[0]
@@ -58,6 +51,5 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True,names=None):
         plt.show()
     return plt
 
-in_path="../3DHOI/1D_CNN/feats"
-#in_path="../conv_frames/ae/simple/feats"
-tsne_plot("smooth",data="train")
+in_path="../CZU-MHAD/inert/qyh_a12_t6.mat"
+make_plots("test","test")
