@@ -22,6 +22,7 @@ class SplineUpsampling(object):
             cs=CubicSpline(old_x,feat_i)
             return cs(old_x)
 
+@files.dir_function(args=2,recreate=False)
 @files.dir_function(args=2,recreate=True)
 def upsample(in_path,out_path):
     print(in_path)
@@ -29,5 +30,5 @@ def upsample(in_path,out_path):
     seq_i=SplineUpsampling()(seq_i)
     np.save(out_path,seq_i)
 
-in_path="../CZU-MHAD/inert/qyh_a12_t6.mat"
-upsample(in_path,"test")
+in_path="../CZU-MHAD/inert/"#qyh_a12_t6.mat"
+upsample(in_path,"../CZU-MHAD/spline")

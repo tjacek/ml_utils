@@ -43,6 +43,15 @@ def read_seqs(in_path):
         seqs[name_i]=data_i
     return seqs
 
+def selected_read(in_path,cond=None):
+    helper=lambda x:x.split('/')[-1]==cond
+    paths=[]
+    for path_i in files.top_files(in_path):
+        paths+=[ path_j 
+            for path_j in files.top_files(path_i)
+              if(helper(path_j))]
+    return from_paths(paths)
+
 def from_paths(paths):
     seqs=Seqs()
     for path_i in paths:
@@ -52,15 +61,6 @@ def from_paths(paths):
         name_i=files.Name(name_i).clean()
         seqs[name_i]=data_i
     return seqs
-
-def inter(ts_i,new_size):
-    old_size=ts_i.shape[0]
-    step= new_size/old_size
-    old_x=np.arange(old_size).astype(float)
-    old_x*=step
-    cs=CubicSpline(old_x,ts_i)
-    new_x=np.arange(new_size)
-    return cs(new_x)
 
 def read_data(path_i):
     if(is_npy(path_i)):
