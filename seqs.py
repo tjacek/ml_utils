@@ -43,21 +43,21 @@ def read_seqs(in_path):
         seqs[name_i]=data_i
     return seqs
 
-def selected_read(in_path,cond=None):
+def selected_read(in_path,cond=None,i=1):
     helper=lambda x:x.split('/')[-1]==cond
     paths=[]
     for path_i in files.top_files(in_path):
         paths+=[ path_j 
             for path_j in files.top_files(path_i)
               if(helper(path_j))]
-    return from_paths(paths)
+    return from_paths(paths,i)
 
-def from_paths(paths):
+def from_paths(paths,i=1):
     seqs=Seqs()
     for path_i in paths:
         data_i=read_data(path_i)
         print(data_i.shape)
-        name_i=path_i.split('/')[-1]
+        name_i=path_i.split('/')[-i]
         name_i=files.Name(name_i).clean()
         seqs[name_i]=data_i
     return seqs

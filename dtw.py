@@ -39,16 +39,17 @@ def make_dtw_pairs(ts):
 				for name_i in ts.keys()}
 	return DTWpairs(pairs)
 
-def compute_pairs(in_path,out_path=None):
+def compute_pairs(ts,out_path=None):
 #    if(out_path is None):
 #        out_path=exp.get_out_path(in_path,"pairs")
-    ts=seqs.read_seqs(in_path)
-    raise Exception(ts)
+    if(type(ts)==str):
+         ts=seqs.read_seqs(in_path)
+#    raise Exception(ts)
     pairs=make_pairwise_distance(ts)
     pairs.save(out_path)
-    feat_path=exp.get_out_path(in_path,"dtw")
-    dtw_feats=pairs.as_feats()
-    dtw_feats.save(feat_path)
+#    feat_path=exp.get_out_path(in_path,"dtw")
+#    dtw_feats=pairs.as_feats()
+#    dtw_feats.save(feat_path)
 
 def make_pairwise_distance(ts):
 	dtw_pairs=make_dtw_pairs(ts)
@@ -63,7 +64,6 @@ def make_pairwise_distance(ts):
 			dtw_pairs.set(name_j,name_i,distance_ij)
 	return dtw_pairs
 
-in_path="../CZU-MHAD/spline"
-seq_dict= seqs.selected_read(in_path,"0.npy")
-print(seq_dict.keys())
-#compute_pairs(in_path)
+in_path="../CZU-MHAD/test_spline"
+seq_dict= seqs.selected_read(in_path,"0.npy",2)
+compute_pairs(seq_dict,"dtw_tesr")
