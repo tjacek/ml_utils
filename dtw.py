@@ -1,34 +1,55 @@
 import numpy as np
 import json
 from dtaidistance import dtw, dtw_ndim
-import files,exp,feats,seqs
+import files,exp,feats,seqs,data_dict
 
-class DTWpairs(object):
-    def __init__(self,pairs):
-        self.pairs=pairs
-
-    def keys(self):
-        return self.pairs.keys()
-
+class DTWpairs(data_dict.DataDict):
+    def __init__(self,args=[]):
+        super(DTWpairs, self).__init__(args)
+    
+    def set(self, key1,key2, value):
+        self[key1][key2]=value
+    
     def as_feats(self):
         train,test=self.split()
         def helper(name_i):
-            return [self.pairs[name_i][name_j]
+            return [self[name_i][name_j]
                         for name_j in train]
         dtw_feats=feats.Feats()
         for name_i in self.keys():
             dtw_feats[name_i]=np.array(helper(name_i))
-        return dtw_feats
-
-    def set(self,key1,key2,data_i):
-        self.pairs[key1][key2]=data_i
-	
-    def split(self,selector=None):
-        return files.split(self.pairs,selector,pairs=False)
+        return dtw_feats   
 
     def save(self,out_path):
         with open(out_path, 'w') as outfile:
-            json.dump(self.pairs, outfile)
+            json.dump(self, outfile)
+
+#class DTWpairs(object):
+#    def __init__(self,pairs):
+#        self.pairs=pairs
+
+#    def keys(self):
+#        return self.pairs.keys()
+
+#    def as_feats(self):
+#        train,test=self.split()
+#        def helper(name_i):
+#            return [self.pairs[name_i][name_j]
+#                        for name_j in train]
+#        dtw_feats=feats.Feats()
+#        for name_i in self.keys():
+#            dtw_feats[name_i]=np.array(helper(name_i))
+#        return dtw_feats
+
+#    def set(self,key1,key2,data_i):
+#        self.pairs[key1][key2]=data_i
+	
+#    def split(self,selector=None):
+#        return files.split(self.pairs,selector,pairs=False)
+
+#    def save(self,out_path):
+#        with open(out_path, 'w') as outfile:
+#            json.dump(self.pairs, outfile)
 
 def read(in_path):
     pairs= json.load(open("%s" % in_path))
@@ -64,6 +85,14 @@ def make_pairwise_distance(ts):
 			dtw_pairs.set(name_j,name_i,distance_ij)
 	return dtw_pairs
 
+def test_dtw(in_path):
+    import learn
+    dtw_pairs=read(in_path)
+    dtw_feats=dtw_pairs.as_feats()
+    result=learn.train_model(dtw_feats)
+    result.report()
+
 in_path="../CZU-MHAD/test_spline"
 seq_dict= seqs.selected_read(in_path,"0.npy",2)
 compute_pairs(seq_dict,"dtw_tesr")
+test_dtw("dtw_tesr")
