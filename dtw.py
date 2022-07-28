@@ -39,14 +39,9 @@ def compute_pairs(ts,out_path=None,transform=None):
     if(transform):
         if(transform=='norm'):
             transform=seqs.normalize
-        else:
-            raise Exception("Error")
     ts.transform(transform)
     pairs=make_pairwise_distance(ts)
     pairs.save(out_path)
-#    feat_path=exp.get_out_path(in_path,"dtw")
-#    dtw_feats=pairs.as_feats()
-#    dtw_feats.save(feat_path)
 
 def make_pairwise_distance(ts):
 	dtw_pairs=make_dtw_pairs(ts)
@@ -68,7 +63,12 @@ def test_dtw(in_path):
     result=learn.train_model(dtw_feats)
     result.report()
 
+def exp_dtw(in_path,n=10):
+    files.make_dir("dtw")
+    for i in range(n):
+        seq_dict= seqs.selected_read(in_path,f"{i}.npy",2)
+        compute_pairs(seq_dict,f"dtw/test_{i}",transform='norm')
+        test_dtw(f"dtw/test_{i}")
+
 in_path="../CZU-MHAD/test_spline"
-seq_dict= seqs.selected_read(in_path,"8.npy",2)
-compute_pairs(seq_dict,"dtw_test_8",transform='norm')
-test_dtw("dtw_test_8")
+exp_dtw(in_path)
