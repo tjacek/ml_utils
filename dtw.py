@@ -24,33 +24,6 @@ class DTWpairs(data_dict.DataDict):
         with open(out_path, 'w') as outfile:
             json.dump(self, outfile)
 
-#class DTWpairs(object):
-#    def __init__(self,pairs):
-#        self.pairs=pairs
-
-#    def keys(self):
-#        return self.pairs.keys()
-
-#    def as_feats(self):
-#        train,test=self.split()
-#        def helper(name_i):
-#            return [self.pairs[name_i][name_j]
-#                        for name_j in train]
-#        dtw_feats=feats.Feats()
-#        for name_i in self.keys():
-#            dtw_feats[name_i]=np.array(helper(name_i))
-#        return dtw_feats
-
-#    def set(self,key1,key2,data_i):
-#        self.pairs[key1][key2]=data_i
-	
-#    def split(self,selector=None):
-#        return files.split(self.pairs,selector,pairs=False)
-
-#    def save(self,out_path):
-#        with open(out_path, 'w') as outfile:
-#            json.dump(self.pairs, outfile)
-
 def read(in_path):
     pairs= json.load(open("%s" % in_path))
     return DTWpairs(pairs)
@@ -60,12 +33,15 @@ def make_dtw_pairs(ts):
 				for name_i in ts.keys()}
 	return DTWpairs(pairs)
 
-def compute_pairs(ts,out_path=None):
-#    if(out_path is None):
-#        out_path=exp.get_out_path(in_path,"pairs")
+def compute_pairs(ts,out_path=None,transform=None):
     if(type(ts)==str):
          ts=seqs.read_seqs(in_path)
-#    raise Exception(ts)
+    if(transform):
+        if(transform=='norm'):
+            transform=seqs.normalize
+        else:
+            raise Exception("Error")
+    ts.transform(transform)
     pairs=make_pairwise_distance(ts)
     pairs.save(out_path)
 #    feat_path=exp.get_out_path(in_path,"dtw")
@@ -93,6 +69,6 @@ def test_dtw(in_path):
     result.report()
 
 in_path="../CZU-MHAD/test_spline"
-seq_dict= seqs.selected_read(in_path,"0.npy",2)
-compute_pairs(seq_dict,"dtw_tesr")
-test_dtw("dtw_tesr")
+seq_dict= seqs.selected_read(in_path,"8.npy",2)
+compute_pairs(seq_dict,"dtw_test_8",transform='norm')
+test_dtw("dtw_test_8")

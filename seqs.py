@@ -71,6 +71,12 @@ def read_data(path_i):
 def is_npy(path_i):
     return path_i.split(".")[-1]=="npy"
 
+def normalize(ts):
+    for ts_i in ts.T:
+        ts_i-=np.mean(ts_i)
+        ts_i/=np.std(ts_i)
+    return ts
+
 def transform_lazy(in_path,fun,out_path=None):
     new_feats=feats.Feats()
     for path_i in files.top_files(in_path):

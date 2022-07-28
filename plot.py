@@ -4,17 +4,26 @@ from sklearn import manifold
 import exp,feats,files,seqs
 
 @files.dir_function()
+@files.dir_function()
 def make_plots(in_path,out_path):
-    d=seqs.read_data(in_path) #np.loadtxt(in_path,delimiter=',')
+    d=seqs.read_data(in_path)
     fig, ax = plt.subplots(figsize=(6, 6))
     x=np.arange(d.shape[0])
+    d=normalize(d)
     for ts_i in d.T:
-        ts_i-=np.mean(ts_i)
-        ts_i/=np.std(ts_i)
+#        ts_i-=np.mean(ts_i)
+#        ts_i/=np.std(ts_i)
         ax.plot(x, ts_i)
         print(d.shape[0])
         print(ts_i.shape)   
+    plt.title(out_path.split('/')[-1])
     plt.show()
+
+def normalize(ts):
+    for ts_i in ts.T:
+        ts_i-=np.mean(ts_i)
+        ts_i/=np.std(ts_i)
+    return ts
 
 def tsne_plot(in_path,show=True,color_helper="cat",names=False,data="full"):
     feat_dataset= feats.read(in_path)[0]
@@ -51,5 +60,5 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True,names=None):
         plt.show()
     return plt
 
-in_path="../CZU-MHAD/inert/qyh_a12_t6.mat"
-make_plots("test","test")
+in_path="../CZU-MHAD/test_spline"
+make_plots(in_path,"test")
