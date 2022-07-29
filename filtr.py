@@ -3,25 +3,36 @@ from sklearn.neighbors import KNeighborsClassifier
 from collections import defaultdict
 import feats
 
-def filtr_outlines(in_path,out_path,k=3):
-    raw_feats=feats.read(in_path)[0]
-    train,test=raw_feats.split()
-    errors=get_knn(train,test,k)
-    new_feats=get_maping(train,errors,names)
-    new_feats.append(test)
-    new_feats.save(out_path)
+class Rename(object):
+    def __init__(self,elements,index=0):
+        self.elements=set(elements)
+        self.index=index
 
-def filtr_wrong(in_path,out_path,k=3):
-    raw_feats=feats.read(in_path)[0]
-    train,test=raw_feats.split()
-    errors=get_knn(test,train,k)
-    new_feats=feats.Feats()
-    for name_i,data_i in raw_feats.items():
-        if(not name_i in errors):
-            new_feats[name_i]=data_i
-    new_feats.save(out_path)
-    train,test= new_feats.split()
-    print(len(train))
+    def __call__(self,name_i):
+        digits=name_i.digits()
+        train=(digits[self.index] in self.elements)
+        digits[1]=train
+        return  files.Name("_".join(digits))
+
+#def filtr_outlines(in_path,out_path,k=3):
+#    raw_feats=feats.read(in_path)[0]
+#    train,test=raw_feats.split()
+#    errors=get_knn(train,test,k)
+#    new_feats=get_maping(train,errors,names)
+#    new_feats.append(test)
+#    new_feats.save(out_path)
+
+#def filtr_wrong(in_path,out_path,k=3):
+#    raw_feats=feats.read(in_path)[0]
+#    train,test=raw_feats.split()
+#    errors=get_knn(test,train,k)
+#    new_feats=feats.Feats()
+#    for name_i,data_i in raw_feats.items():
+#        if(not name_i in errors):
+#            new_feats[name_i]=data_i
+#    new_feats.save(out_path)
+#    train,test= new_feats.split()
+#    print(len(train))
 
 def get_maping(old_feats,errors,names):
     good_names=set(names).difference(errors)
@@ -56,11 +67,6 @@ def find_errors(y_true,y_pred,names):
             errors.append(names[i])
     return errors
 
-def by_cat(names):
-    cat_dict=defaultdict(lambda:[])
-    for name_i in names:
-    	cat_dict[name_i.get_cat()].append(name_i)
-    return cat_dict
 
 in_path="../3DHOI/1D_CNN/feats"
 filtr_wrong(in_path,"smooth4")
