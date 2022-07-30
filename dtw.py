@@ -19,6 +19,12 @@ class DTWpairs(data_dict.DataDict):
         for name_i in self.keys():
             dtw_feats[name_i]=np.array(helper(name_i))
         return dtw_feats   
+    
+    def neighbors(self,name_i,k=5):
+        dict_i=self[name_i].items()
+        names,distance=zip(*list(dict_i))
+        indexes= np.argsort(distance)
+        return [names[i] for i in indexes[:k]]
 
     def save(self,out_path):
         with open(out_path, 'w') as outfile:
@@ -70,5 +76,6 @@ def exp_dtw(in_path,n=10):
         compute_pairs(seq_dict,f"dtw/test_{i}",transform='norm')
         test_dtw(f"dtw/test_{i}")
 
-in_path="../CZU-MHAD/test_spline"
-exp_dtw(in_path)
+if __name__ == "__main__":
+    in_path="../CZU-MHAD/test_spline"
+    exp_dtw(in_path)
