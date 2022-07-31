@@ -68,6 +68,7 @@ def test_dtw(in_path):
     dtw_feats=dtw_pairs.as_feats()
     result=learn.train_model(dtw_feats)
     result.report()
+    return result
 
 def exp_dtw(in_path,n=10):
     files.make_dir("dtw")
