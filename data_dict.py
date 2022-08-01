@@ -36,6 +36,9 @@ class DataDict(dict):
         return sub_dict 
 
     def rename(self,name_dict):
+        if(type(name_dict)!=dict):
+            name_dict={name_i:name_dict(name_i)  
+              for name_i in self.keys()}
         new_feats= self.__class__()#Feats()
         for name_i,name_j in name_dict.items():
             new_feats[files.Name(name_j)]=self[name_i]
