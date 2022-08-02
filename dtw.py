@@ -7,11 +7,31 @@ class DTWpairs(data_dict.DataDict):
     def __init__(self,args=[]):
         super(DTWpairs, self).__init__(args)
     
+    def init(self,names):
+        for name_i in names:
+            self[name_i]={name_i:0.0}
+
     def set(self, key1,key2, value):
         self[key1][key2]=value
     
-    def as_feats(self):
-        train,test=self.split()
+    def rename(self,name_dict):
+        if(type(name_dict)!=dict):
+            name_dict={name_i:name_dict(name_i)  
+              for name_i in self.keys()}
+        names=list(name_dict.keys())
+        pairs=DTWpairs()
+        pairs.init(list(name_dict.values()))
+        n_ts=len(names)
+        for i in range(0,n_ts):
+            for j in range(0,n_ts):
+                name_i,name_j=names[i],names[j]
+                new_name_i,new_name_j=name_dict[name_i],name_dict[name_j]
+                pairs[new_name_i][new_name_j]=self[name_i][name_j]
+        return pairs
+
+    def as_feats(self,selector=None):
+        print(self.keys())
+        train,test=self.split(selector)
         def helper(name_i):
             return [self[name_i][name_j]
                         for name_j in train]
@@ -30,8 +50,20 @@ class DTWpairs(data_dict.DataDict):
         with open(out_path, 'w') as outfile:
             json.dump(self, outfile)
 
+    def check(self):
+        names=list(self.keys())
+        for name_i in names:
+            for name_j in names:
+                if(not name_j in self[name_i]):
+                    return False
+        return True
+
 def read(in_path):
     pairs= json.load(open("%s" % in_path))
+    pairs={files.Name(key):
+            { files.Name(key):value 
+                 for key,value in  value.items()}
+        for key,value in  pairs.items()}
     return DTWpairs(pairs)
 
 def make_dtw_pairs(ts):
@@ -64,10 +96,13 @@ def make_pairwise_distance(ts):
 
 def test_dtw(in_path):
     import learn
-    dtw_pairs=read(in_path)
+    if(isinstance(in_path,str)):
+        dtw_pairs=read(in_path)
+    else:
+        dtw_pairs=in_path
     dtw_feats=dtw_pairs.as_feats()
     result=learn.train_model(dtw_feats)
-    result.report()
+#    result.report()
     return result
 
 def exp_dtw(in_path,n=10):

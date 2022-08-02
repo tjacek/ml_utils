@@ -10,7 +10,6 @@ class Rename(object):
 
     def __call__(self,name_i):
         digits=name_i.split('_')#digits()
-#        print(digits[self.index])
         train=(digits[self.index] in self.elements)
         digits[1]=str(int(train))
         return files.Name("_".join(digits))
@@ -37,14 +36,19 @@ def get_knn(train,k=5):
 def exp(in_path):
     raw_feats=dtw.read(in_path) 
     print(raw_feats.keys())
-    splits=[Rename([1,2],3),
-            Rename([1,2,5],3),
-            Rename([1,2,3,5],3),]
+    splits=[Rename(['1','2'],3),
+            Rename(['1','2','5'],3),
+            Rename(['1','2','3','5'],3)]
     for split_i in splits:
+        raw_feats.check()
         data_i=raw_feats.rename(split_i)
-        train,test=data_i.split()
-        print(len(train))
-        print(len(test))
+        data_i.check()
+        result_i=dtw.test_dtw(data_i)
+        print(result_i.get_acc())
+
+#        train,test=data_i.split()
+#        print(len(train))
+#        print(len(test))
 
 if __name__ == "__main__":
     in_path="dtw/test_0"
