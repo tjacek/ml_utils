@@ -33,23 +33,26 @@ def get_knn(train,k=5):
             inliners.append(name_i)
     return inliners
 
+@files.dir_function(args=1,with_path=True)
 def exp(in_path):
     raw_feats=dtw.read(in_path) 
-    print(raw_feats.keys())
     splits=[Rename(['1','2'],3),
             Rename(['1','2','5'],3),
             Rename(['1','2','3','5'],3)]
-    for split_i in splits:
+    results_dict={}
+    for i,split_i in enumerate(splits):
         raw_feats.check()
         data_i=raw_feats.rename(split_i)
         data_i.check()
         result_i=dtw.test_dtw(data_i)
-        print(result_i.get_acc())
+        results_dict[i]=result_i
+    return results_dict
 
-#        train,test=data_i.split()
-#        print(len(train))
-#        print(len(test))
 
 if __name__ == "__main__":
-    in_path="dtw/test_0"
-    exp(in_path)#,"smooth4")
+    in_path="dtw"
+    results=exp(in_path)
+    print(results)
+#    for name_i,result_i in results.items():
+#        for result_j in result_i:#.values():
+#            print(result_j.get_acc())

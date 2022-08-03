@@ -11,7 +11,7 @@ class Name(str):
         return len(self.split('_'))
 
     def clean(self):
-        digits=[ str(int(digit_i)) 
+        digits=[str(int(digit_i)) 
                 for digit_i in re.findall(r'\d+',self)]
         return Name("_".join(digits))
 
@@ -112,7 +112,7 @@ def top_files(path):
     paths=sorted(paths,key=natural_keys)
     return paths
 
-def dir_function(args=2,recreate=True):
+def dir_function(args=2,recreate=True,with_path=False):
     if(args==2):
         def decor_fun(fun):
             @wraps(fun)
@@ -126,15 +126,22 @@ def dir_function(args=2,recreate=True):
                 output=[]
                 for in_i,out_i in zip(in_iter,out_iter):
                     if(recreate or (not path_exist(out_i))):
-                        output.append(fun(in_i,out_i))
-                return output
+                        output.append( fun(in_i,out_i))
+                if(with_path):
+                    return (in_path,output)
+                else:
+                    return output
             return dir_decorator          
     else:
         def decor_fun(fun):
             @wraps(fun)
             def dir_decorator(in_path):
-                return [fun(path_i) 
-                    for path_i in top_files(in_path)]
+                if(with_path):
+                    return [(path_i,fun(path_i)) 
+                        for path_i in top_files(in_path)]                
+                else:
+                    return [fun(path_i) 
+                        for path_i in top_files(in_path)]
             return dir_decorator            
     return decor_fun
 
