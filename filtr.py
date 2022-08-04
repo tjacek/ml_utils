@@ -51,8 +51,6 @@ def exp(in_path):
 
 if __name__ == "__main__":
     in_path="dtw"
-    results=exp(in_path)
-    print(results)
-#    for name_i,result_i in results.items():
-#        for result_j in result_i:#.values():
-#            print(result_j.get_acc())
+    results=dict(exp(in_path))
+#    print(results)
+    files.show_dict(results,fun=lambda x:x.get_acc())

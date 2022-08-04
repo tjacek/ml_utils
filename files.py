@@ -145,18 +145,18 @@ def dir_function(args=2,recreate=True,with_path=False):
             return dir_decorator            
     return decor_fun
 
-def gen_paths(in_path,out_path):
-    if(type(in_path)==tuple):
-        common,binary=[top_files(path_i) for path_i in in_path]
-        in_iter=list(zip(common,binary))
-        dir_names=get_name(binary)
-        out_iter=[get_out_paths(out_path,name_i)
-                for name_i in dir_names]
-    else:
-        in_iter=top_files(in_path)
-        out_iter=[get_out_paths(out_path,name_i) 
-                   for name_i in get_name(in_iter)]    
-    return in_iter,out_iter
+#def gen_paths(in_path,out_path):
+#    if(type(in_path)==tuple):
+#        common,binary=[top_files(path_i) for path_i in in_path]
+#        in_iter=list(zip(common,binary))
+#        dir_names=get_name(binary)
+#        out_iter=[get_out_paths(out_path,name_i)
+#                for name_i in dir_names]
+#    else:
+#        in_iter=top_files(in_path)
+#        out_iter=[get_out_paths(out_path,name_i) 
+#                   for name_i in get_name(in_iter)]    
+#    return in_iter,out_iter
 
 def path_exist(out_path):
     if(isinstance(out_path,str)):
@@ -171,9 +171,6 @@ def get_out_paths(out_path,name_i):
     else:
         return [f"{out_i}/{name_i}" 
                 for out_i in out_path]
-#def get_paths(in_path,name="dtw"):
-#    return ["%s/%s" % (path_i,name) 
-#                for path_i in top_files(in_path)]
 
 def save_txt(out_path,text):
     if(type(text)==list):
@@ -187,3 +184,11 @@ def save(out_path,obj):
     with open(out_path,"wb") as out_file:   
         pickle.dump(obj,out_file) 
         out_file.close()
+
+def show_dict(data_dict,fun):
+    for name_i,result_i in data_dict.items():
+        if(type(result_i)==dict):
+            print(name_i)
+            show_dict(result_i,fun)
+        else:
+            print(f"{name_i}:{fun(result_i)}")
