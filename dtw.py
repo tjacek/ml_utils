@@ -30,7 +30,6 @@ class DTWpairs(data_dict.DataDict):
         return pairs
 
     def as_feats(self,selector=None):
-        print(self.keys())
         train,test=self.split(selector)
         def helper(name_i):
             return [self[name_i][name_j]
@@ -107,6 +106,7 @@ def test_dtw(in_path):
 
 def exp_dtw(in_path,n=10):
     files.make_dir("dtw")
+    
     for i in range(n):
         seq_dict= seqs.selected_read(in_path,f"{i}.npy",2)
         compute_pairs(seq_dict,f"dtw/test_{i}",transform='norm')

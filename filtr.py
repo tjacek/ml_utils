@@ -10,7 +10,7 @@ class Rename(object):
 
     def __call__(self,name_i):
         digits=name_i.split('_')#digits()
-        train=(digits[self.index] in self.elements)
+        train= not (digits[self.index] in self.elements)
         digits[1]=str(int(train))
         return files.Name("_".join(digits))
 
@@ -41,9 +41,9 @@ def exp(in_path):
             Rename(['1','2','3','5'],3)]
     results_dict={}
     for i,split_i in enumerate(splits):
-        raw_feats.check()
+#        raw_feats.check()
         data_i=raw_feats.rename(split_i)
-        data_i.check()
+#        data_i.check()
         result_i=dtw.test_dtw(data_i)
         results_dict[i]=result_i
     return results_dict
