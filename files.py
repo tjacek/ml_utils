@@ -67,27 +67,13 @@ class NameList(list):
         random.shuffle(self)
         return self
 
-class PathDict(dict):
-    def __init__(self, arg=[]):
-        super(PathDict, self).__init__(arg)
 
-    def split(self,selector=None):
-        train,test=split(self,selector)
-        return PathDict(train),PathDict(test)    
+#class SetSelector(object):
+#    def __init__(self,names):
+#        self.train=set(names)
 
-def get_path_dict(in_path):
-    paths={}
-    for path_i in top_files(in_path):
-        name_i=get_name(path_i)
-        paths[name_i]=top_files(path_i)
-    return PathDict(paths)
-
-class SetSelector(object):
-    def __init__(self,names):
-        self.train=set(names)
-
-    def __call__(self,name_i):
-        return name_i in self.train
+#    def __call__(self,name_i):
+#        return name_i in self.train
 
 def get_name(in_path):
     if(type(in_path)==list):
@@ -144,19 +130,6 @@ def dir_function(args=2,recreate=True,with_path=False):
                         for path_i in top_files(in_path)]
             return dir_decorator            
     return decor_fun
-
-#def gen_paths(in_path,out_path):
-#    if(type(in_path)==tuple):
-#        common,binary=[top_files(path_i) for path_i in in_path]
-#        in_iter=list(zip(common,binary))
-#        dir_names=get_name(binary)
-#        out_iter=[get_out_paths(out_path,name_i)
-#                for name_i in dir_names]
-#    else:
-#        in_iter=top_files(in_path)
-#        out_iter=[get_out_paths(out_path,name_i) 
-#                   for name_i in get_name(in_iter)]    
-#    return in_iter,out_iter
 
 def path_exist(out_path):
     if(isinstance(out_path,str)):
