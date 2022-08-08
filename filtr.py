@@ -13,15 +13,23 @@ class AllResults(object):
             return range(len(self.keys))
         return [i for i,key_i in enumerate(self.keys)
                     if(key_i[k]==value)]
-
+    
     def add(self,key_i,result_i):
         self.keys.append(key_i)
         self.results.append(result_i)
 
+    def to_lines(self,indexes,fun):
+        lines=[]
+        for i in indexes:
+            out_i=fun(self.results[i])
+            key_i="_".join([ str(key_i) 
+                for key_i in self.keys[i]])
+            lines.append(f"{key_i},{out_i}")
+        return lines
+
 def make_all_results(raw):
     all_results=AllResults()
     for path_i,output in raw:
-#        print(output)
         for  key_j,result_j in zip(*output):
             all_results.add(key_j,result_j)
     return all_results
@@ -68,14 +76,12 @@ def exp(in_path):
         result_i=dtw.test_dtw(data_i)
         keys.append([in_path,i])
         results.append(result_i)
-#        all_results.add([in_path,] ,result_i)
-#        results_dict[i]=result_i
     return (keys,results)
 
 
 if __name__ == "__main__":
     in_path="dtw"
     results=make_all_results(exp(in_path))
-#    print(results.keys)
-    print(results.filtr(value=0,k=1))
-#    files.show_dict(results,fun=lambda x:x.metrics())
+    indexes = results.filtr(value=None,k=1)
+    lines=results.to_lines(indexes,fun=lambda x:x.metrics())
+    print(lines)
