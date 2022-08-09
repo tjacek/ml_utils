@@ -21,11 +21,13 @@ class AllResults(object):
     def to_lines(self,indexes,fun):
         lines=[]
         for i in indexes:
-            out_i=fun(self.results[i])
-            key_i="_".join([ str(key_i) 
-                for key_i in self.keys[i]])
+            out_i=get_line(fun(self.results[i]))
+            key_i=get_line(self.keys[i])
             lines.append(f"{key_i},{out_i}")
         return lines
+
+def get_line(raw):
+    return ",".join([str(raw_i) for raw_i in raw])
 
 def make_all_results(raw):
     all_results=AllResults()
@@ -39,10 +41,23 @@ class Rename(object):
         self.elements=set(elements)
         self.index=index
 
-    def __call__(self,name_i):
+    def __call__(self,name_i,i=None):
         digits=name_i.split('_')#digits()
         train= (digits[self.index] in self.elements)
         digits[1]=str(int(train))
+        return files.Name("_".join(digits))
+
+class Subsample(object):
+    def __init__(self,k,n):
+        self.k=k
+        self.n=n
+        self.i=0
+
+    def __call__(self,name_i):
+        digits=name_i.split('_')
+        train= ((self.i % self.n)==self.k)
+        digits[1]=stt(int(train))
+        self.i+=1
         return files.Name("_".join(digits))
 
 def filtr_outlines(in_path,out_path,k=5):
@@ -83,5 +98,5 @@ if __name__ == "__main__":
     in_path="dtw"
     results=make_all_results(exp(in_path))
     indexes = results.filtr(value=None,k=1)
-    lines=results.to_lines(indexes,fun=lambda x:x.metrics())
+    lines=results.to_lines(indexes,fun=lambda x:x.metrics()[:-1])
     print(lines)
