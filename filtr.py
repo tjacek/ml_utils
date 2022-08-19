@@ -27,7 +27,12 @@ class AllResults(object):
         return lines
 
 def get_line(raw):
-    return ",".join([str(raw_i) for raw_i in raw])
+    return ",".join([ round(raw_i) for raw_i in raw])
+
+def round(raw,digits=4):
+    if(type(raw)==int):
+        return f'{raw}'
+    return  f"{raw:0.4f}" if type(raw)!=str else raw
 
 def make_all_results(raw):
     all_results=AllResults()
