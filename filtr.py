@@ -34,6 +34,9 @@ def round(raw,digits=4):
         return f'{raw}'
     return  f"{raw:0.4f}" if type(raw)!=str else raw
 
+def to_csv(lines):
+    return "\n".join(lines)
+
 def make_all_results(raw):
     all_results=AllResults()
     for path_i,output in raw:
@@ -104,4 +107,4 @@ if __name__ == "__main__":
     results=make_all_results(exp(in_path))
     indexes = results.filtr(value=None,k=1)
     lines=results.to_lines(indexes,fun=lambda x:x.metrics()[:-1])
-    print(lines)
+    print(to_csv(lines))
