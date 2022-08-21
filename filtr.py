@@ -64,7 +64,7 @@ class Subsample(object):
     def __call__(self,name_i):
         digits=name_i.split('_')
         train= ((self.i % self.n)==self.k)
-        digits[1]=stt(int(train))
+        digits[1]=str(int(train))
         self.i+=1
         return files.Name("_".join(digits))
 
@@ -90,7 +90,12 @@ def get_knn(train,k=5):
 @files.dir_function(args=1,with_path=True)
 def exp(in_path):
     raw_feats=dtw.read(in_path) 
-    splits=[Rename(['1','2'],3),
+    splits=[
+            Subsample(3,8),
+            Subsample(4,8),
+            Subsample(5,8),
+            Subsample(6,8),
+            Rename(['1','2'],3),
             Rename(['1','2','5'],3),
             Rename(['1','2','3','5'],3)]
     keys,results=[],[]#AllResults()
