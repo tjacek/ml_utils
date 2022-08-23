@@ -2,6 +2,7 @@ import numpy as np
 import files,ens
 from dataclasses import dataclass,field
 from functools import wraps
+import re
 import pandas as pd
 
 @dataclass
@@ -54,46 +55,15 @@ def order_lines(in_path,out_path=None,col='Split'):
         df.to_csv(out_path)
     else:
         print(df)
-#    for line_i in lines:
 
-#class MultiEnsembleExp(object):
-#    def __init__(self,all_ensembles,threshold=0.05):
-#        self.all_ensembles=all_ensembles
-#        self.threshold=threshold
-
-#    def __call__(self,input_dict,out_path=None):
-#        lines=[]
-#        for desc_i,ensemble_i in self.all_ensembles.items():
-#            result_i,votes_i=ensemble_i(input_dict)
-#            if(type(votes_i)==ens.Votes):
-#                n_clf=len(votes_i)
-#            elif(type(votes_i)==int):
-#                n_clf=votes_i
-#            else:
-#                n_clf=votes_i[votes_i>self.threshold].shape[0] 
-#            line_i="%s,%d,%s" % (desc_i,n_clf,get_metrics(result_i))
-#            lines.append(line_i)
-#        save_lines(lines,out_path)
-#        return lines
-
-#class EnsembleExp(object):
-#    def __init__(self,ensemble=None,gen=None):
-#        if(ensemble is None):
-#            ensemble=ens.Ensemble()
-#        if(gen is None):
-#            gen=simple_gen
-#        self.ensemble=ensemble
-#        self.gen=gen
-        
-#    def __call__(self,input_dict,out_path=None):
-#        lines=[]
-#        for desc_i,path_i in self.gen(input_dict):
-#            print(path_i)
-#            result_i=self.ensemble(path_i)[0]
-#            line_i="%s,%s" % (desc_i,get_metrics(result_i))
-#            lines.append(line_i)
-#        save_lines(lines,out_path)
-#        return lines
+def transform_cols(in_path,out_path=None):
+    df=pd.read_csv(in_path)
+    get_digit=lambda text:re.sub(r'[^\d+]','',text)
+    df['Features']=df['Features'].map(get_digit)
+    if(out_path):
+        df.to_csv(out_path)
+    else:
+        print(df)
 
 def save_results(fun):
     @wraps(fun)
@@ -121,5 +91,5 @@ def acc_exp(in_path):
 
 if __name__ == "__main__":
 #    lines= read_lines("inert.csv")
-#    print(lines)
-    order_lines("inert.csv","inert2.csv",col=['Split','Accuracy'])
+#    order_lines("inert.csv","inert2.csv",col=['Split','Features'])
+    transform_cols("inert2.csv",out_path="inert3.csv")
