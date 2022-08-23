@@ -21,7 +21,7 @@ class AllResults(object):
     def to_lines(self,indexes,fun):
         lines=[]
         for i in indexes:
-            out_i=get_line(fun(self.results[i]))
+            out_i=fun(self.results[i]) #get_line(fun(self.results[i]))
             key_i=get_line(self.keys[i])
             lines.append(f"{key_i},{out_i}")
         return lines
@@ -34,8 +34,8 @@ def round(raw,digits=4):
         return f'{raw}'
     return  f"{raw:0.4f}" if type(raw)!=str else raw
 
-def to_csv(lines):
-    return "\n".join(lines)
+#def to_csv(lines):
+#    return "\n".join(lines)
 
 def make_all_results(raw):
     all_results=AllResults()
@@ -88,28 +88,29 @@ def get_knn(train,k=5):
     return inliners
 
 @files.dir_function(args=1,with_path=True)
-def exp(in_path):
+def split_exp(in_path):
     raw_feats=dtw.read(in_path) 
-    splits=[
-            Subsample(3,8),
-            Subsample(4,8),
-            Subsample(5,8),
-            Subsample(6,8),
-            Rename(['1','2'],3),
-            Rename(['1','2','5'],3),
-            Rename(['1','2','3','5'],3)]
+    splits={'T1':Subsample(3,8),
+            'T2':Subsample(4,8),
+            'T3':Subsample(5,8),
+            'T4':Subsample(6,8),
+            'T5':Rename(['1','2'],3),
+            'T6':Rename(['1','2','5'],3),
+            'T7':Rename(['1','2','3','5'],3)}
     keys,results=[],[]#AllResults()
-    for i,split_i in enumerate(splits):
+    for name_i,split_i in splits.items():
         data_i=raw_feats.rename(split_i)
         result_i=dtw.test_dtw(data_i)
-        keys.append([in_path,i])
+        keys.append([in_path,name_i])
         results.append(result_i)
     return (keys,results)
 
 
 if __name__ == "__main__":
+    import exp
     in_path="dtw"
-    results=make_all_results(exp(in_path))
+    results=make_all_results(split_exp(in_path))
     indexes = results.filtr(value=None,k=1)
-    lines=results.to_lines(indexes,fun=lambda x:x.metrics()[:-1])
-    print(to_csv(lines))
+    lines=results.to_lines(indexes,fun=exp.get_metrics)
+    exp.save_lines(lines,"inert.csv")
+#    print(to_csv(lines))
