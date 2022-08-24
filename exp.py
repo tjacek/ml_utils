@@ -22,6 +22,20 @@ class Line:
         metrics=f"{self.accuracy},{self.precision},{self.recall},{self.f1_score}"
         return f"{self.desc},{pref},{metrics}" 
 
+def to_csv(fun):
+    @wraps(fun)
+    def helper(in_path,out_path=None,info=None):
+        df=pd.read_csv(in_path)
+        df=fun(df,info)
+        if(out_path):
+            if(type(df)==list):
+                save_lines(df,out_path)
+            else:
+                df.to_csv(out_path)
+        else:
+            print(df)
+    return helper
+
 def save_lines(lines,out_path):
     print(lines)
     if(out_path):
@@ -47,23 +61,32 @@ def get_metrics(result_i):
     metrics="%.4f,%.4f,%.4f" % result_i.metrics()[:3]
     return "%.4f,%s" % (acc_i,metrics)
 
-def order_lines(in_path,out_path=None,col='Split'):
-    df=pd.read_csv(in_path)
+@to_csv
+def order_lines(df,col='Split'):
     df.sort_values(by=col,inplace=True)
     df = df.reset_index(drop=True)
-    if(out_path):
-        df.to_csv(out_path)
-    else:
-        print(df)
+    return df
 
-def transform_cols(in_path,out_path=None):
-    df=pd.read_csv(in_path)
+@to_csv
+def transform_cols(df,info):
     get_digit=lambda text:re.sub(r'[^\d+]','',text)
     df['Features']=df['Features'].map(get_digit)
-    if(out_path):
-        df.to_csv(out_path)
-    else:
-        print(df)
+    return df
+
+@to_csv
+def square(df,info):
+    splits= df['Split'].unique()
+    feats= df['Features'].unique()
+    lines=[ ','.join(['dataset']+splits)]
+    for feat_i in feats:
+        line_i=[feat_i]
+        df_i=df[df['Features']==feat_i]
+        for split_j in splits:
+            acc=df_i[ df_i['Split']==split_j]['Accuracy']
+            line_i.append(str(float(acc)))
+        lines.append(','.join(line_i))
+    print(lines)
+    return lines
 
 def save_results(fun):
     @wraps(fun)
@@ -92,4 +115,4 @@ def acc_exp(in_path):
 if __name__ == "__main__":
 #    lines= read_lines("inert.csv")
 #    order_lines("inert.csv","inert2.csv",col=['Split','Features'])
-    transform_cols("inert2.csv",out_path="inert3.csv")
+    square("inert2.csv",out_path='square.csv')#"inert3.csv")
